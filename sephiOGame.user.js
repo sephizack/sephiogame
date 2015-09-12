@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       SephiOGame
 // @namespace  http://www.sephiogame.com
-// @version    3.6.0
+// @version    3.6.1
 // @description  Script Ogame
 // @author  Sephizack
 // @include      *ogame.gameforge.com*
@@ -13,9 +13,14 @@
 // @require        http://www.sephiogame.com/script/FileSaver.js
 // ==/UserScript==
 
+//History Version
+//3.6.0: Sephizack- Initial version [PROD]
+//3.6.1: Imp2Toulouse- Add capability to set the leave slot
+//       Imp2Toulouse- Bugs/malwritten correction
+
 antiBugTimeout = setTimeout(function() {location.href=location.href;}, 5*60*1000);
 
-cur_version = '3.6.0';
+cur_version = '3.6.1';
 univers = window.location.href.split('/')[2];
 
 // Multi langues
@@ -398,7 +403,8 @@ function load_important_vars_in_cloud() {
 
 function get_prev_data(name,id) {
     d= importvars["listPrev"][id][cookies_list.indexOf(name)];
-    if (d=='undifinied') return null;
+    //Imp2Toulouse: Correction between undifinied par undefinied (why do not use 'undefined' ?)
+    if (d=='undefinied') return null;
     else return d;
 }
 
@@ -916,7 +922,9 @@ function getServerLastVer() {
                 last_ver = rep.replace('OK:','');
                 createCookie('lastServVer', last_ver, 1, 'all');
             }
-            document.geElementById('servQuestion').src = "";
+            //Imp2Toulouse: Malwritten correction
+            //document.geElementById('servQuestion').src = "";
+            document.getElementById('servQuestion').src = "";
         }
     },500);      
 }
@@ -1887,8 +1895,14 @@ if (gup('page') == "overview") {id_prev="detailWrapper";}
 new_prog_time = 0;
 function countdownAA() {
     t=parseInt(readCookie('progTime','AA')) - time();
-    if (t>0) {document.getElementById('countdonwAA').innerHTML = get_cool_time(t/1000);setTimeout(countdownAA,1000);}
-    else setTimeout(startAA, 2000);
+    //Imp2Toulouse
+    //Add condition to avoid error when countdownAA is null
+    if (document.getElementById('countdownAA') !== null) {
+        if (t>0) {document.getElementById('countdownAA').innerHTML = get_cool_time(t/1000);setTimeout(countdownAA,1000);}
+        else setTimeout(startAA, 2000);
+    }
+    //    if (t>0) {document.getElementById('countdownAA').innerHTML = get_cool_time(t/1000);setTimeout(countdownAA,1000);}
+    //    else setTimeout(startAA, 2000);
 }
 function startAA() {
     if (document.body.innerHTML.match('<div id="attack_alert" style="visibility:visible;">')) return;
@@ -1918,7 +1932,9 @@ if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page')
             repeat_text = ' <span style="color:#761B68">(Répéter toutes les '+get_cool_time(time_repeat/1000).replace('.00','')+')</span>';
         }
         data += "\n"+'<div style="height:0px;position:relative;top:'+(27*(count_progs-1))+'px;"><div id="AA_bandeau" style="cursor:default;word-wrap: normal;height:20px;font: 700 12px Verdana,Arial,Helvetica,sans-serif;position:relative;left:-8px;padding-top:7px;background: url(http://gf1.geo.gfsrv.net/cdn63/10e31cd5234445e4084558ea3506ea.gif) no-repeat;background-position:0px -1px;width:640px;margin-bottom:0px;color:#A52592;padding-left:40px;font-weight:normal;">';
-        data += '<p style="width:600px;height:20px;white-space: nowrap">Auto-Attaque <b>prévue dans <span id="countdonwAA">'+get_cool_time(time_restant/1000)+'</span></b>'+repeat_text;
+        //Imp2Toulouse: MalWritten correction
+        //data += '<p style="width:600px;height:20px;white-space: nowrap">Auto-Attaque <b>prévue dans <span id="countdonwAA">'+get_cool_time(time_restant/1000)+'</span></b>'+repeat_text;
+        data += '<p style="width:600px;height:20px;white-space: nowrap">Auto-Attaque <b>prévue dans <span id="countdownAA">'+get_cool_time(time_restant/1000)+'</span></b>'+repeat_text;
         data += "\n"+'<div id="del_button_AA" style="height:0px;position:relative;left:578px;top:-20px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/newsletter-close-button.png" title="Annuler l\'auto attaque" onclick="localStorage.setItem(\''+cur_planet+'_AA_isProg\', \'non\');window.location.href=window.location.href.replace(\'startAA=1\',\'\');"/></div>';
         data += "\n"+'<div id="retrad_AA_button" style="height:0px;position:relative;left:555px;top:-21px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/IconeChrono2.png" title="Retarder l\'auto attaque de 15 minutes"/></div>';
         data += "\n"+'<div id="launch_AA_button" style="height:0px;position:relative;left:530px;top:-20px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/icon_launch.png" title="Démarrer l\'auto attaque maintenant"/></div>';
@@ -1933,7 +1949,9 @@ if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page')
 
 function countdownRetour() {
     t=retour_time - time() + parseInt(readCookie('ejection_time', 'eject'));
-    if (t>0) {document.getElementById('countdonwRetour').innerHTML = get_cool_time(t/1000);setTimeout(countdownRetour,1000);}
+    //Imp2Toulouse malwritten correction countdonwRetour by countdownRetour
+    //if (t>0) {document.getElementById('countdonwRetour').innerHTML = get_cool_time(t/1000);setTimeout(countdownRetour,1000);}
+    if (t>0) {document.getElementById('countdownRetour').innerHTML = get_cool_time(t/1000);setTimeout(countdownRetour,1000);}
     else setTimeout(function(){window.location.href = 'http://'+univers+'/game/index.php?page=movement';}, 2000);
 }
 /* Affiche du retour d'ejection */
@@ -1944,7 +1962,9 @@ if (readCookie('retour_auto', 'eject') == 'oui') {
         count_progs++;
         decal_special++;
         data += "\n"+'<div style="height:0px;position:relative;top:'+(27*(count_progs-1))+'px;"><div style="cursor:default;word-wrap: normal;height:20px;font: 700 12px Verdana,Arial,Helvetica,sans-serif;position:relative;left:-8px;padding-top:7px;background: url(http://gf1.geo.gfsrv.net/cdn63/10e31cd5234445e4084558ea3506ea.gif) no-repeat;background-position:0px -1px;width:640px;margin-bottom:0px;color:#A0A0A0;padding-left:40px;font-weight:normal;">';
-        data += '<p style="width:600px;height:20px;white-space: nowrap"><b>Demande du retour de la flotte ejectée dans <span id="countdonwRetour">'+get_cool_time((retour_time - time() + parseInt(readCookie('ejection_time', 'eject')))/1000)+'</span></b></p>';
+        //Imp2Toulouse malwritten correction countdonwRetour by countdownRetour
+        //data += '<p style="width:600px;height:20px;white-space: nowrap"><b>Demande du retour de la flotte ejectée dans <span id="countdonwRetour">'+get_cool_time((retour_time - time() + parseInt(readCookie('ejection_time', 'eject')))/1000)+'</span></b></p>';
+        data += '<p style="width:600px;height:20px;white-space: nowrap"><b>Demande du retour de la flotte ejectée dans <span id="countdownRetour">'+get_cool_time((retour_time - time() + parseInt(readCookie('ejection_time', 'eject')))/1000)+'</span></b></p>';
         data += "\n"+'<div id="del_button_retour" style="height:0px;position:relative;left:578px;top:-20px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/newsletter-close-button.png" title="Annuler le retour de la flotte ejectée" onclick="localStorage.setItem(\''+cur_planet+'_eject_retour_auto\', \'non\');window.location.href=window.location.href;"/></div>';
         data += "\n"+'</div>';
         data += "\n"+'</div>';
@@ -1962,10 +1982,11 @@ if ((gup('page') == "resources" && !cur_planetIsLune) || (gup('page') == "statio
     lvlMineCris = 10;
     lvlSolar = 10;
     lvlBaseLunaire = 10;
-    if (!cur_planetIsLune && document.getElementById("button1").innerHTML.split('<span class="level">')[1].split('</span>').length >= 4) lvlMineMetal = parseInt(document.getElementById("button1").innerHTML.split('<span class="level">')[1].split('</span>')[1].match(/\d/g).join(""));
-    if (!cur_planetIsLune && document.getElementById("button2").innerHTML.split('<span class="level">')[1].split('</span>').length >= 4) lvlMineCris = parseInt(document.getElementById("button2").innerHTML.split('<span class="level">')[1].split('</span>')[1].match(/\d/g).join(""));
-    if (!cur_planetIsLune && document.getElementById("button4").innerHTML.split('<span class="level">')[1].split('</span>').length >= 4) lvlSolar = parseInt(document.getElementById("button4").innerHTML.split('<span class="level">')[1].split('</span>')[1].match(/\d/g).join(""));
-    if (cur_planetIsLune && document.getElementById("button2").innerHTML.split('<span class="level">')[1].split('</span>').length >= 4) lvlBaseLunaire = parseInt(document.getElementById("button2").innerHTML.split('<span class="level">')[1].split('</span>')[1].match(/\d/g).join(""));
+  
+    if (!cur_planetIsLune && document.getElementById("button1").innerHTML.split('<span class="level" style="font-size: 9px;">')[1].split('</span>').length >= 4) lvlMineMetal = parseInt(document.getElementById("button1").innerHTML.split('<span class="level" style="font-size: 9px;">')[1].split('</span>')[1].match(/\d/g).join(""));
+    if (!cur_planetIsLune && document.getElementById("button2").innerHTML.split('<span class="level" style="font-size: 9px;">')[1].split('</span>').length >= 4) lvlMineCris = parseInt(document.getElementById("button2").innerHTML.split('<span class="level" style="font-size: 9px;">')[1].split('</span>')[1].match(/\d/g).join(""));
+    if (!cur_planetIsLune && document.getElementById("button4").innerHTML.split('<span class="level" style="font-size: 9px;">')[1].split('</span>').length >= 4) lvlSolar = parseInt(document.getElementById("button4").innerHTML.split('<span class="level" style="font-size: 9px;">')[1].split('</span>')[1].match(/\d/g).join(""));
+    if (cur_planetIsLune  && document.getElementById("button2").innerHTML.split('<span class="level" style="font-size: 9px;">')[1].split('</span>').length >= 4) lvlBaseLunaire = parseInt(document.getElementById("button2").innerHTML.split('<span class="level" style="font-size: 9px;">')[1].split('</span>')[1].match(/\d/g).join(""));
     
     if (importvars["listPrev"].length == 0 && ( (!cur_planetIsLune && lvlMineMetal <= 1 && lvlMineCris <= 1 && lvlSolar <= 1) || (cur_planetIsLune && lvlBaseLunaire==0))){
         blit_message_time("<b>Pack de démarrage rapide</b> disponible pour votre nouvelle "+(cur_planetIsLune ? 'lune' : 'planète')+" !", 60000);
@@ -2388,13 +2409,18 @@ if (gup('page') == "fleet1" && gup('auto') == 'yes') {
     document.getElementById('ship_202').value= supPT + nbPT;
     document.getElementById('ship_203').value= supGT + nbGT;
     has_flotte = document.body.innerHTML.split('<span>Flottes:</span>')[1].split('</span>')[0].split('class="').length == 1;
+    //Calcule si le lancement d'une flotte est possible en fonction des slots disponibles
     if (has_flotte && readCookie('AA_leave_slot','AA') == 'oui') {
         nb_flotte = document.body.innerHTML.split('<span>Flottes:</span>')[1].split('</span>')[0];
         
         max_flotte = parseInt(nb_flotte.split('/')[1].match(/\d/g).join(""));
         nb_flotte = parseInt(nb_flotte.split('/')[0].match(/\d/g).join(""));
-        
-        if (max_flotte - nb_flotte <= 1) has_flotte = false;
+        //add Imp2Toulouse- Read nb of leave slot
+        nb_slot_leave=(readCookie('AA_nb_slot','AA') == '')?1:parseInt(readCookie('AA_nb_slot','AA'));
+        // 1 specify a one only slot reserved
+        //if (max_flotte - nb_flotte <= 1) has_flotte = false;
+        // Replace by the number read
+        if (max_flotte - nb_flotte <= nb_slot_leave) has_flotte = false;
     }
     
     idcook = 'AA_feed';
@@ -2521,7 +2547,9 @@ noGTAA='';
 forceAA='';
 type_vaisseaux_AA = readCookie('type_vaisseaux','AA') == null ? 1 : parseInt(readCookie('type_vaisseaux','AA'));
 defaut_AA_butin = 20000;
+defaut_AA_nb_slot=1;
 if (readCookie('AA_butin','AA') !== null) defaut_AA_butin = readCookie('AA_butin','AA').match(/\d/g).join("");
+if (readCookie('AA_nb_slot','AA') !== null) defaut_AA_nb_slot = readCookie('AA_nb_slot','AA').match(/\d/g).join("");
 if (readCookie('AA_leave_slot','AA') == 'oui') leave_slot=' checked';
 if (readCookie('noGT','AA') == 'oui') noGTAA=' checked';
 if (readCookie('force','AA') == 'oui') forceAA=' checked';
@@ -2664,7 +2692,9 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='<span style="text-align:left;color:#c0c0c0;position:relative;top:-12px;padding-left:40px;font-weight:normal;">Options spécifiques à cette planète :</span><br><br>';
         sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:60px;font-weight:normal;">• Attaquer seulement les frigos dont le butin dépasse : <input type="text" id="butin_AA_RG" value="'+defaut_AA_butin+'" style="text-align:center; width:50px;margin-left:5px;margin-right:5px;height: 15px;"/>  <i><span id="save_AA_butin" style="display:none;">(enregistré)</span></i></span><br><br>';
         sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:60px;font-weight:normal;">• Démarrer également une expédition : <select id="do_exp_AA" style="position:relative;top:-1px;visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;"><option value="non">Non</option><option value="50" '+(with_exped == '50' ? 'selected' : '')+'>50 GT (Optimal si le 1er a moins de 100k de points)</option><option value="100" '+(with_exped == '100' ? 'selected' : '')+'>100 GT (Optimal si le 1er a moins de 1M de points)</option><option value="150" '+(with_exped == '150' ? 'selected' : '')+'>150 GT (Optimal si le 1er a moins de 5M de points)</option><option value="200" '+(with_exped == '200' ? 'selected' : '')+'>200 GT (Optimal si le 1er a plus de 5M de points)</option></select> <i><span id="save_AA_do_exp" style="display:none;">(enregistré)</span></i></span><br><br>';
-        sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-18px;padding-left:60px;font-weight:normal;"><input type="checkbox" id="leave_slot_AA" style="position:relative;top:2px;" '+leave_slot+'/> Laisser un slot de flotte libre <i><span id="save_AA_slot" style="display:none;">(enregistré)</span></i></span><br><br>';
+        //Imp2Toulouse- Added an input to specify the number of free slot
+        //sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-18px;padding-left:60px;font-weight:normal;"><input type="checkbox" id="leave_slot_AA" style="position:relative;top:2px;" '+leave_slot+'/> Laisser un slot de flotte libre <i><span id="save_AA_slot" style="display:none;">(enregistré)</span></i></span><br><br>';
+        sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-18px;padding-left:60px;font-weight:normal;"><input type="checkbox" id="leave_slot_AA" style="position:relative;top:2px;" '+leave_slot+'/> Laisser <input type="text" size="1" id="nb_slot_AA" value="'+defaut_AA_nb_slot+'" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;"/> slot(s) de flotte libre <i><span id="save_AA_slot" style="display:none;">(enregistré)</span></i></span><br><br>';
     sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-18px;padding-left:60px;font-weight:normal;">Lors d\'une auto-attaque, envoyer : <select id="type_vaisseaux_AA" style="position:relative;top:-1px;visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;"><option value="1" '+(type_vaisseaux_AA == '1' ? 'selected' : '')+'>Les Petits Transporteurs en prioritée, puis Grands</option><option value="2" '+(type_vaisseaux_AA == '2' ? 'selected' : '')+'>Les Grands Transporteurs en prioritée, puis Petits</option><option value="3" '+(type_vaisseaux_AA == '3' ? 'selected' : '')+'>Des Petits Transporteurs uniquement</option><option value="4" '+(type_vaisseaux_AA == '4' ? 'selected' : '')+'>Des Grands Transporteurs uniquement</option></select></span><br><br>';
         sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-18px;padding-left:60px;font-weight:normal;"><input type="checkbox" id="force_AA" style="position:relative;top:2px;" '+forceAA+'/> Envoyer la flotte même si il manque des transporteurs <i><span id="save_AA_force" style="display:none;">(enregistré)</span></i></span><br><br>';
     sephi_frigos_data+='<div style="width:80%;height:1px;background:#404040;position:relative;top:-25px;left:7%;margin-top:20px"></div>';
@@ -2822,7 +2852,14 @@ if (gup('sephiScript') == '1') {
         else createCookie('AA_leave_slot', 'non', 1, 'AA');
         document.getElementById('save_AA_slot').style.display = 'inline';
         setTimeout(function () {document.getElementById('save_AA_slot').style.display = 'none';},1000);
-    }
+    };
+    //Imp2Toulouse- request to save the free slot number wished
+    document.getElementById('nb_slot_AA').onchange = function () {
+        createCookie('AA_nb_slot', document.getElementById('nb_slot_AA').value.match(/\d/g).join(""), 1, 'AA');
+        document.getElementById('save_AA_slot').style.display = 'inline';
+        setTimeout(function () {document.getElementById('save_AA_slot').style.display = 'none';},1000);
+    };
+    ///////
     document.getElementById('type_vaisseaux_AA').onclick = function () {
         createCookie('type_vaisseaux', this.value, 1, 'AA');
     };
