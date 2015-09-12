@@ -31,8 +31,8 @@ LANG_started = isFR ? "Lancé" : "Started";
 LANG_done = isFR ? "Terminé" : "Done";
 LANG_noLocalStorage = isFR ? "Votre navigateur ne supporte pas le système de localStorage, mettez le à jour ou désinstallez le script." 
     : "Your browser does not support localStorage feature, please update to latest Chrome version or unistall SephiOGame.";
-LANG_nouveaute_update = isFR ? ' - Début du support multi-langages (les programmations fonctionnent) <br> - Liste des monde pour l\'auto-login mise à jour'
-    : ' - Start of multi-lang version (only construction list at the moment) <br> - Servers list in auto-login updated';
+LANG_nouveaute_update = isFR ? ' - Add capability to set the leave slot <br> - Bugs/malwritten correction'
+    : ' - Add capability to set the leave slot <br> - Bugs/malwritten correction';
 
 function exit(i){throw new Error('This is not an error. This is just to abort javascript');}
 if (document.getElementById('banner_skyscraper') !== null) document.getElementById('banner_skyscraper').innerHTML = '';
