@@ -28,7 +28,7 @@
 //                     *Correction ejection by using existant functions and compatibility with antigame
 //                     *Add last_start in storage in case of first generated rapport using own message results
 
-//try {
+try {
     antiBugTimeout = setTimeout(function() {location.href=location.href;}, 5*60*1000);
 
     cur_version = '3.6.2';
