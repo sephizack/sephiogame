@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       SephiOGame
 // @namespace  http://www.sephiogame.com
-// @version    3.6.1
+// @version    3.6.2
 // @description  Script Ogame
 // @author  Sephizack
 // @include      *ogame.gameforge.com*
@@ -17,6 +17,16 @@
 //3.6.0: Sephizack- Initial version [PROD]
 //3.6.1: Imp2Toulouse- Add capability to set the leave slot
 //       Imp2Toulouse- Bugs/malwritten correction
+//3.6.2: Imp2Toulouse- *Optimization code in check frigo
+//                     *Optimization code for the pack detection (factorize via a get_button_information function)
+//                           [En cours] Dans le cas d'une lune avec le pack, sur la page d'installation j'ai 2 erreurs: 
+//                           - Uncaught TypeError: events[i].getElementsByClassName is not a function 
+//                           xhr.onreadystatechange @ VM219314:1462 
+//                           - Cannot read property 'join' of null(anonymous function) 
+//                           TypeError: Cannot read property 'join' of null @ VM219314:2288 
+//                     *Antigame compatibility: Detect evolution of ressources or station (moon or planet)
+//                     *Correction ejection by using existant functions and compatibility with antigame
+//                     *Add last_start in storage in case of first generated rapport using own message results
 
 antiBugTimeout = setTimeout(function() {location.href=location.href;}, 5*60*1000);
 
@@ -43,7 +53,6 @@ if (localStorage == null) {
 
 d = document.getElementsByClassName('ago_clock');
 if (d.length >= 1) d[0].style.display = 'none';
-
 
 
 
@@ -460,20 +469,30 @@ if (data !== null && data.split(":").length > 2) {
     eject_sys = data.split(":")[1];
     eject_pla = data.split(":")[2];
     if (data.match('never')) eject_auto = 'never';
+    //Imp2Toulouse- Add his ejection time to retire fleets on spying
+    if (data.match('1mins')) eject_auto = '1mins';
     if (data.match('5mins')) eject_auto = '5mins';
     if (data.match('10mins')) eject_auto = '10mins';
     if (data.match('20mins')) eject_auto = '20mins';
     
     eject_all = data.match('ALL');
     eject_onLune = data.match('OnLune');
-    eject_url = 'http://'+univers+'/game/index.php?page=fleet1&galaxy='+eject_gal+'&system='+eject_sys+'&position='+eject_pla+'&type=1&mission=1&eject=yes'
+    //Imp2Toulouse- Preset the type of mission if the moon is used
+    //eject_url = 'http://'+univers+'/game/index.php?page=fleet1&galaxy='+eject_gal+'&system='+eject_sys+'&position='+eject_pla+'&type=1&mission=1&eject=yes'
+    eject_url = 'http://'+univers+'/game/index.php?page=fleet1&galaxy='+eject_gal+'&system='+eject_sys+'&position='+eject_pla
+    eject_url+= '&type='+((eject_onLune)?3:1)+'&mission=3&eject=yes';
+    
     document.getElementById('helper').innerHTML+='<div style="width:0px;height:0px;position:relative;top:-75px;left:568px;"><a style="background:none;text-decoration:none;font-size:9px;font-family:inherit;width:55px;text-align:center;" title="Faire décoller tout les vaisseaux civils et les ressources vers les coordonnées ci-dessous." href="'+eject_url+'"><img src="http://www.sephiogame.com/script/eject_button.png" /><br><span style="color:#C02020">['+eject_gal+':'+eject_sys+':'+eject_pla+']</span></a></div>';
     importvars["eject"] = data;
     save_important_vars();
     
     //Vérification du eject
     if (rand(1,20) == 1 && !gup('page').match('fleet')) {
-        $.ajax('http://'+univers+'/game/index.php?page=fleet1&galaxy='+eject_gal+'&system='+eject_sys+'&position='+eject_pla+'&type=1&mission=1', {
+        //Imp2Toulouse- Preset the type of mission if the moon is used
+        //$.ajax('http://'+univers+'/game/index.php?page=fleet1&galaxy='+eject_gal+'&system='+eject_sys+'&position='+eject_pla+'&type=1&mission=1', {
+        eject_url = 'http://'+univers+'/game/index.php?page=fleet1&galaxy='+eject_gal+'&system='+eject_sys+'&position='+eject_pla
+        eject_url+= '&type='+((eject_onLune)?3:1)+'&mission=3&eject=yes';
+        $.ajax(eject_url, {
             dataType: "text",
             type: "POST",
             success: function(data) {
@@ -654,6 +673,8 @@ function add_prevenir_button() {
                 document.getElementById('number').onkeyup = null;
                 document.getElementById('number').onkeydown = null;
                 document.getElementById('number').onkeypress = null;
+                //Imp2Toulouse- Force the focus on number input to improve ergonomy
+                document.getElementById('number').focus();
             }
         }
     }
@@ -673,13 +694,17 @@ function add_frigo_button() {
             planet = tmp[2];
             
             // Recherche d'un frigo avec ces coordonnées
-            infrig='no';
-            for (j=0 ; j<importvars["frigos"].length ; j++){
-                if (importvars["frigos"][j][1] == galaxy && importvars["frigos"][j][2] == system && importvars["frigos"][j][3] == planet && importvars["frigos"][j].length > 5) {
-                    infrig='yes';
-                    break;
-                }
-            }
+            //Imp2Toulouse- Factorize with is_frigo fonction
+            //infrig='no';
+            //for (j=0 ; j<importvars["frigos"].length ; j++){
+            //    if (importvars["frigos"][j][1] == galaxy && importvars["frigos"][j][2] == system && importvars["frigos"][j][3] == planet && importvars["frigos"][j].length > 5) {
+            //        infrig='yes';
+            //        break;
+            //    }
+            //}
+            infrig=is_frigo(importvars["frigos"],coord)>0?'yes':'no';
+            ////
+            
             fridData = '<span id="dejafesse"></span>';
             if (infrig == 'no') {
                 fridData += '<p onclick="localStorage.setItem(\'all_add_racc\', \''+(i+1)+'\');this.innerHTML=\'Bienvenue dans les frigos !\';this.style.cursor=\'default\';this.style.color=\'#10E010\';" style="cursor:pointer;color:#A52592;padding:5px;text-decoration:none;padding-bottom:15px;">Ajouter <b>'+coord+' '+planame+'</b> aux frigos de <b>'+cur_planame+'</b></p>';
