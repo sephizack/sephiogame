@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name       SephiOGame
 // @namespace  http://www.sephiogame.com
-// @version    3.6.0
+// @version    3.6.2
 // @description  Script Ogame
 // @author  Sephizack
 // @include      *ogame.gameforge.com*
