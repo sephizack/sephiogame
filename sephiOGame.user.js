@@ -31,7 +31,7 @@
 
 antiBugTimeout = setTimeout(function() {location.href=location.href;}, 5*60*1000);
 
-cur_version = '3.6.1';
+cur_version = '3.6.2';
 univers = window.location.href.split('/')[2];
 
 // Multi langues
