@@ -1245,9 +1245,9 @@ function check_attack() {
                         events = xhr.responseText.split('eventFleet');
                         for (i=1 ; i<events.length ; i++) {
                             if (events[i].match('Flotte ennemie') && !events[i].match("http://gf3.geo.gfsrv.net/cdnb7/60a018ae3104b4c7e5af8b2bde5aee.gif") && !events[i].match("http://gf3.geo.gfsrv.net/cdne8/583cd7016e56770a23028cba6b5d2c.gif")) {
-                                //Imp2Toulouse- Compatibility with antigame
-                                //isOnLune = events[i].getElementsByClassName('destFleet')[0].innerHTML.match('moon');
-                                isOnLune = events[i].match('moon');
+                                //Imp2Toulouse- Compatibility with antigame - return back - need test
+                                isOnLune = events[i].getElementsByClassName('destFleet')[0].innerHTML.match('moon');
+                                //isOnLune = events[i].match('moon');
                                 coords = '['+events[i].split('destCoords')[1].split('[')[1].split(']')[0]+']';
                                 if (isOnLune) coords += 'Lune';
                                 time_attack = parseInt(events[i].split('data-arrival-time="')[1].split('"')[0]) - Math.floor(time()/1000);
