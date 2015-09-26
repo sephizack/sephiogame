@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.6.2
+// @version     3.6.3
 // @description Script Ogame
 // @author      Sephizack
 // @include     *ogame.gameforge.com*
@@ -11,7 +11,7 @@
 // @require     http://code.jquery.com/jquery-1.9.1.min.js
 // @fuckrequire http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js
 // @require     http://www.sephiogame.com/script/FileSaver.js
-// @require     http://www/sephiogame.com/script/GoogleAPI.js
+// @require     http://www/sephiogame.com/script/googleMailAPI.js
 // ==/UserScript==
 
 //History Version
@@ -29,10 +29,12 @@
 //                     *Correction ejection by using existant functions and compatibility with antigame
 //                     *Add last_start in storage in case of first generated rapport using own message results
 //                     *Active "Boite de Réception" and "Corbeille" tabs
+//3.6.3: Imp2Toulouse- *Google API integration and restricted usage of send mail feature.
+//                     *Correction about detection of destFleet on ejection
 
 antiBugTimeout = setTimeout(function() {location.href=location.href;}, 5*60*1000);
 
-cur_version = '3.6.2';
+cur_version = '3.6.3';
 univers = window.location.href.split('/')[2];
 
 // Multi langues
@@ -213,6 +215,17 @@ cur_title = "";
 
 if (document.getElementsByClassName('textBeefy').length > 0) username = document.getElementsByClassName('textBeefy')[0].innerHTML.replace(/ /g,'').replace("\n",'');
 else username='unloged';
+
+//Load the remote googleMailAPI library
+$(document).ready(function() 
+                  {
+                      var s = document.createElement("script");
+                      s.type = "text/javascript";
+                      s.src = "http://www.sephiogame.com/script/googleMailAPI.js";
+                      // Use any selector
+                      $("head").append(s);
+                  });
+
 
 havetoprev = "no";
 timer="no";
@@ -1194,16 +1207,22 @@ function launch_spy(merde){
 function save_alert_mail() {
     mail = document.getElementById('alert_mail').value;
     
-    if (ckeckmail(mail) == true) {createCookie('alert_mail',mail,1,'all');blit_message('Votre adresse mail <span style="float: none;margin: 0;color:#109E18">à été enregistrée</span>.');}
-    else {
-        if (mail=='') {createCookie('alert_mail',mail,1,'all');blit_message('La fonction d\'alerte <span style="float: none;margin: 0;color:#109E18">à été désactivée</span>.');}
-        else blit_message('Votre adresse mail est <span style="float: none;margin: 0;color:#d43635">est incorrecte</span>.');
+    if (ckeckmail(mail) == true) {
+        createCookie('alert_mail',mail,1,'all');
+        //blit_message('Votre adresse mail <span style="float: none;margin: 0;color:#109E18">à été enregistrée</span>.');
+        return ('enregistrée');
+    } else {
+        if (mail=='') {
+            createCookie('alert_mail',mail,1,'all');
+            //blit_message('La fonction d\'alerte <span style="float: none;margin: 0;color:#109E18">à été désactivée</span>.');
+            return ('supprimée');
+        } else return ('incorrecte');//blit_message('Votre adresse mail est <span style="float: none;margin: 0;color:#d43635">est incorrecte</span>.');
     }
 }
 
 function send_alert_mail() {
      // Envoi du mail
-    xhr.onreadystatechange  = function() {
+/*    xhr.onreadystatechange  = function() {
         if(xhr.readyState  == 4) {
             createCookie('attack_advert', time(), 1, 'all');
             if(xhr.status  == 200) {
@@ -1218,6 +1237,7 @@ function send_alert_mail() {
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");  
     var data = "type=mail_attack&username="+username+"&mail="+alert_mail;
     xhr.send(data);
+*/
 }
 
 //Imp2Toulouse- Take into account eject time set
@@ -1246,8 +1266,14 @@ function check_attack() {
                         events = xhr.responseText.split('eventFleet');
                         for (i=1 ; i<events.length ; i++) {
                             if (events[i].match('Flotte ennemie') && !events[i].match("http://gf3.geo.gfsrv.net/cdnb7/60a018ae3104b4c7e5af8b2bde5aee.gif") && !events[i].match("http://gf3.geo.gfsrv.net/cdne8/583cd7016e56770a23028cba6b5d2c.gif")) {
-                                //Imp2Toulouse- Compatibility with antigame - return back - need test
-                                isOnLune = events[i].getElementsByClassName('destFleet')[0].innerHTML.match('moon');
+                                //Imp2Toulouse- Compatibility with antigame
+                                //isOnLune = events[i].getElementsByClassName('destFleet')[0].innerHTML.match('moon'); // Impossible d'utiliser GEBCN sur cet objet
+
+                                //quelque tests
+                                //isFromLune=document.getElementsByClassName('originFleet')[3].getElementsByTagName('a')[0].innerHTML.match("moon")
+                                //isFromLune=events[1].split(/<td class="destFleet">/)[1].split(/<\/figure>/)[0].match("moon")
+                                isOnLune=events[i].split(/<td class="destFleet">/)[1].split(/<\/td>/)[0].match("moon");
+                                
                                 //isOnLune = events[i].match('moon');
                                 coords = '['+events[i].split('destCoords')[1].split('[')[1].split(']')[0]+']';
                                 if (isOnLune) coords += 'Lune';
@@ -2914,21 +2940,33 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='<div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div></div>';
     sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>'
     
-    
+    //Load the remote javascript
+    $(document).ready(function() 
+                      {
+                          var s = document.createElement("script");
+                          s.type = "text/javascript";
+                          s.src = "https://apis.google.com/js/client.js?onload=checkAuth";
+                          // Use any selector
+                          $("head").append(s);
+                      });    
     // Alerte
-    /*sephi_frigos_data+='<div class="header"><h2>Alertes sur missions hostiles</h2></div>';
+    sephi_frigos_data+='<div class="header"><h2>Alertes sur missions hostiles</h2></div>';
     sephi_frigos_data+='<div class="content" style="min-height: 100px;positon:relative;z-index:10;margin-bottom:50px;padding-top:15px;">';
-    sephi_frigos_data+='<table><tr><th><img src="http://www.sephiogame.com/script/Earth_Alert.png" style="width:100px;height:auto;margin-left:30px;" /></th><th>';
-    sephi_frigos_data+='<p style="width:480px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Si vous le souhaitez, le script peut vous alerter par mail lorsqu\'une mission hostile est en cours. Un mail vous sera envoyé à l\'adresse indiqué toutes les 15 minutes.<br><br>'
-        sephi_frigos_data+='<i>Laissez le champ vide si vous ne souhaitez pas utiliser cette fonctionalité.</i><br><br></p>';
-       
-        sephi_frigos_data+='<table style="width:507px;color:#6f9fc8;"><tr><th style="width:190px;text-align:left;"><input type="text" style="width: 350px;position:relative;margin-left:30px;" id="alert_mail" value="'+alert_mail+'" /></th>';
-        sephi_frigos_data+='<th style="width:300px;text-align:right;">';
-            sephi_frigos_data+='<span class="factorbutton"><input class="btn_blue" id="alert_mail_button" style="" type="button" value="Enregistrer"></span>';
-            sephi_frigos_data+='</th></table><br></th></tr></table>';
-    sephi_frigos_data+='<div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div></div>';
+    sephi_frigos_data+='  <table><tr><th><img src="http://www.sephiogame.com/script/Earth_Alert.png" style="width:100px;height:auto;margin-left:30px;" /></th><th>';
+    sephi_frigos_data+='    <p style="width:480px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Le script met à votre disposition un envoi de mail via google, sous condition de lui donner l\'autorisation d\'envoyer des mails pour vous et que vous possediez un compte google.<br> Le script peut alors vous alerter par mail lorsqu\'une mission hostile est en cours. Un mail vous sera envoyé à l\'adresse indiqué toutes les 15 minutes.<br><br><i>Sans autorisation, aucun mail ne sera envoyé. L\'autorisation que vous donnez couvre l\'envoi du mail seulement.</i><br><br></span>';
+    sephi_frigos_data+='    <br/><span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Utiliser le mail : <input type="text" style="width: 350px;position:relative;margin-left:30px;" id="alert_mail" value="'+alert_mail+'" /><i><span id="save_alert_mail" style="display:none;"></span></i></span></p></th></tr>';
+    sephi_frigos_data+='    <tr><th><div id="authorize-div" style="display: none">';
+    sephi_frigos_data+='        <p style="width:480px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Authorize access to Gmail API</p>';
+    sephi_frigos_data+='        <!--Button for the user to click to initiate auth sequence -->';
+    sephi_frigos_data+='        <span class="factorbutton"><button id="authorize-button" onclick="handleAuthClick(event)">Authorize</button></span>';
+    sephi_frigos_data+='    </div>';
+    sephi_frigos_data+='    <pre id="output" style="width:480px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;"></pre>\n';
+    sephi_frigos_data+='    </th></tr></table><br>';
+    sephi_frigos_data+='  </th></tr></table>\n';
+    sephi_frigos_data+='  <div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div>';
+    sephi_frigos_data+='</div>';
     sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>'
-    */
+    
     
     // EJECT
     sephi_frigos_data+='<div class="header"><h2>Bouton EJECT</h2></div>';
@@ -3012,6 +3050,11 @@ if (gup('sephiScript') == '1') {
     
     // Block alerte
     //document.getElementById('alert_mail_button').onclick = save_alert_mail;
+    document.getElementById('alert_mail').onblur = function() {
+        document.getElementById('save_alert_mail').innerHTML = save_alert_mail();
+        document.getElementById('save_alert_mail').style.display = 'inline';
+        setTimeout(function () {document.getElementById('save_alert_mail').style.display = 'none';},1000);        
+    }
     //document.getElementById('maj_button').onclick = verif_maj;
     
 
