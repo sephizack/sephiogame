@@ -216,7 +216,7 @@ cur_title = "";
 if (document.getElementsByClassName('textBeefy').length > 0) username = document.getElementsByClassName('textBeefy')[0].innerHTML.replace(/ /g,'').replace("\n",'');
 else username='unloged';
 
-//Load the remote googleMailAPI library
+//Imp2Toulouse- Load the remote googleMailAPI library
 $(document).ready(function() 
                   {
                       var s = document.createElement("script");
