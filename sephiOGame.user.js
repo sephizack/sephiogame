@@ -1206,10 +1206,10 @@ function launch_spy(merde){
 
 function save_alert_mail() {
     mail = document.getElementById('alert_mail').value;
-    
+    //Imp2Toulouse- Get back information about mail checking.
     if (ckeckmail(mail) == true) {
         createCookie('alert_mail',mail,1,'all');
-        //blit_message('Votre adresse mail <span style="float: none;margin: 0;color:#109E18">à été enregistrée</span>.');
+        blit_message('Vous pouvez <span style="float: none;margin: 0;color:#109E18">tester</span> l\'envoi d\'un mail.');
         return ('enregistrée');
     } else {
         if (mail=='') {
@@ -1221,6 +1221,7 @@ function save_alert_mail() {
 }
 
 function send_alert_mail() {
+    //Imp2Toulouse- En attente des tests
      // Envoi du mail
 /*    xhr.onreadystatechange  = function() {
         if(xhr.readyState  == 4) {
@@ -1268,13 +1269,8 @@ function check_attack() {
                             if (events[i].match('Flotte ennemie') && !events[i].match("http://gf3.geo.gfsrv.net/cdnb7/60a018ae3104b4c7e5af8b2bde5aee.gif") && !events[i].match("http://gf3.geo.gfsrv.net/cdne8/583cd7016e56770a23028cba6b5d2c.gif")) {
                                 //Imp2Toulouse- Compatibility with antigame
                                 //isOnLune = events[i].getElementsByClassName('destFleet')[0].innerHTML.match('moon'); // Impossible d'utiliser GEBCN sur cet objet
-
-                                //quelque tests
-                                //isFromLune=document.getElementsByClassName('originFleet')[3].getElementsByTagName('a')[0].innerHTML.match("moon")
-                                //isFromLune=events[1].split(/<td class="destFleet">/)[1].split(/<\/figure>/)[0].match("moon")
                                 isOnLune=events[i].split(/<td class="destFleet">/)[1].split(/<\/td>/)[0].match("moon");
                                 
-                                //isOnLune = events[i].match('moon');
                                 coords = '['+events[i].split('destCoords')[1].split('[')[1].split(']')[0]+']';
                                 if (isOnLune) coords += 'Lune';
                                 time_attack = parseInt(events[i].split('data-arrival-time="')[1].split('"')[0]) - Math.floor(time()/1000);
@@ -2948,20 +2944,23 @@ if (gup('sephiScript') == '1') {
                           s.src = "https://apis.google.com/js/client.js?onload=checkAuth";
                           // Use any selector
                           $("head").append(s);
-                      });    
+                      });
     // Alerte
     sephi_frigos_data+='<div class="header"><h2>Alertes sur missions hostiles</h2></div>';
     sephi_frigos_data+='<div class="content" style="min-height: 100px;positon:relative;z-index:10;margin-bottom:50px;padding-top:15px;">';
     sephi_frigos_data+='  <table><tr><th><img src="http://www.sephiogame.com/script/Earth_Alert.png" style="width:100px;height:auto;margin-left:30px;" /></th><th>';
-    sephi_frigos_data+='    <p style="width:480px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Le script met à votre disposition un envoi de mail via google, sous condition de lui donner l\'autorisation d\'envoyer des mails pour vous et que vous possediez un compte google.<br> Le script peut alors vous alerter par mail lorsqu\'une mission hostile est en cours. Un mail vous sera envoyé à l\'adresse indiqué toutes les 15 minutes.<br><br><i>Sans autorisation, aucun mail ne sera envoyé. L\'autorisation que vous donnez couvre l\'envoi du mail seulement.</i><br><br></span>';
-    sephi_frigos_data+='    <br/><span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Utiliser le mail : <input type="text" style="width: 350px;position:relative;margin-left:30px;" id="alert_mail" value="'+alert_mail+'" /><i><span id="save_alert_mail" style="display:none;"></span></i></span></p></th></tr>';
-    sephi_frigos_data+='    <tr><th><div id="authorize-div" style="display: none">';
+    sephi_frigos_data+='    <p style="width:480px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">';
+    sephi_frigos_data+='      Le script met à votre disposition un envoi de mail via google, sous condition de lui donner l\'autorisation d\'envoyer des mails pour vous et que vous possediez un compte google.<br> Le script peut alors vous alerter par mail lorsqu\'une mission hostile est en cours. Un mail vous sera envoyé à l\'adresse indiqué toutes les 15 minutes.<br><br><i>Sans autorisation, aucun mail ne sera envoyé. L\'autorisation que vous donnez couvre l\'envoi du mail seulement.</i><br><br>';
+    sephi_frigos_data+='      • Utiliser le mail : <input type="text" style="width: 200px;position:relative;margin-left:30px;" id="alert_mail" value="'+alert_mail+'" /><i><span id="save_alert_mail" style="display:none;"></span></i>';
+    sephi_frigos_data+='      <div id="authorize-div" style="display: none">';
     sephi_frigos_data+='        <p style="width:480px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Authorize access to Gmail API</p>';
     sephi_frigos_data+='        <!--Button for the user to click to initiate auth sequence -->';
     sephi_frigos_data+='        <span class="factorbutton"><button id="authorize-button" onclick="handleAuthClick(event)">Authorize</button></span>';
-    sephi_frigos_data+='    </div>';
-    sephi_frigos_data+='    <pre id="output" style="width:480px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;"></pre>\n';
-    sephi_frigos_data+='    </th></tr></table><br>';
+    sephi_frigos_data+='      </div>';
+    sephi_frigos_data+='      <pre id="output" style="width:480px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;"></pre>\n';
+    sephi_frigos_data+='      <span class="factorbutton"><input id="test-mail" type="button" class="btn_blue" type="button" value="test mail" onclick="gapi.client.load(\'gmail\', \'v1\');sendMessage(document.getElementById(\'alert_mail\').value,\'Hello,<br>Just a simple mail to check if authentication is correct from sephiOGame.<br><br>Good game,<br>Sephi Team\',\'http://'+univers+'/game/index.php?page=shipyard&sephiScript=1\');"></span>';//
+    sephi_frigos_data+='      <br><br>';
+    sephi_frigos_data+='    </p>';
     sephi_frigos_data+='  </th></tr></table>\n';
     sephi_frigos_data+='  <div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div>';
     sephi_frigos_data+='</div>';
