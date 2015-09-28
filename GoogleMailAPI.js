@@ -1,10 +1,11 @@
-/*! GoogleAPI for sephiOGame
+/*! GoogleMailAPI for sephiOGame
  *  An send selfmail implementation.
  *  2015-09-24
  *
  *  By Imperator2Toulouse
  *  License: sephiOGame collaborator
  */
+
  
 var CLIENT_ID = '4911713620-3podd31sn547c21h1mvidibmaiiupmug.apps.googleusercontent.com';
 var SCOPES = ['https://www.googleapis.com/auth/gmail.send'];
@@ -20,24 +21,22 @@ function checkAuth() {
 
  
     
-function appendResults(text) {
-   var output = document.getElementById('output');
+function appendResults(output,text) {
    output.appendChild(document.createElement('P'));
    output.appendChild(document.createTextNode(text));
 }
 
 
 function handleAuthResult(authResult) {
- var authorizeDiv = document.getElementById('authorize-div');
  if (authResult && !authResult.error) {
    // Hide auth UI, then load client library.
-   authorizeDiv.style.display = 'none';
-   appendResults((isFR)?'Vous avez autorisé google à envoyer des mails en votre nom. Merci pour votre confiance.':'You have authorized google to send email for you. Thanks to trust us.');
+   document.getElementById('authorize-div').style.display = 'none';
+   appendResults(document.getElementById('output'),(isFR)?'Vous avez autorisé google à envoyer des mails en votre nom. Merci pour votre confiance.':'You have authorized google to send email for you. Thanks to trust us.');
    loadGmailApi();
  } else {
    // Show auth UI, allowing the user to initiate authorization by
    // clicking authorize button.
-   authorizeDiv.style.display = 'inline';
+   document.getElementById('authorize-div').style.display = 'inline';
  }
 }
 
@@ -61,7 +60,7 @@ function handleAuthClick(event) {
    * is loaded.
    */
 function loadGmailApi() {
- //gapi.client.load('gmail', 'v1', listLabels);
+ gapi.client.load('gmail', 'v1');
 }
 
 /**
@@ -73,11 +72,10 @@ function loadGmailApi() {
  * @param  {Function} callback Function to call when the request is complete.
  */
 function sendMessage(userId, email, callback) {
-  var base64EncodedEmail = btoa(email);
   var request = gapi.client.gmail.users.messages.send({
     'userId': userId,
     'message': {
-      'raw': base64EncodedEmail
+      'raw': btoa(email)
     }
   });
   request.execute(callback);
