@@ -11,7 +11,7 @@
 // @require     http://code.jquery.com/jquery-1.9.1.min.js
 // @fuckrequire http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js
 // @require     http://www.sephiogame.com/script/FileSaver.js
-// @requirehttp://www.sephiogame.com/script/googleMailAPI.js
+// @require     http://www.sephiogame.com/script/googleMailAPI.js
 
 // ==/UserScript==
 
@@ -222,74 +222,6 @@ cur_title = "";
 
 if (document.getElementsByClassName('textBeefy').length > 0) username = document.getElementsByClassName('textBeefy')[0].innerHTML.replace(/ /g,'').replace("\n",'');
 else username='unloged';
-
-
-/**
-   * auth init
-   *
-   * @param {}
-   */
-function checkAuth() {if (!is_token_valide()){blit_message('Authentification expirée, reconnexion!');gapi.auth.authorize({'client_id': '4911713620-3podd31sn547c21h1mvidibmaiiupmug.apps.googleusercontent.com','scope': ['https://www.googleapis.com/auth/gmail.send'],'approval_prompt': 'force','immediate': false},Auth_Load_Save_info);}return false;} 
-
-/**
-   * Manage auth result
-   *
-   * @param {output, text} object to write, written text.
-   */
-function appendResults(output,text) {output.appendChild(document.createElement('P'));output.appendChild(document.createTextNode(text));}
-
-/**
-   * Handle auth flow result
-   *
-   * @param {authResult} Result data.
-   */
-//function handleAuthResult(authResult) {if (authResult && !authResult.error) {createCookie('gapi_token',gapi.auth.getToken().access_token,1,'all');createCookie('gapi_clientid',gapi.auth.getToken().client_id,1,'all');createCookie('gapi_scope',gapi.auth.getToken().scope,1,'all');if (gup('sephiScript')){document.getElementById('authorize-div').style.display = 'none';appendResults(document.getElementById('output'),(isFR)?'Vous avez autorisé google à envoyer des mails en votre nom. Merci pour votre confiance.':'You have authorized google to send email for you. Thanks to trust us.');}if (readCookie('gapi_auth','all')){blit_message('Authentifié auprés de Google gmail!');createCookie('gapi_auth',1,1,'all');}loadGmailApi();} else {if (gup('sephiScript')) {authorizeDiv.style.display = 'inline';}if (!readCookie('gapi_auth','all')){blit_message('Perte de l\'authentification Google gmail! Cliquer sur le bouton pour vous authentifier.');createCookie('gapi_auth',0,1,'all');}}}
-
-/**
-   * Initiate auth flow in response to user clicking authorize button.
-   *
-   * @param {Event} event Button click event.
-   */
-//function handleAuthClick(event) {gapi.auth.authorize({'client_id': '4911713620-3podd31sn547c21h1mvidibmaiiupmug.apps.googleusercontent.com','scope': ['https://www.googleapis.com/auth/gmail.send'],'immediate': false},handleAuthResult);return false;}
-
-/**
-   * Check the token validity
-   *
-   * @param {}
-   * @Return {boolean}
-   */
-function is_token_valide(){return( ((readCookie('gapi_token','all') != "" && readCookie('gapi_auth','all')>0) && (parseInt(time()-readCookie('gapi_auth','all')) > parseInt(readCookie('gapi_expires_in','all'))))?1:0);}
-
-/**
-   * Check the gmail API load
-   *
-   * @param {}
-   * @Return {boolean}
-   */
-function is_gmail_loaded(){return(readCookie('gapi_gmail_loaded','all'));}
-
-/**
-   * Load Gmail API client library. List labels once client library
-   * is loaded.
-   */
-function loadGmailApi() {createCookie('gapi_gmail_loaded',0,1,'all');gapi.client.load('gmail', 'v1').then(function(){createCookie('gapi_gmail_loaded',1,1,'all');},function(){createCookie('gapi_gmail_loaded',0,1,'all');});}
-
-/**
- * Send Message.
- *
- * @param  {String} userId User's email address. The special value 'me'
- * can be used to indicate the authenticated user.
- * @param  {String} email body
- * @param  {Function} callback Function to call when the request is complete.
- */
-function sendMessage(userId, body, callback) {var mail = "Content-Type:  text/plain; charset=\"UTF-8\"\r\n" + "From: \"sephiOGame\" <sephiOGame@gmail.com>\r\n" + "To: "+userId+"\r\n"+"Subject: Ogame Attack Alert\r\n\r\n" +body+"\r\n\r\n"+"(c)SephiOGame Team\r\n";var mailencoded=btoa(mail).replace(/\+/g, '-').replace(/\//g, '_'); mail=null; gapi.auth.authorize({'client_id': '4911713620-3podd31sn547c21h1mvidibmaiiupmug.apps.googleusercontent.com', 'scope': ['https://www.googleapis.com/auth/gmail.send'], 'immediate': true},function(authResult){if (authResult && !authResult.error) {gapi.client.load('gmail', 'v1', function(){var request = gapi.client.gmail.users.messages.send({'userId': 'me','resource': {'raw': mailencoded}});request.execute(callback);blit_message('Email envoyé!');});}})}
-
-/**
- * New check auth system.
- *
- * @param  {Events} Events linked with this call
- */
-function checkAuth_NEW(event) {if (is_token_valide()){var temps_restant=get_Time_Remain(readCookie('gapi_auth','all'));appendResults(document.getElementById('output'),(isFR)?'Votre authentification est encore valide pour '+temps_restant+' minutes.':'Your authentication is alive for '+temps_restant+' minutes yet.');temps_restant=null;if (!is_gmail_loaded()) loadGmailApi();} else {blit_message('Authentification expirée, reconnexion!');gapi.auth.authorize({'client_id': '4911713620-3podd31sn547c21h1mvidibmaiiupmug.apps.googleusercontent.com','scope': ['https://www.googleapis.com/auth/gmail.send'],'approval_prompt': 'force','immediate': false},Auth_Load_Save_info);}return false; }
 
 /**
  * Auth, Save and Load gmail api
@@ -543,7 +475,7 @@ alert_mail_body = readCookie('alert_mail_body','all');
 alert_mail_freq = readCookie('alert_mail_freq','all');
 if (alert_mail_to==null || !checkmail(alert_mail_to)) alert_mail_to = '';
 else createCookie('alert_mail_to',alert_mail_to,1,'all');
-if (alert_mail_body==null || alert_mail_body == "") alert_mail_body = 'Hello,\r\nThis mail to alert you that you are facing on an attack.';
+if (alert_mail_body==null || alert_mail_body == "") alert_mail_body = 'Hello,\r\nThis mail to alert you that you are facing on an attack.\r\n\r\nYour [CP_ISLUNE] [CP_NAME] [[CP_COORDS]] will be attacked in [CP_IMPACTTIME].';
 else createCookie('alert_mail_body',alert_mail_body,1,'all');
 if (alert_mail_freq==null || alert_mail_freq == "") alert_mail_freq = 11; //minutes
 else createCookie('alert_mail_freq',alert_mail_freq,1,'all');
@@ -1086,15 +1018,23 @@ function is_frigo(frigos,coord){
 }
 
 //Imp2Toulouse: Add function allowing to get button information
-function get_info_button(button){    
+function get_info_button(button){
     var get_button_info= new Array();
-    if (button[1].split('</span>').length >= 4)
+    if (button[1].split('</span>').length >= 4){
         //Imp2Toulouse- Antigame compatibility, Check if an evolution is running and get back next level
         if (button[0].split('</span>').length >= 4) {// An evolution on going, return current level and next level
             return ((button[1].split('</span>')[0].match(/\d+/)+":"+button[0].split('undermark">')[1].match(/\d+/)).split(':'));
         } else {// No evolution, return same information
             return ((parseInt(button[1].split('</span>')[1].split('|')[1].match(/\d+/).join(""))+":"+parseInt(button[1].split('</span>')[1].split('|')[1].match(/\d+/).join(""))).split(':'));
         }
+    } else {
+        //Imp2Toulouse- Antigame compatibility, Check if an evolution is running and get back next level
+        if (button[0].split('</span>').length >= 4) {// An evolution on going, return current level and next level
+            return ((parseInt(button[1].split('|')[1].match(/\d+/).join(""))+":"+parseInt(button[0].split('undermark">')[1].match(/\d+/).join(""))).split(':'));
+        } else {// No evolution, return same information
+            return ((parseInt(button[0].split('undermark">')[1].match(/\d+/).join(""))+":"+parseInt(button[0].split('undermark">')[1].match(/\d+/).join(""))).split(':'));
+        }        
+    }
 }
 //Imp2Toulouse: Add function calculating the cool time + transform to be generic (myvalue in param) + show week if needed ==> Change fonction name from get_last_AA_coolTime to get_Time_Remain
 function get_Time_Remain(myvalue){
@@ -1122,6 +1062,7 @@ function get_Time_Remain(myvalue){
         hourRemainText = '';
         if (lastAATimeHourRemain > 1)  hourRemainText = lastAATimeHourRemain+' '+hours_translate;
         if (lastAATimeHourRemain == 1) hourRemainText = lastAATimeHourRemain+' '+hour_translate;
+
         dayText = '';
         if (lastAATimeDay > 1)   dayText = lastAATimeDay+' '+days_translate;
         if (lastAATimeDay == 1)  dayText = lastAATimeDay+' '+day_translate;
@@ -1135,7 +1076,7 @@ function get_Time_Remain(myvalue){
         if (lastAATimeWeek == 1) {hourText=hourRemainText; dayText=dayRemainText; weekText = lastAATimeWeek+' '+week_translate;}
 
         etText = '';
-        if (minutesText !== '' && hourText !== '') etText = ' '+and_translate+' ';
+        if (hourText !== '') etText = ' '+and_translate+' ';
 
         etText2 = '';
         if (dayText !== '') etText2 = ', ';
@@ -1403,7 +1344,7 @@ function send_alert_mail(cp_attacked,coords,isOnLune,time_attack) {
 */
     //Imp2Toulouse- En attente des tests
     //gapi.client.load('gmail', 'v1');
-    sendMessage(readCookie('alert_mail_to','all'),readCookie('alert_mail_body','all').replace("[CP_NAME]",cp_attacked).replace("[CP_COORDS]",coords).replace("[CP_ISLUNE]",(isOnLune)?"Lune":"Planet").replace("[CP_IMPACTTIME]",time_attack),'http://'+univers+'/game/index.php?page=shipyard&sephiScript=1');
+    sendMessage(readCookie('alert_mail_to','all'),readCookie('alert_mail_body','all').replace("[CP_NAME]",cp_attacked).replace("[CP_COORDS]",coords).replace("[CP_ISLUNE]",(isOnLune)?"Lune":"Planet").replace("[CP_IMPACTTIME]",getFormatedTime(time_attack).replace(/:/," hours, ").replace(/:/, " minutes and ")+ " seconds"),'http://'+univers+'/game/index.php?page=shipyard&sephiScript=1');
     createCookie('attack_advert', time(), 1, 'all');
     // Envoi du mail
 /*    xhr.onreadystatechange  = function() {
@@ -1458,9 +1399,10 @@ function check_attack() {
                                 if (isOnLune) coords += 'Lune';
                                 time_attack = parseInt(events[i].split('data-arrival-time="')[1].split('"')[0]) - Math.floor(time()/1000);
                                 cp_attacked = planet_list[planet_list_coords.indexOf(coords)];
-
-                                if (alert_mail_to !== '' && (readCookie('attack_advert','all') == null || (time()-parseInt(readCookie('attack_advert','all'))) > 10*60*1000) ) 
-                                    setTimeout(send_alert_mail(cp_attacked,coords,isOnLune,time_attack),2000);
+                                
+                                //Imp2Toulouse- Add frequency defined in param
+                                if (alert_mail_to !== '' && (readCookie('attack_advert','all') == null || (time()-parseInt(readCookie('attack_advert','all'))) > parseInt(readCookie('alert_mail_freq','all'))*60*1000) ) 
+                                    setTimeout(send_alert_mail(planame_list[planet_list_coords.indexOf(coords)],coords,isOnLune,time_attack),2000);
 
                                 if (time_attack > start_after_less) return;
                                 
@@ -3143,6 +3085,8 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='      <table id="authorize-div" style="display: none;">';
     sephi_frigos_data+='        <tr><td><span style="padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">• Authorize access</span></td><td><span class="factorbutton"><input type="button" style="width: 80px;position:relative;margin-left:-360px;" id="authorize-button" class="btn_blue" value="Authorize"></span></td></tr>';
     sephi_frigos_data+='        <tr><td colspan="2"></td></tr>';
+    sephi_frigos_data+='      </table>';
+    sephi_frigos_data+='      <table>';
     sephi_frigos_data+='        <tr><td colspan=2><pre id="output" style="width:480px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#ff9600;"></pre><br></td></tr>';
     sephi_frigos_data+='      </table>';
     sephi_frigos_data+='    </p>';
