@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.6.2
+// @version     3.6.3
 // @description Script Ogame
 // @author      Sephizack
 // @include     *ogame.gameforge.com*
@@ -11,7 +11,7 @@
 // @require     http://code.jquery.com/jquery-1.9.1.min.js
 // @fuckrequire http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js
 // @require     http://www.sephiogame.com/script/FileSaver.js
-// @require     http://www/sephiogame.com/script/GoogleAPI.js
+// @require     http://www.sephiogame.com/script/googleMailAPI.js
 // ==/UserScript==
 
 //History Version
@@ -29,10 +29,17 @@
 //                     *Correction ejection by using existant functions and compatibility with antigame
 //                     *Add last_start in storage in case of first generated rapport using own message results
 //                     *Active "Boite de Réception" and "Corbeille" tabs
+//3.6.3: Imp2Toulouse- *Google API integration and restricted usage of send mail feature.
+//                     *Add email configuration in sephiOGame page
+//                     *Correction about detection of destFleet on ejection
+//                     *Add the direct retirement of a frigo in Galaxy and message menu
+
+
+
 
 antiBugTimeout = setTimeout(function() {location.href=location.href;}, 5*60*1000);
 
-cur_version = '3.6.2';
+cur_version = '3.6.3';
 univers = window.location.href.split('/')[2];
 
 // Multi langues
@@ -115,6 +122,7 @@ function blit_message_time(message, time) {
     $("#fadeBox").fadeTo(400,0.85);
     setTimeout(function(){$("#fadeBox").fadeTo(400,0);},time);
 }
+
 
 if (gup('servResponse') == '1') {
     createCookie('infoServ', gup('data'), '1', 'all');
@@ -213,6 +221,42 @@ cur_title = "";
 
 if (document.getElementsByClassName('textBeefy').length > 0) username = document.getElementsByClassName('textBeefy')[0].innerHTML.replace(/ /g,'').replace("\n",'');
 else username='unloged';
+
+/**
+ * Auth, Save and Load gmail api
+ *
+ * @param  {authResult} result of the Auth request
+ */
+function Auth_Load_Save_info(authResult) {
+    if (authResult && !authResult.error) {
+        createCookie('gapi_auth',time(),1,'all'); createCookie('gapi_token',authResult.access_token,1,'all'); createCookie('gapi_expires_in',authResult.expires_in,1,'all'); createCookie('gapi_clientid',authResult.client_id,1,'all'); createCookie('gapi_scope',authResult.scope,1,'all');
+        if (gup('sephiScript')){document.getElementById('authorize-div').style.display = 'none'; document.getElementById('alertmail-div').style.display = 'inline';
+            //document.getElementById('alertmail1-div').style.display = 'inline';
+            //document.getElementById('alertmail2-div').style.display = 'inline';
+            appendResults(document.getElementById('output'),(isFR)?'Vous avez autorisé google à envoyer des mails en votre nom. Merci pour votre confiance.':'You have authorized google to send email for you. Thanks to trust us.');
+        }
+        blit_message((isFR)?'Vous êtes maintenant authentifié auprés de Google gmail!':'You are now authenticated on Google gmail!');
+        loadGmailApi();
+    } else {
+        createCookie('gapi_auth',0,1,'all'); createCookie('gapi_token',0,1,'all'); createCookie('gapi_expires_in',0,1,'all'); createCookie('gapi_clientid',0,1,'all'); createCookie('gapi_scope',0,1,'all');
+        if (gup('sephiScript')) {
+            document.getElementById('authorize-div').style.display = 'inline';            document.getElementById('alertmail-div').style.display = 'none';
+            //document.getElementById('alertmail1-div').style.display = 'none';
+            //document.getElementById('alertmail2-div').style.display = 'none';
+        }
+        blit_message('Perte de l\'authentification Google gmail! Cliquer sur le bouton pour vous authentifier.');
+    }
+}
+
+$(document).ready(function() 
+                  {
+                      var s = document.createElement("script");
+                      s.type = "text/javascript";
+                      s.src = "https://apis.google.com/js/client.js?onload=checkAuth";
+                      // Use any selector
+                      $("head").append(s);
+                  });
+
 
 havetoprev = "no";
 timer="no";
@@ -425,9 +469,16 @@ function set_prev_data(name,id,val) {
 
 
 load_important_vars();
-alert_mail = readCookie('alert_mail','all');
-if (alert_mail==null || !ckeckmail(alert_mail)) alert_mail = '';
-else createCookie('alert_mail',alert_mail,1,'all');
+alert_mail_to = readCookie('alert_mail_to','all');
+alert_mail_body = readCookie('alert_mail_body','all');
+alert_mail_freq = readCookie('alert_mail_freq','all');
+if (alert_mail_to==null || !checkmail(alert_mail_to)) alert_mail_to = '';
+else createCookie('alert_mail_to',alert_mail_to,1,'all');
+if (alert_mail_body==null || alert_mail_body == "") alert_mail_body = 'Hello,\r\nThis mail to alert you that you are facing on an attack.\r\n\r\nYour [CP_ISLUNE] [CP_NAME] [[CP_COORDS]] will be attacked in [CP_IMPACTTIME].';
+else createCookie('alert_mail_body',alert_mail_body,1,'all');
+if (alert_mail_freq==null || alert_mail_freq == "") alert_mail_freq = 11; //minutes
+else createCookie('alert_mail_freq',alert_mail_freq,1,'all');
+
 //window.onbeforeunload = save_important_vars;
 
 if (importvars["listPrev"] == null || importvars["listPrev"] == 'undefinied' || importvars["listPrev"] == '') {
@@ -704,7 +755,13 @@ function add_frigo_button() {
                 fridData += '<input type="hidden" id="system'+(i+1)+'" value="'+system+'">';
                 fridData += '<input type="hidden" id="position'+(i+1)+'" value="'+planet+'">';
             } else {
-                fridData += '<p style="color:#10E010;padding:5px;text-decoration:none;padding-bottom:15px;"><b>'+coord+' '+planame+'</b> a déjà l\'honneur d\'être un de vos frigos !</p>';
+                //Imp2Toulouse- Insérer la suppression d'un frigo
+                fridData += '<p style="color:#10E010;padding:5px;text-decoration:none;padding-bottom:15px;"><b>'+coord+' '+planame+'</b> a déjà l\'honneur d\'être un de vos frigos !';
+                fridData += '<span onclick="localStorage.setItem(\'all_del_racc\', \''+coord+'\');this.innerHTML=\'Retiré des frigos !\';this.style.cursor=\'default\';this.style.color=\'#10E010\';" style="cursor:pointer;color:#A52592;padding:5px;text-decoration:none;padding-bottom:15px;">(le Retirer des frigos de <b>'+cur_planame+')</b></span></p>';
+                fridData += '<input type="hidden" id="raccourcis_name_sep'+(i+1)+'" value="'+planame.replace(' ','')+'">';
+                fridData += '<input type="hidden" id="galaxy'+(i+1)+'" value="'+galaxy+'">';
+                fridData += '<input type="hidden" id="system'+(i+1)+'" value="'+system+'">';
+                fridData += '<input type="hidden" id="position'+(i+1)+'" value="'+planet+'">';
             }
             rapports[i].parentNode.innerHTML = fridData + rapports[i].parentNode.innerHTML;
         } 
@@ -762,7 +819,8 @@ nb_trucs_supprimed = 0;
 prev_possitions = new Array();
 haveMoved = false;
 haveDel = false;
-have_to_cahnge_dropid = true;
+//Imp2Toulouse- Wording: change 'have_to_cahnge' by 'have_to_change'
+have_to_change_dropid = true;
 function save_list_in_cookies() {
     if (!dontAddToCookies && document.getElementById('is_ok_prev') !== null && document.getElementById('is_ok_prev').innerHTML == "no" && document.getElementById('havetoprev') !== null && document.getElementById('havetoprev').innerHTML == "yes") {
         
@@ -868,23 +926,42 @@ function save_list_in_cookies() {
     }
     
     // Ajout de frigo
-    if ((gup('page') == "fleet2" || gup('page') == 'messages' || gup('page') == 'galaxy') && readCookie('add_racc','all') != null && parseInt(readCookie('add_racc','all')) > 0) {
-        messageID = parseInt(readCookie('add_racc','all'));
-        createCookie('add_racc', 0, 1, 'all');
-        document.getElementById('raccourcis_name_sep'+messageID).focus();
-        
-        cur_nb=importvars["frigos"].length;
-        importvars["frigos"][cur_nb] = new Array();
-        importvars["frigos"][cur_nb][0] = document.getElementById('raccourcis_name_sep'+messageID).value.replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
-        importvars["frigos"][cur_nb][1] = document.getElementById('galaxy'+messageID).value.replace(/__/g, ''.replace(/'/g, '').replace(/"/g, ''));
-        importvars["frigos"][cur_nb][2] = document.getElementById('system'+messageID).value.replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
-        importvars["frigos"][cur_nb][3] = document.getElementById('position'+messageID).value.replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
-        importvars["frigos"][cur_nb][4] = '1';
-        importvars["frigos"][cur_nb][5] = '';
-        importvars["frigos"][cur_nb][6] = '0';
-        
-        save_important_vars();
-        blit_message(importvars["frigos"][cur_nb][0]+' a été <span style="float: none;margin: 0;color:#109E18">ajouté à vos frigos</span> !');
+    //imp2Toulouse- Retrait de Frigo
+    if ((gup('page') == "fleet2" || gup('page') == 'messages' || gup('page') == 'galaxy') && ((readCookie('add_racc','all') != null && parseInt(readCookie('add_racc','all')) > 0) || (readCookie('del_racc','all') != null && readCookie('del_racc','all').match(':')))) {
+        if (readCookie('add_racc','all') != null && parseInt(readCookie('add_racc','all')) > 0) {
+            messageID = parseInt(readCookie('add_racc','all'));
+            createCookie('add_racc', 0, 1, 'all');
+            document.getElementById('raccourcis_name_sep'+messageID).focus();
+
+            cur_nb=importvars["frigos"].length;
+            importvars["frigos"][cur_nb] = new Array();
+            importvars["frigos"][cur_nb][0] = document.getElementById('raccourcis_name_sep'+messageID).value.replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
+            importvars["frigos"][cur_nb][1] = document.getElementById('galaxy'+messageID).value.replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
+            importvars["frigos"][cur_nb][2] = document.getElementById('system'+messageID).value.replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
+            importvars["frigos"][cur_nb][3] = document.getElementById('position'+messageID).value.replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
+            importvars["frigos"][cur_nb][4] = '1';
+            importvars["frigos"][cur_nb][5] = '';
+            importvars["frigos"][cur_nb][6] = '0';
+
+            save_important_vars();
+            blit_message(importvars["frigos"][cur_nb][0]+' a été <span style="float: none;margin: 0;color:#109E18">ajouté à vos frigos</span> !');
+            
+            messageID=null;
+        }
+        //Imp2Toulouse- Ajout de la suppression d'un frigo
+        if (readCookie('del_racc','all') != null && readCookie('del_racc','all').match(':')) {
+            
+            var coord = readCookie('del_racc','all');
+            var delid=is_frigo(importvars["frigos"],coord);
+            createCookie('del_racc', 0, 1, 'all');
+            frig_name=importvars["frigos"][delid][0];
+            importvars["frigos"].splice(delid, 1);
+            
+            save_important_vars();
+            blit_message(frig_name+' a été <span style="float: none;margin: 0;color:#109E18">supprimé de vos frigos</span> !');
+            
+            coord=null;delid=null;frig_name=null;
+        }       
     }
     
     /* Affichage des raccourcis */
@@ -906,6 +983,9 @@ function delete_frigo(){
     delid = parseInt(this.id.replace('del_button_',''));
     importvars["frigos"].splice(delid, 1);
     save_important_vars();
+    
+    delid=null;
+    
     window.location.href = window.location.href;
 }
 
@@ -931,7 +1011,7 @@ function is_frigo(frigos,coord){
             && frigos[j][2] == coord.replace('[','').replace(']','').split(':')[1] // = System
             && frigos[j][3] == coord.replace('[','').replace(']','').split(':')[2] // = planet
            ) {
-            return(j);
+            return(parseInt(j));
         }
     }
     return(-1);
@@ -947,27 +1027,64 @@ function get_info_button(button){
         } else {// No evolution, return same information
             return ((parseInt(button[1].split('</span>')[1].split('|')[1].match(/\d+/).join(""))+":"+parseInt(button[1].split('</span>')[1].split('|')[1].match(/\d+/).join(""))).split(':'));
         }
+    } else {
+        //Imp2Toulouse- Antigame compatibility, Check if an evolution is running and get back next level
+        if (button[0].split('</span>').length >= 4) {// An evolution on going, return current level and next level
+            return ((parseInt(button[1].split('|')[1].match(/\d+/).join(""))+":"+parseInt(button[0].split('undermark">')[1].match(/\d+/).join(""))).split(':'));
+        } else {// No evolution, return same information
+            return ((parseInt(button[0].split('undermark">')[1].match(/\d+/).join(""))+":"+parseInt(button[0].split('undermark">')[1].match(/\d+/).join(""))).split(':'));
+        }        
+    }
 }
-//Imp2Toulouse: Add function calculating the cool time
-function get_last_AA_coolTime(){
+//Imp2Toulouse: Add function calculating the cool time + transform to be generic (myvalue in param) + show week if needed ==> Change fonction name from get_last_AA_coolTime to get_Time_Remain
+function get_Time_Remain(myvalue){
     lastAAcoolTime=null;
-    if (readCookie("last_start", "AA") !== null) {
-        lastAATime = parseInt((time() - parseInt(readCookie("last_start", "AA")))/1000);
+    if (myvalue !== null) {
+        //Added to anticipate to the translation centralization
+        if (isFR){min_translate='minute';mins_translate='minutes';hour_translate='heure';hours_translate='heures';day_translate='jour';days_translate='jours';week_translate='semaine';weeks_translate='semaines';and_translate='et';} else {min_translate='minut';mins_translate='minuts';hr_translate='hour';hrs_translate='hours';day_translate='day';days_translate='days';week_translate='week';weeks_translate='weeks';and_translate='and';}
+        lastAATime = parseInt((time() - parseInt(myvalue))/1000);
         lastAATimeMin = Math.floor((lastAATime/60) % 60);
         lastAATimeHour = Math.floor((lastAATime/60/60));
+        //added
+        lastAATimeHourRemain = Math.floor((lastAATime/60/60) % 24);
+        lastAATimeDay = Math.floor((lastAATime/60/60/24));
+        lastAATimeDayRemain = Math.floor((lastAATime/60/60/24) % 7);
+        lastAATimeWeek = Math.floor((lastAATime/60/60/24/7));
 
         minutesText = '';
-        if (lastAATimeMin > 1) minutesText = lastAATimeMin+' minutes';
-        if (lastAATimeMin <= 1) minutesText = lastAATimeMin+' minute';
+        if (lastAATimeMin > 1)  minutesText = lastAATimeMin+' '+mins_translate;
+        if (lastAATimeMin <= 1) minutesText = lastAATimeMin+' '+min_translate;
 
         hourText = '';
-        if (lastAATimeHour > 1) hourText = lastAATimeHour+' heures';
-        if (lastAATimeHour == 1) hourText = lastAATimeHour+' heure';
+        if (lastAATimeHour > 1)  hourText = lastAATimeHour+' '+hours_translate;
+        if (lastAATimeHour == 1) hourText = lastAATimeHour+' '+hour_translate;
+        //added
+        hourRemainText = '';
+        if (lastAATimeHourRemain > 1)  hourRemainText = lastAATimeHourRemain+' '+hours_translate;
+        if (lastAATimeHourRemain == 1) hourRemainText = lastAATimeHourRemain+' '+hour_translate;
+
+        dayText = '';
+        if (lastAATimeDay > 1)   dayText = lastAATimeDay+' '+days_translate;
+        if (lastAATimeDay == 1)  dayText = lastAATimeDay+' '+day_translate;
+        dayRemainText = '';
+        if (lastAATimeDayRemain > 1){   hourText=hourRemainText;dayRemainText = lastAATimeDayRemain+' '+days_translate;}
+        if (lastAATimeDayRemain == 1){  hourText=hourRemainText;dayRemainText = lastAATimeDayRemain+' '+day_translate;}
+        //end added
+        
+        weekText = '';
+        if (lastAATimeWeek > 1)  {hourText=hourRemainText; dayText=dayRemainText; weekText = lastAATimeWeek+' '+weeks_translate}
+        if (lastAATimeWeek == 1) {hourText=hourRemainText; dayText=dayRemainText; weekText = lastAATimeWeek+' '+week_translate;}
 
         etText = '';
         if (minutesText !== '' && hourText !== '') etText = ' et ';
 
-        lastAAcoolTime = hourText + etText + minutesText;
+        etText2 = '';
+        if (dayText !== '') etText2 = ', ';
+
+        etText3 = '';
+        if (weekText !== '') etText3 = ', ';
+
+        lastAAcoolTime = weekText + etText3 + dayText + etText2 + hourText + etText + minutesText;
 
         //A little garbage
         lastAATime=null;lastAATimeMin=null;lastAATimeHour=null;minutesText=null;hourText=null;etText=null;
@@ -1191,18 +1308,45 @@ function launch_spy(merde){
 }
 
 function save_alert_mail() {
-    mail = document.getElementById('alert_mail').value;
-    
-    if (ckeckmail(mail) == true) {createCookie('alert_mail',mail,1,'all');blit_message('Votre adresse mail <span style="float: none;margin: 0;color:#109E18">à été enregistrée</span>.');}
-    else {
-        if (mail=='') {createCookie('alert_mail',mail,1,'all');blit_message('La fonction d\'alerte <span style="float: none;margin: 0;color:#109E18">à été désactivée</span>.');}
-        else blit_message('Votre adresse mail est <span style="float: none;margin: 0;color:#d43635">est incorrecte</span>.');
+    var mail = document.getElementById('alert_mail_to').value;
+    var body = document.getElementById('alert_mail_body').value;
+    var freq = document.getElementById('alert_mail_freq').value;
+    //Imp2Toulouse- Get back information about mail checking.
+    if (checkmail(mail) == true) {
+        createCookie('alert_mail_to',mail,1,'all');
+        createCookie('alert_mail_body',body,1,'all');
+        createCookie('alert_mail_freq',freq,1,'all');
+        blit_message('Vous pouvez <span style="float: none;margin: 0;color:#109E18">tester</span> l\'envoi d\'un mail.');
+        document.getElementById('test-mail').style.display = 'inline';
+        return ('enregistrée');
+    } else {
+        if (mail=='') {
+            createCookie('alert_mail_to',mail,1,'all');
+            createCookie('alert_mail_body',mail,1,'all');
+            createCookie('alert_mail_freq',freq,1,'all');
+            //blit_message('La fonction d\'alerte <span style="float: none;margin: 0;color:#109E18">à été désactivée</span>.');
+            document.getElementById('test-mail').style.display = 'none';
+            return ('supprimée');
+        } else return ('incorrecte');//blit_message('Votre adresse mail est <span style="float: none;margin: 0;color:#d43635">est incorrecte</span>.');
     }
 }
 
-function send_alert_mail() {
-     // Envoi du mail
-    xhr.onreadystatechange  = function() {
+function send_alert_mail(cp_attacked,coords,isOnLune,time_attack) {
+ /*   $(document).ready(function() 
+                      {
+                          var s = document.createElement("script");
+                          s.type = "text/javascript";
+                          s.src = "https://apis.google.com/js/client.js?onload=checkAuth";
+                          // Use any selector
+                          $("head").append(s);
+                      });
+*/
+    //Imp2Toulouse- En attente des tests
+    //gapi.client.load('gmail', 'v1');
+    sendMessage(readCookie('alert_mail_to','all'),readCookie('alert_mail_body','all').replace("[CP_NAME]",cp_attacked).replace("[CP_COORDS]",coords).replace("[CP_ISLUNE]",(isOnLune)?"Lune":"Planet").replace("[CP_IMPACTTIME]",getFormatedTime(time_attack).replace(/:/," hours, ").replace(/:/, " minutes and ")+ " seconds"),'http://'+univers+'/game/index.php?page=shipyard&sephiScript=1');
+    createCookie('attack_advert', time(), 1, 'all');
+    // Envoi du mail
+/*    xhr.onreadystatechange  = function() {
         if(xhr.readyState  == 4) {
             createCookie('attack_advert', time(), 1, 'all');
             if(xhr.status  == 200) {
@@ -1217,6 +1361,7 @@ function send_alert_mail() {
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");  
     var data = "type=mail_attack&username="+username+"&mail="+alert_mail;
     xhr.send(data);
+*/
 }
 
 //Imp2Toulouse- Take into account eject time set
@@ -1565,9 +1710,11 @@ function gestion_cook() {
                         blit_message('Changement de planète annulé dans l\'<span style="float: none;margin: 0;color:#109E18">attente d\'une construction</span>.');
                     }
                 }
-                
-                h = document.getElementById('info_prog_time_'+i_gestion).innerHTML;
-                if (h.match('>') || !h.match('Prêt')) break;
+                //Imp2Toulouse- Add this condition cause getting error on Galaxy page where info_prog_time is not used
+                h = document.getElementById('info_prog_time_'+i_gestion);
+                if (h != null) {
+                    if (h.innerHTML.match('>') || !h.innerHTML.match('Prêt')) break;
+                }
             }
         }
     }
@@ -1590,7 +1737,7 @@ function finish_rapport_general() {
     }
 }
 
-function read_rapports_and_create_table () {
+function read_rapports_and_create_table() {
     if (document.getElementById('mailz') == null) stopMail = true;
     
     if (stopMail) {
