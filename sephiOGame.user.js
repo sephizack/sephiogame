@@ -34,7 +34,7 @@
 //                     *Add email configuration in sephiOGame page
 //                     *Correction about detection of destFleet on ejection
 //                     *Add the direct retirement of a frigo in Galaxy and message menu
-
+//3.6.3.1: Imp2Toulouse- *Compatibolity correction
 
 
 
