@@ -1432,29 +1432,6 @@ function check_attack() {
 }
 setTimeout(check_attack, 2000);
 
-function send_internal_message(){
-    //var attaker_message_url=document.getElementsByClassName('eventFleet')[document.getElementsByClassName('eventFleet').length-1].innerHTML.split(/<td class="originFleet">/)[1].match(/href=.*\ title/)[0].split(' ')[0].replace('href="','').replace('"','').replace(/&amp;/gi,'&').toString();
-    var attaker_message_url='http://'+univers+'/game/index.php?page=writemessage&to=128720&ajax=1';
-    var data = "betreff=test auto&text=test Body auto";
-    var params = {
-        betreff: "test auto",
-        text: "test Body"
-    }
-
-    //PostXMLHttpRequest(attaker_message_url,data,function(){blit_message_time("<font color=green><b>Avertissement</b> de l'attaquant par message interne.</font>", 60000);});
-    $.ajax(attaker_message_url, {
-        data: params,
-        dataType: "json",
-        type: "POST",
-        success: function(call) {
-            console.log(call.response);
-            blit_message_time("<font color=green><b>Avertissement</b> de l'attaquant par message interne.</font>", 60000);
-        }
-    });
-}
-
-if (gup("sendmess")) send_internal_message();
-
 function check_espionnage_finished() {
     xhr.onreadystatechange = function() 
     { 
