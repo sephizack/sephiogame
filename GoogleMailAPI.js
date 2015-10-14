@@ -66,3 +66,10 @@ function loadGmailApi() {createCookie('gapi_gmail_loaded',0,1,'all');gapi.client
  * @param  {Function} callback Function to call when the request is complete.
  */
 function sendMessage(userId, body, callback) {var mail = "Content-Type:  text/plain; charset=\"UTF-8\"\r\n" + "From: \"sephiOGame\" <sephiOGame@gmail.com>\r\n" + "To: "+userId+"\r\n"+"Subject: Ogame Attack Alert\r\n\r\n" +body+"\r\n\r\n"+"(c)SephiOGame Team\r\n";var mailencoded=btoa(mail).replace(/\+/g, '-').replace(/\//g, '_'); mail=null; gapi.auth.authorize({'client_id': '4911713620-3podd31sn547c21h1mvidibmaiiupmug.apps.googleusercontent.com', 'scope': ['https://www.googleapis.com/auth/gmail.send'], 'immediate': true},function(authResult){if (authResult && !authResult.error) {gapi.client.load('gmail', 'v1', function(){var request = gapi.client.gmail.users.messages.send({'userId': 'me','resource': {'raw': mailencoded}});request.execute(callback);blit_message('Email envoyé!');});}})}
+
+/**
+ * New check auth system.
+ *
+ * @param  {Events} Events linked with this call
+ */
+function checkAuth_NEW(event) {if (is_token_valide()){var temps_restant=get_Time_Remain(readCookie('gapi_auth','all'));appendResults(document.getElementById('output'),(isFR)?'Votre authentification est valide depuis '+temps_restant+' minutes.':'Your authentication is alive since '+temps_restant+' minutes yet.');temps_restant=null;if (!is_gmail_loaded()) loadGmailApi();} else {blit_message('Authentification expirée, reconnexion!');gapi.auth.authorize({'client_id': '4911713620-3podd31sn547c21h1mvidibmaiiupmug.apps.googleusercontent.com','scope': ['https://www.googleapis.com/auth/gmail.send'],'approval_prompt': 'force','immediate': false},Auth_Load_Save_info);}return false; }
