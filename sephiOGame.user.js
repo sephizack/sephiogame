@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.6.3
+// @version     3.6.3.1
 // @description Script Ogame
 // @author      Sephizack
 // @include     *ogame.gameforge.com*
@@ -12,6 +12,7 @@
 // @fuckrequire http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js
 // @require     http://www.sephiogame.com/script/FileSaver.js
 // @require     http://www.sephiogame.com/script/googleMailAPI.js
+
 // ==/UserScript==
 
 //History Version
@@ -33,13 +34,13 @@
 //                     *Add email configuration in sephiOGame page
 //                     *Correction about detection of destFleet on ejection
 //                     *Add the direct retirement of a frigo in Galaxy and message menu
-
+//3.6.3.1: Imp2Toulouse- *Compatibolity correction
 
 
 
 antiBugTimeout = setTimeout(function() {location.href=location.href;}, 5*60*1000);
 
-cur_version = '3.6.3';
+cur_version = '3.6.3.1';
 univers = window.location.href.split('/')[2];
 
 // Multi langues
@@ -67,7 +68,7 @@ if (d.length >= 1) d[0].style.display = 'none';
 
 // Fonctions de base
 function time() {mytime=new Date();return mytime.getTime();}
-function ckeckmail(mailteste){var reg = new RegExp('^[a-z0-9]+([_|\.|-]{1}[a-z0-9]+)*@[a-z0-9]+([_|\.|-]{1}[a-z0-9]+)*[\.]{1}[a-z]{2,6}$', 'i');return(reg.test(mailteste));}
+function checkmail(mailteste){var reg = new RegExp('^[a-z0-9]+([_|\.|-]{1}[a-z0-9]+)*@[a-z0-9]+([_|\.|-]{1}[a-z0-9]+)*[\.]{1}[a-z]{2,6}$', 'i');return(reg.test(mailteste));}
 function escapeHtml(text) {return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");}
 function setOpacity(obj,value) {obj.style.opacity = value;obj.style.filter = 'alpha(opacity=' + value*100 + ')';}
 function createCookie(name,value,days, pref) {
@@ -81,6 +82,8 @@ function readCookie(name, pref) {
     return localStorage.getItem(name);
 }
 function eraseCookie(name, pref) {
+    if (pref == 'all') name = pref+'_'+name;
+    else name = cur_planet+'_'+pref+'_'+name;
     localStorage.removeItem(name);
 }
 function sleep(milliseconds) {
@@ -221,6 +224,7 @@ cur_title = "";
 
 if (document.getElementsByClassName('textBeefy').length > 0) username = document.getElementsByClassName('textBeefy')[0].innerHTML.replace(/ /g,'').replace("\n",'');
 else username='unloged';
+
 
 /**
  * Auth, Save and Load gmail api
@@ -530,9 +534,9 @@ if (data !== null && data.split(":").length > 2) {
     eject_onLune = data.match('OnLune');
     //Imp2Toulouse- Preset the type of mission if the moon is used
     eject_url = 'http://'+univers+'/game/index.php?page=fleet1&galaxy='+eject_gal+'&system='+eject_sys+'&position='+eject_pla
-    eject_url+= '&type='+((eject_onLune)?3:1)+'&mission=3&eject=yes';
+    eject_url+= '&type='+((eject_onLune)?3:1)+'&mission=3&cp='+(planet_list[planame_list.indexOf(cur_planame)])+'&eject=yes';
     
-    document.getElementById('helper').innerHTML+='<div style="width:0px;height:0px;position:relative;top:-75px;left:568px;"><a style="background:none;text-decoration:none;font-size:9px;font-family:inherit;width:55px;text-align:center;" title="Faire décoller tout les vaisseaux civils et les ressources vers les coordonnées ci-dessous." href="'+eject_url+'"><img src="http://www.sephiogame.com/script/eject_button.png" /><br><span style="color:#C02020">['+eject_gal+':'+eject_sys+':'+eject_pla+']</span></a></div>';
+    document.getElementById('helper').innerHTML+='<div style="width:0px;height:0px;position:relative;top:-75px;left:568px;"><a style="background:none;text-decoration:none;font-size:9px;font-family:inherit;width:55px;text-align:center;" title="Faire décoller tout les vaisseaux civils et les ressources vers les coordonnées ci-dessous." href="'+eject_url+'"><img id="eject_button" src="http://www.sephiogame.com/images/eject_button_grey.png" /><br><span style="color:#C02020">['+eject_gal+':'+eject_sys+':'+eject_pla+']</span></a></div>';
     importvars["eject"] = data;
     save_important_vars();
     
@@ -540,7 +544,7 @@ if (data !== null && data.split(":").length > 2) {
     if (rand(1,20) == 1 && !gup('page').match('fleet')) {
         //Imp2Toulouse- Preset the type of mission if the moon is used
         eject_url = 'http://'+univers+'/game/index.php?page=fleet1&galaxy='+eject_gal+'&system='+eject_sys+'&position='+eject_pla
-        eject_url+= '&type='+((eject_onLune)?3:1)+'&mission=3&eject=yes';
+        eject_url+= '&type='+((eject_onLune)?3:1)+'&mission=3&cp='+(planet_list[planame_list.indexOf(cur_planame)])+'&eject=yes';
         $.ajax(eject_url, {
             dataType: "text",
             type: "POST",
@@ -963,11 +967,10 @@ function save_list_in_cookies() {
             coord=null;delid=null;frig_name=null;
         }       
     }
-    
     /* Affichage des raccourcis */
     dropelems = document.getElementsByClassName('dropdown dropdownList initialized');
-    if (gup('page') == "fleet2" && dropelems.length>0 && have_to_cahnge_dropid) {
-        have_to_cahnge_dropid=false;
+    if (gup('page') == "fleet2" && dropelems.length>0 && have_to_change_dropid) {
+        have_to_change_dropid=false;
         
         data_racc_dropdown='<li><a class="undefined" style="text-align:center;color:#80C080"><figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planète"></figure>------ Mes frigos ------</a></li>';
         for (i=0;i<importvars["frigos"].length;i++)
@@ -1018,23 +1021,19 @@ function is_frigo(frigos,coord){
 }
 
 //Imp2Toulouse: Add function allowing to get button information
-function get_info_button(button){    
-    var get_button_info= new Array();
-    if (button[1].split('</span>').length >= 4)
-        //Imp2Toulouse- Antigame compatibility, Check if an evolution is running and get back next level
-        if (button[0].split('</span>').length >= 4) {// An evolution on going, return current level and next level
-            return ((button[1].split('</span>')[0].match(/\d+/)+":"+button[0].split('undermark">')[1].match(/\d+/)).split(':'));
-        } else {// No evolution, return same information
-            return ((parseInt(button[1].split('</span>')[1].split('|')[1].match(/\d+/).join(""))+":"+parseInt(button[1].split('</span>')[1].split('|')[1].match(/\d+/).join(""))).split(':'));
-        }
-    } else {
-        //Imp2Toulouse- Antigame compatibility, Check if an evolution is running and get back next level
-        if (button[0].split('</span>').length >= 4) {// An evolution on going, return current level and next level
-            return ((parseInt(button[1].split('|')[1].match(/\d+/).join(""))+":"+parseInt(button[0].split('undermark">')[1].match(/\d+/).join(""))).split(':'));
-        } else {// No evolution, return same information
-            return ((parseInt(button[0].split('undermark">')[1].match(/\d+/).join(""))+":"+parseInt(button[0].split('undermark">')[1].match(/\d+/).join(""))).split(':'));
-        }        
-    }
+function get_info_button(button){
+    var current_level, evol_level;
+    if (button.getElementsByClassName("ecke").length > 0) {
+        current_level=parseInt(button.getElementsByClassName("ecke")[0].innerHTML.replace(/<(?:.|\n)*?>/gm, '').replace(/.*\|/,/^$/).match(/\d+/));
+    } else current_level=0;
+    
+    if (button.getElementsByClassName("eckeoben").length > 0) {
+        evol_level=parseInt(button.getElementsByClassName("eckeoben")[0].innerHTML.replace(/<(?:.|\n)*?>/gm, '').replace(/.*\|/,/^$/).match(/\d+/));
+    } else evol_level=current_level;
+
+    return([current_level,evol_level]);
+
+    current_level=null;evol_level=null;
 }
 //Imp2Toulouse: Add function calculating the cool time + transform to be generic (myvalue in param) + show week if needed ==> Change fonction name from get_last_AA_coolTime to get_Time_Remain
 function get_Time_Remain(myvalue){
@@ -1076,7 +1075,7 @@ function get_Time_Remain(myvalue){
         if (lastAATimeWeek == 1) {hourText=hourRemainText; dayText=dayRemainText; weekText = lastAATimeWeek+' '+week_translate;}
 
         etText = '';
-        if (minutesText !== '' && hourText !== '') etText = ' et ';
+        if (hourText !== '') etText = ' '+and_translate+' ';
 
         etText2 = '';
         if (dayText !== '') etText2 = ', ';
@@ -1087,7 +1086,7 @@ function get_Time_Remain(myvalue){
         lastAAcoolTime = weekText + etText3 + dayText + etText2 + hourText + etText + minutesText;
 
         //A little garbage
-        lastAATime=null;lastAATimeMin=null;lastAATimeHour=null;minutesText=null;hourText=null;etText=null;
+        lastAATime=null;lastAATimeMin=null;lastAATimeHour=null;lastAATimeHourRemain=null;lastAATimeWeek=null;minutesText=null;weekText=null;hourText=null;hourRemainText=null;etText=null;etText2=null;
     }
     return(lastAAcoolTime);
 }
@@ -1270,7 +1269,7 @@ function launch_spy(merde){
                 // Au bout de 5 erreurs on abandonne
                 if (want_a_AA && nb_tries>5 && next_id==0) {
                     document.getElementById('auto_attack').style.color='#F02020';
-                    document.getElementById('auto_attack').innerHTML='&#9658; Auto-Attaque repporté dans une heure (impossible d\'espionner)';
+                    document.getElementById('auto_attack').innerHTML='&#9658; Auto-Attaque reportée dans une heure (impossible d\'espionner)';
                     GLOB_abandonne_spy = true;
                     if (gup('startAA') == '1') {
                         createCookie('progTime', time() + 60*60*1000, 1,'AA' ); // re-essaye dans 30min
@@ -1332,17 +1331,6 @@ function save_alert_mail() {
 }
 
 function send_alert_mail(cp_attacked,coords,isOnLune,time_attack) {
- /*   $(document).ready(function() 
-                      {
-                          var s = document.createElement("script");
-                          s.type = "text/javascript";
-                          s.src = "https://apis.google.com/js/client.js?onload=checkAuth";
-                          // Use any selector
-                          $("head").append(s);
-                      });
-*/
-    //Imp2Toulouse- En attente des tests
-    //gapi.client.load('gmail', 'v1');
     sendMessage(readCookie('alert_mail_to','all'),readCookie('alert_mail_body','all').replace("[CP_NAME]",cp_attacked).replace("[CP_COORDS]",coords).replace("[CP_ISLUNE]",(isOnLune)?"Lune":"Planet").replace("[CP_IMPACTTIME]",getFormatedTime(time_attack).replace(/:/," hours, ").replace(/:/, " minutes and ")+ " seconds"),'http://'+univers+'/game/index.php?page=shipyard&sephiScript=1');
     createCookie('attack_advert', time(), 1, 'all');
     // Envoi du mail
@@ -1383,21 +1371,26 @@ function check_attack() {
                             setTimeout(function() {if (readCookie("desactive_alarm", 'all') !== 'yes') bruit_alert('http://www.sephiogame.com/script/alert_nuclear_bomb3.ogg');}, 4000);
                         }
                         
-                        //if (alert_mail !== '' && (readCookie('attack_advert','all') == null || (time()-parseInt(readCookie('attack_advert','all'))) > 10*60*1000) ) 
-                        //    setTimeout(send_alert_mail,2000);
+                        //if (alert_mail_to !== '' && (readCookie('attack_advert','all') == null || (time()-parseInt(readCookie('attack_advert','all'))) > 10*60*1000) ) 
+                          //  setTimeout(send_alert_mail,2000);
                         
                         // Auto-Eject
                         events = xhr.responseText.split('eventFleet');
                         for (i=1 ; i<events.length ; i++) {
                             if (events[i].match('Flotte ennemie') && !events[i].match("http://gf3.geo.gfsrv.net/cdnb7/60a018ae3104b4c7e5af8b2bde5aee.gif") && !events[i].match("http://gf3.geo.gfsrv.net/cdne8/583cd7016e56770a23028cba6b5d2c.gif")) {
-                                //Imp2Toulouse- Compatibility with antigame - return back - need test
-                                isOnLune = events[i].getElementsByClassName('destFleet')[0].innerHTML.match('moon');
-                                //isOnLune = events[i].match('moon');
+                                //Imp2Toulouse- Compatibility with antigame
+                                //isOnLune = events[i].getElementsByClassName('destFleet')[0].innerHTML.match('moon'); // Impossible d'utiliser GEBCN sur cet objet
+                                isOnLune=events[i].split(/<td class="destFleet">/)[1].split(/<\/td>/)[0].match("moon");
+
+                                boxmessageurl=events[i].split(/<td class="originFleet">/)[1].split(/title/)[0].split(/href="/)[1].replace('href="','').replace('"','').trim();
                                 coords = '['+events[i].split('destCoords')[1].split('[')[1].split(']')[0]+']';
                                 if (isOnLune) coords += 'Lune';
                                 time_attack = parseInt(events[i].split('data-arrival-time="')[1].split('"')[0]) - Math.floor(time()/1000);
                                 cp_attacked = planet_list[planet_list_coords.indexOf(coords)];
-                                
+                                //Imp2Toulouse- Add frequency defined in param
+                                if (alert_mail_to !== '' && (readCookie('attack_advert','all') == null || (time()-parseInt(readCookie('attack_advert','all'))) > parseInt(readCookie('alert_mail_freq','all'))*60*1000) ) 
+                                    setTimeout(send_alert_mail(planame_list[planet_list_coords.indexOf(coords)],coords,isOnLune,time_attack),2000);
+
                                 if (time_attack > start_after_less) return;
                                 
                                 if (readCookie('escaped_'+cp_attacked, 'all') !== null && time() - parseInt(readCookie('escaped_'+cp_attacked, 'all')) < 20*60*1000) {
@@ -1437,7 +1430,6 @@ function check_attack() {
     }
 }
 setTimeout(check_attack, 2000);
-
 
 function check_espionnage_finished() {
     xhr.onreadystatechange = function() 
@@ -1748,7 +1740,7 @@ function read_rapports_and_create_table() {
     
     elems = document.getElementById('mailz').innerHTML.split('entry trigger'+class_bonus);
     no_more_new_esp = true;
-    
+
     for (i=1; i<elems.length && count_esp<nb_limit*2; i++) {
         if (class_bonus.match("new")) elems[i] = elems[i].split('entry trigger')[0];
         if (elems[i].match('Rapport d`espionnage de')) {
@@ -1756,16 +1748,15 @@ function read_rapports_and_create_table() {
             tmp = elems[i].split('</figure>')[1].split('</span>')[0];
             planame = tmp.split(' [')[0];
             coord = '['+tmp.split('[')[1];
-            
+ 
             tmp = coord.replace('[','').replace(']','').split(':');
             galaxy = tmp[0];
             system = tmp[1];
             planet = tmp[2];
-            
+
             //Imp2Toulouse: Replace by function
             idFrig=is_frigo(importvars["frigos"],coord);
 
-            
             // Si c'est pas un frigo et qu'on est en mode auto-attaque on l'attaque pas
             if (idFrig>=0 || gup('RG') !== 'OUI') {
                 count_esp++;
@@ -1795,7 +1786,7 @@ function read_rapports_and_create_table() {
                 if (elems[i].match('status_abbr_active')) color='color:#fff;';
                 if (elems[i].match('status_abbr_inactive')) color='color:#6E6E6E;';
                 if (elems[i].match('status_abbr_longinactive')) color='color:#4F4F4F;';
-                
+ 
                 data += '<tr id="rap_general_line_'+count_esp+'"><td id="rap_general_coord_'+count_esp+'" style="border: 1px solid #303030;padding: 5px 8px;text-align:center;height: 28px;">'+coord+'</td>';
                 data += '<td style="border: 1px solid #303030;padding: 5px 8px;"><a target=_blank style="text-decoration:none;'+color+'" href="http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1" onclick="this.style.textDecoration=\'line-through\'"><span id="rap_general_planet_name_'+count_esp+'">'+planame+'</span></a><span id="url_rap_esp_'+count_esp+'" style="display:none;">'+url+'</span></td>';
                 data += '<td id="rap_general_butin_'+count_esp+'" style="border: 1px solid #303030;padding: 5px 8px;text-align:center;font-weight:bold;color:#FF9600;">-</td>';
@@ -1829,6 +1820,7 @@ function read_rapports_and_create_table() {
     if (!stopMail) setTimeout(function () {ajaxLoad(9,cur_mail_page);}, 1000);
     
     setTimeout(read_rapports_and_create_table, 3000);
+    
 }
 
 cur_mail_page = 1;
@@ -1970,7 +1962,7 @@ function fill_rapport_general() {
         document.getElementById('rap_general_table').innerHTML = GLOB_rgEndData;
         
         //Imp2Toulouse- clean lastRap
-        eraseCookie('lastRap', null);
+        eraseCookie('lastRap', 'AA');
         createCookie('lastRap', document.getElementById('rap_general_table').innerHTML, 1, 'AA');
         //Imp2Toulouse- Add last_start in storage because it miss on first generated rapport with auto_AA (using own message results)
         createCookie('last_start', time(), 1,'AA');
@@ -2206,19 +2198,19 @@ if ((gup('page') == "resources" && !cur_planetIsLune) || (gup('page') == "statio
     lvlBaseLunaire_Next = 0;
 
     if (!cur_planetIsLune) {
-        var info_button1=get_info_button(document.getElementById("button1").innerHTML.split('<span class="level" style="font-size: 9px;">'));
+        var info_button1=get_info_button(document.getElementById("button1"));
         lvlMineMetal= parseInt(info_button1[0]);
         lvlMineMetal_Next= parseInt(info_button1[1]);
 
-        var info_button2=get_info_button(document.getElementById("button2").innerHTML.split('<span class="level" style="font-size: 9px;">'));
+        var info_button2=get_info_button(document.getElementById("button2"));
         lvlMineCris= parseInt(info_button2[0]);
         lvlMineCris_Next= parseInt(info_button2[1]);
 
-        var info_button3=get_info_button(document.getElementById("button3").innerHTML.split('<span class="level" style="font-size: 9px;">'));
+        var info_button3=get_info_button(document.getElementById("button3"));
         lvlSynthDeut= parseInt(info_button3[0]);
         lvlSynthDeut_Next= parseInt(info_button3[1]);
 
-        var info_button4=get_info_button(document.getElementById("button4").innerHTML.split('<span class="level" style="font-size: 9px;">'));
+        var info_button4=get_info_button(document.getElementById("button4"));
         lvlSolar= parseInt(info_button4[0]);
         lvlSolar_Next= parseInt(info_button4[1]);
 
@@ -2230,7 +2222,7 @@ if ((gup('page') == "resources" && !cur_planetIsLune) || (gup('page') == "statio
 
     } else {
 
-        var info_button2=get_info_button(document.getElementById("button2").innerHTML.split('<span class="level" style="font-size: 9px;">'));
+        var info_button2=get_info_button(document.getElementById("button2"));
         lvlBaseLunaire= parseInt(info_button2[0]);
         lvlBaseLunaire_Next= parseInt(info_button2[1]);
 
@@ -2600,9 +2592,172 @@ if (haveSondes && count_types == 1 && document.getElementById('button6').classNa
 //   mission=1 - Attaquez la flotte / la défense - setSelected(1);updateMission("Attaquer","Attaquez la flotte et la d\u00e9fense de votre adversaire.","off",1);
 //   mission=0 - Undefined
 
-//For our need, mission=3 and (type=1 ou type=3, if target is a moon)
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//TEST nouvelle facon d'ejecter
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+function getXmlHttp() {
+   if (window.XMLHttpRequest) {
+      xmlhttp=new XMLHttpRequest();
+   } else if (window.ActiveXObject) {
+      xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+   }
+   if (xmlhttp == null) {
+      alert("Your browser does not support XMLHTTP.");
+   }
+   return xmlhttp;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+function PostXMLHttpRequest(_url,_data,_callback){
+	xmlhttp = getXmlHttp();
+	xmlhttp.onreadystatechange = function() {
+		if (xmlhttp.readyState==4) {
+			_callback(xmlhttp.responseText);
+		}
+	}
+	xmlhttp.open("POST", _url, true);
+	xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	xmlhttp.send(_data);
+	return xmlhttp;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function SmartCut(source,prefix,suffix){
+	if(typeof(prefix)=='object'){
+		var pi=0;
+		for(var i=0;(i<prefix.length)&&(pi!=-1);i++){
+			pi=source.indexOf(prefix[i],pi);
+		}
+		if(pi!=-1){
+			var copyFrom=pi+prefix[prefix.length-1].length;
+			var si=source.indexOf(suffix,copyFrom);
+			var r=source.substring(copyFrom,si);
+			return r;
+		}else return false;
+	}else{
+		var pi=source.indexOf(prefix);
+		if(pi!=-1){
+			var si=source.indexOf(suffix,pi+prefix.length);
+			var r=source.substring(pi+prefix.length,si);
+			return r;
+		}else return false;
+	};
+};
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+function Info(text){
+	var txt="";
+	for( var i = 0; i < arguments.length; i++ ) txt+=arguments[i];
+	console.log(txt);
+};
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+function SendFleet(response){
+    var page=SmartCut(response,'<body id="','"');
+    var params=JSON.parse(readCookie('data','form'));
+    switch(page)
+    {
+        case 'fleet1':
+            //          Info('Response >',response,'<');
+            if (params.step ==1){ //If first step
+                params.step++; //Next step
+                params.page=params.page.replace(page,"fleet2"); // Replace for next fleet2 page
+                createCookie('data',JSON.stringify(params), 1, 'form'); // Save params
+                PostXMLHttpRequest(params.url+"?"+params.page,params.to +"&"+ params.type_mission +"&"+ params.fleets,SendFleet);
+            } else {
+                SendFleetFailed();
+            }
+            break;
+        case 'fleet2':
+            //Info('Response >',response,'<');
+            if (params.step ==2){ //If second step
+                params.step++;
+                params.page=params.page.replace(page,"fleet3"); // Replace for next fleet3 page
+                createCookie('data',JSON.stringify(params), 1, 'form');
+                PostXMLHttpRequest(params.url+"?"+params.page,params.type_mission +"&"+ params.fleets +"&"+ params.to,SendFleet);
+            } else {
+                SendFleetFailed();
+            }
+            break;
+        case 'fleet3':
+            //Info('Response >',response,'<');
+            if (params.step ==3){ //If third step
+                var token=SmartCut(response,["token'","='"],"'");
+                //Info('Token >',token,'<');
+                params.step++;
+                params.page=params.page.replace(page,"movement"); // Replace for next movement page
+                createCookie('data',JSON.stringify(params), 1, 'form');
+                PostXMLHttpRequest(params.url+"?"+ params.page,params.fleets_opts +"&"+ params.to +"&"+ params.type_mission +"&"+ params.fleets +"&"+ params.ressources +"&"+ params.token+token,SendFleet);
+            } else {
+                SendFleetFailed();
+            }
+            break;
+        case 'movement':
+            //if( parseInt(readCookie('step','form')) == 4){
+                //Conf the coming back fleet
+            if (params.step ==4){ //If third step
+                createCookie('retour_auto', 'oui', 1, 'eject'); createCookie('ejection_time', time(), 1, 'eject'); 
+                SendFleetSuccess();
+            } else {
+                SendFleetFailed();
+            }
+            break;
+        default:
+            SendFleetFailed()
+    }
+    page=params=null;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+function SendFleetSuccess(){
+    document.getElementById('eject_button').src=document.getElementById('eject_button').src.replace("grey","green");
+    blit_message("<b>Ejection</b> correctement effectuée depuis "+cur_planame+".");
+    setTimeout(function(){window.location.href = "http://"+univers+"/game/index.php?page=overview&cp="+(readCookie('eject_selectPlanet', 'all'));}, 4000);
+}
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+function SendFleetFailed(){
+    document.getElementById('eject_button').src=document.getElementById('eject_button').src.replace("grey","red");
+    blit_message("<b>Ejection</b> en erreur depuis "+cur_planame+".");
+    setTimeout(function(){document.getElementById('eject_button').src=document.getElementById('eject_button').src.replace("red","grey");window.location.href = "http://"+univers+"/game/index.php?page=overview&cp="+(readCookie('eject_selectPlanet', 'all'));}, 4000);
+}
 
 if (gup('page') == "fleet1" && gup('eject') == 'yes') {
+    createCookie('eject_selectPlanet', planet_list[planame_list.indexOf(cur_planame)], 1, 'all');
+    
+    var params; 
+    /*var cp ="cp="+planet_list[planame_list.indexOf(cur_planame)];
+    var url= "http://"+univers+"/game/index.php";
+    var to= "galaxy="+(importvars['eject'].split(':')[0])+"&system="+(importvars['eject'].split(':')[1])+"&position="+(importvars['eject'].split(':')[2]);
+    var type_mission= "type="+((eject_onLune)?"3":"1")+"&mission=4";
+    var fleets="speed=1&am204=99999&am205=99999&am206=99999&am207=99999&am215=99999&am211=99999&am213=99999&am214=99999"+((eject_all)?"&am202=99999&am203=99999&am208=99999&am209=99999&am210=99999":""); 
+    var ressources="metal=999999999&crystal=999999999&deuterium=999999999";
+    var fleets_opts= "union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=0&expeditiontime=0&retreatAfterDefenderRetreat=0";
+    var token= "token=";
+    var step = 1;
+    params=JSON.parse('{ "url": "'+url+'", "page": "page=fleet1", "from": "'+cp+'", "to": "'+to+'", "type_mission": "'+type_mission+'", "fleets": "'+fleets+'", "ressources": "'+ressources+'", "fleets_opts": "'+fleets_opts+'", "token": "'+token+'", "step": "'+step+'"}');*/
+    
+    params=JSON.parse('{ "url": "'+"http://"+univers+"/game/index.php"+'", "page": "page=fleet1", "from": "'+"cp="+planet_list[planame_list.indexOf(cur_planame)]+'", "to": "'+"galaxy="+(importvars['eject'].split(':')[0])+"&system="+(importvars['eject'].split(':')[1])+"&position="+(importvars['eject'].split(':')[2])+'", "type_mission": "'+"type="+((eject_onLune)?"3":"1")+"&mission=4"+'", "fleets": "'+"speed=1&am204=99999&am205=99999&am206=99999&am207=99999&am215=99999&am211=99999&am213=99999&am214=99999"+((eject_all)?"&am202=99999&am203=99999&am208=99999&am209=99999&am210=99999":"")+'", "ressources": "'+"metal=999999999&crystal=999999999&deuterium=999999999"+'", "fleets_opts": "'+"union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=0&expeditiontime=0&retreatAfterDefenderRetreat=0"+'", "token": "'+"token="+'", "step": "'+1+'"}');
+    createCookie('data',JSON.stringify(params), 1, 'form');
+    PostXMLHttpRequest(params.url+"?"+params.page+"&"+params.from,"",SendFleet);
+    params=null;
+//    PostXMLHttpRequest("http://s129-fr.ogame.gameforge.com/game/index.php?page=fleet1&cp="+(planet_list[planame_list.indexOf(cur_planame)]),"",SendFleet);
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+//For our need, mission=3 and (type=1 ou type=3, if target is a moon)
+
+/*if (gup('page') == "fleet1" && gup('eject') == 'yes') {
     //Imp2Toulouse- Change eject processus in order to use existant origine function
 
     //document.getElementById('shipsChosen').action += '&eject=yes';
@@ -2674,7 +2829,7 @@ if (gup('page') == "fleet3" && gup('eject') == 'yes') {
     //Launch form
     setTimeout(function(){form.submit();}, 1000);
     //setTimeout(function(){trySubmit()}, 1000);
-}
+}*/
 if (gup('page') == "movement" && readCookie('retour_auto', 'eject') == 'oui' && time() - parseInt(readCookie('ejection_time', 'eject')) > retour_time){
     createCookie('retour_auto', 'non', 1, 'eject');
     flottes = document.getElementsByClassName('fleetDetails');
@@ -2685,8 +2840,11 @@ if (gup('page') == "movement" && readCookie('retour_auto', 'eject') == 'oui' && 
             r = flottes[i].innerHTML.split('return=')[1].split('"')[0];
 
             // Autorise à re-ejecter dès que les flottes sont rentrés
-            createCookie('escaped_'+cur_planet, null, 'all');
+            //createCookie('escaped_'+cur_planet, null, 'all');
+            eraseCookie('escaped_'+readCookie('eject_selectPlanet', 'all'), 'all');
+            eraseCookie('eject_selectPlanet', 'all');
             setTimeout(function(){window.location.href = 'http://'+univers+'/game/index.php?page=movement&back=1&return='+r;}, 2000);
+            document.getElementById('eject_button').src=document.getElementById('eject_button').src.replace("green","grey").replace("red","grey");
             break;
         }
     }
@@ -2839,7 +2997,7 @@ if (gup('page') == 'movement') {
                 quant_deut[id_dest] += deut;
             }
         }
-            }
+    }
     
     for (i=0 ; i<planets.length ; i++) {
         if (quant_metal[i] == undefined || quant_metal[i] == 0) quant_metal[i] = '-';
@@ -2883,7 +3041,7 @@ if (gup('page') == 'messages') {
     data += '<div style="width:636px;background-color: #14191f;margin:auto;position:relative;left:4px;top:8px;padding-bottom:10px;">';
     data += '<iframe id="rapport_option_quick_active" style="display:none"></iframe><p id="rapport_option_quick" style="cursor:pointer;display:none;text-align:left;color:darkred;position:relative;top:7px;padding-left:30px;font-weight:normal;padding-bottom:10px;padding-top:10px;">&#9658; Cliquez ici pour accélérer la génération des rapports généraux<br><span style="position:relative;top:5px;left:20px;font-size:0.8em">(Activation auto de Option > Affichage > Messages > Rapport complet)</span></p>';
     //Imp2Toulouse- Add lastAAcoolTime
-    if (readCookie('lastRap', 'AA') !== null) data += '<p id="old_rapport_gen" style="text-align:left;cursor:pointer;color:#6f9fc8;position:relative;top:7px;padding-left:30px;font-weight:normal;padding-bottom:10px;padding-top:10px;">&#9658; Relire le dernier <b>rapport général</b> de cette planète (Généré il y a '+get_last_AA_coolTime()+')</p>';
+    if (readCookie('lastRap', 'AA') !== null) data += '<p id="old_rapport_gen" style="text-align:left;cursor:pointer;color:#6f9fc8;position:relative;top:7px;padding-left:30px;font-weight:normal;padding-bottom:10px;padding-top:10px;">&#9658; Relire le dernier <b>rapport général</b> de cette planète (Généré il y a '+get_Time_Remain(readCookie("last_start", "AA"))+')</p>';
     data += '<p id="rapport_gen" style="text-align:left;cursor:pointer;color:#6f9fc8;position:relative;top:7px;padding-left:30px;font-weight:normal;padding-bottom:10px;padding-top:10px;">&#9658; Demander un <b>rapport général</b> (seulement les rapports non lu de cette page)</p>';
     data += '<p style="text-align:left;color:#808080;position:relative;top:7px;padding-left:40px;font-weight:normal;padding-bottom:10px;padding-top:0px;"><input type="checkbox" id="with_readed_RG" style="position:relative;top:2px;"/> Considérer également les rapports lus (maximum <input type="text" id="NB_readed_RG" value="5" style="text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onfocus="document.getElementById(\'with_readed_RG\').checked = true;"> rapports)</p>';
     data += '<p style="text-align:left;color:#808080;position:relative;top:7px;padding-left:40px;font-weight:normal;padding-bottom:20px;padding-top:0px;"><input type="checkbox" id="AA_RG" style="position:relative;top:2px;"/> Attaquer automatiquement si le butin est supérieur à <input type="text" id="butin_AA_RG" value="'+defaut_AA_butin+'" style="text-align:center; width:50px;margin-left:5px;margin-right:5px;height: 15px;" onfocus="document.getElementById(\'AA_RG\').checked = true;"> (<span style="cursor:pointer;" id="save_AA_butin">enregistrer</span>)</p>';
@@ -2981,8 +3139,8 @@ if (gup('sephiScript') == '1') {
     document.getElementById('header_text').innerHTML = document.getElementById('header_text').innerHTML.replace('Chantier spatial','SephiOGame');
     sephi_frigos_data= '';
     
-    //Imp2toulouse- Factorize this part to the get_last_AA_coolTime function
-    lastAAcoolTime=get_last_AA_coolTime();
+    //Imp2toulouse- Factorize this part to the get_Time_Remain (previously get_last_AA_coolTime) function
+    lastAAcoolTime=get_Time_Remain(readCookie("last_start", "AA"));
     
     titletext = 'Mes frigos';
     if (importvars["frigos"].length == 1) titletext = 'Mon frigo';
@@ -3044,63 +3202,78 @@ if (gup('sephiScript') == '1') {
    
     // Repport de bug
     sephi_frigos_data+='<div class="header"><h2>Site officiel du script</h2></div>';
-    sephi_frigos_data+='<div class="content" style="min-height: 100px;positon:relative;z-index:10;margin-bottom:50px;padding-top:15px;">';
-    sephi_frigos_data+='<table><tr><th><img src="http://www.sephiogame.com/script/Software_Update_icon.png" style="width:100px;height:auto;margin-left:30px;" /></th><th>';
-    sephi_frigos_data+='<p style="width:470px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Depuis notre site web vous pouvez apprendre à uiliser le script, et nous repporter les bugs que vous trouvez pour nous aider à améliorer sephiOGame. Nous ferons notre possible pour les corriger dans les futures mises à jour du script :<br><br>'
-    sephi_frigos_data+='<span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com\',\'_blank\');">• Accéder au site de SephiOGame</span>';
-    sephi_frigos_data+='<br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Utilisation\',\'_blank\');">• Apprendre à utiliser le scrript</span>';
-    sephi_frigos_data+='<br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Actualites?curVer='+cur_version+'#Infos\',\'_blank\');">• Vérifier les mises à jour</span>';
-    sephi_frigos_data+='<br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Actualites#reportBug\',\'_blank\');">• Repporter un bug</span>';
-    sephi_frigos_data+='</p><br></th></tr></table>';
-    sephi_frigos_data+='<div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div></div>';
-    sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>'
+    sephi_frigos_data+='  <div class="content" style="min-height: 100px;positon:relative;z-index:10;margin-bottom:50px;padding-top:15px;">';
+    sephi_frigos_data+='  <table><tr><th><img src="http://www.sephiogame.com/script/Software_Update_icon.png" style="width:100px;height:auto;margin-left:30px;" /></th><th>';
+    sephi_frigos_data+='    <p style="width:470px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Depuis notre site web vous pouvez apprendre à uiliser le script, et nous repporter les bugs que vous trouvez pour nous aider à améliorer sephiOGame. Nous ferons notre possible pour les corriger dans les futures mises à jour du script :<br><br>'
+    sephi_frigos_data+='      <span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com\',\'_blank\');">• Accéder au site de SephiOGame</span>';
+    sephi_frigos_data+='      <br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Utilisation\',\'_blank\');">• Apprendre à utiliser le scrript</span>';
+    sephi_frigos_data+='      <br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Actualites?curVer='+cur_version+'#Infos\',\'_blank\');">• Vérifier les mises à jour</span>';
+    sephi_frigos_data+='      <br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Actualites#reportBug\',\'_blank\');">• Repporter un bug</span>';
+    sephi_frigos_data+='    </p><br>';
+    sephi_frigos_data+='  </th></tr></table>';
+    sephi_frigos_data+='  <div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div>';
+    sephi_frigos_data+='</div>';
+    sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>';
     
-    
-    // Alerte
-    /*sephi_frigos_data+='<div class="header"><h2>Alertes sur missions hostiles</h2></div>';
+  
+    // Mail alerte
+    sephi_frigos_data+='<div class="header"><h2>Alertes sur missions hostiles</h2></div>';
     sephi_frigos_data+='<div class="content" style="min-height: 100px;positon:relative;z-index:10;margin-bottom:50px;padding-top:15px;">';
-    sephi_frigos_data+='<table><tr><th><img src="http://www.sephiogame.com/script/Earth_Alert.png" style="width:100px;height:auto;margin-left:30px;" /></th><th>';
-    sephi_frigos_data+='<p style="width:480px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Si vous le souhaitez, le script peut vous alerter par mail lorsqu\'une mission hostile est en cours. Un mail vous sera envoyé à l\'adresse indiqué toutes les 15 minutes.<br><br>'
-        sephi_frigos_data+='<i>Laissez le champ vide si vous ne souhaitez pas utiliser cette fonctionalité.</i><br><br></p>';
-       
-        sephi_frigos_data+='<table style="width:507px;color:#6f9fc8;"><tr><th style="width:190px;text-align:left;"><input type="text" style="width: 350px;position:relative;margin-left:30px;" id="alert_mail" value="'+alert_mail+'" /></th>';
-        sephi_frigos_data+='<th style="width:300px;text-align:right;">';
-            sephi_frigos_data+='<span class="factorbutton"><input class="btn_blue" id="alert_mail_button" style="" type="button" value="Enregistrer"></span>';
-            sephi_frigos_data+='</th></table><br></th></tr></table>';
-    sephi_frigos_data+='<div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div></div>';
-    sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>'
-    */
+    sephi_frigos_data+='  <table><tr><th><img src="http://www.sephiogame.com/script/Earth_Alert.png" style="width:100px;height:auto;margin-left:30px;" /></th><th>';
+    sephi_frigos_data+='    <p style="width:480px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Le script met à votre disposition un envoi de mail via google, sous condition de lui donner l\'autorisation d\'envoyer des mails pour vous et que vous possediez un compte google.<br> Le script peut alors vous alerter par mail lorsqu\'une mission hostile est en cours. Un mail vous sera envoyé à l\'adresse indiqué toutes les 15 minutes.<br><br><i>Sans autorisation, aucun mail ne sera envoyé et elle couvre <u>l\'envoi du mail seulement</u>.</i><br><br></p>';
+    sephi_frigos_data+='      <table id="alertmail-div" style="display: none;"><tr><td colspan=2><span style="padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Pour configurer l\'envoi de message électronique, merci de spécifier:<br><br></td></tr>';
+    sephi_frigos_data+='        <tr><td><span style="padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">• Votre adresse mail <span></td><td><input type="text" style="width: 150px;position:relative;margin-left:0px;" id="alert_mail_to" value="'+alert_mail_to+'" />&nbsp;<span class="factorbutton"><input style="width:17px;display: none;" id="test-mail" type="button" class="btn_blue" value="Test"></span><i><span id="save_alert_mail_to" style="display:none;"></span></i><br/><br/></span></td></tr>';
+    sephi_frigos_data+='        <tr><td colspan="2"></td></tr>';
+    sephi_frigos_data+='        <tr><td><span style="padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">• Votre message </span></td><td><textarea size="5" style="width: 200px;position:relative;margin-left:0px;" id="alert_mail_body">'+alert_mail_body+'</textarea><i><span id="save_alert_mail_body" style="display:none;"></span></i><br><br></span></td></tr>';
+    sephi_frigos_data+='        <tr><td colspan="2"></td></tr>';
+    sephi_frigos_data+='        <tr><td><span style="padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">• Sa fréquence (minutes)</span></td><td><input style="width: 20px;position:relative;margin-left:0px;" id="alert_mail_freq" value="'+alert_mail_freq+'"><i><span id="save_alert_mail_freq" style="display:none;"></span></i><br><br></span></td></tr>';
+   //id="authorize-div" style="display: inline"><td><!--div id="authorize-div" style="display: inline" -->
+    sephi_frigos_data+='      </table>';
+    sephi_frigos_data+='      <table id="authorize-div" style="display: none;">';
+    sephi_frigos_data+='        <tr><td><span style="padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">• Authorize access</span></td><td><span class="factorbutton"><input type="button" style="width: 80px;position:relative;margin-left:-360px;" id="authorize-button" class="btn_blue" value="Authorize"></span></td></tr>';
+    sephi_frigos_data+='        <tr><td colspan="2"></td></tr>';
+    sephi_frigos_data+='      </table>';
+    sephi_frigos_data+='      <table>';
+    sephi_frigos_data+='        <tr><td colspan=2><pre id="output" style="width:480px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#ff9600;"></pre><br></td></tr>';
+    sephi_frigos_data+='      </table>';
+    sephi_frigos_data+='    </p>';
+    sephi_frigos_data+='  </th></tr></table>\n';
+    sephi_frigos_data+='  <div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div>';
+    sephi_frigos_data+='</div>';
+    sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>';
     
     // EJECT
     sephi_frigos_data+='<div class="header"><h2>Bouton EJECT</h2></div>';
     sephi_frigos_data+='<div class="content" style="min-height: 100px;positon:relative;z-index:10;margin-bottom:50px;padding-top:15px;">';
-    sephi_frigos_data+='<table><tr><th><img src="http://www.sephiogame.com/script/eject_button.png" style="width:100px;height:auto;margin-left:30px;" /></th><th>';
-    sephi_frigos_data+='<p style="width:480px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Le script vous permet de faire décoller tout vos vaisseaux civils et vos ressources en un instant, vous devez cependant lui spécifier les coordonnées vers lesquelles vous souhaitez décoller pour pouvoir utiliser cette fonction. (Une mission de transport sera lors lancée vers la planète en question)<br><br><i>Vous pouvez également demander au script de faire décoller automatiquement vos vaisseaux avec vos ressources 5 minutes avant de subir une attaque.</i><br><br>'
-    sephi_frigos_data+='<br/><span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Ejecter les vaisseaux civils de cette planète : <select id="auto_eject" style="visibility: visible;"><option value="never" '+(eject_auto == 'never' ? 'selected':'')+'>Jamais</option><option value="5mins" '+(eject_auto == '5mins' ? 'selected':'')+'>5 minutes avant l\'attaque ennemie</option><option value="10mins" '+(eject_auto == '10mins' ? 'selected':'')+'>10 minutes avant l\'attaque ennemie</option><option value="20mins" '+(eject_auto == '20mins' ? 'selected':'')+'>20 minutes avant l\'attaque ennemie</option></select></span>';
-    sephi_frigos_data+='<br/><span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;"><input '+(eject_all ? 'checked' : '')+' type="checkbox" id="eject_all" style="position:relative;top:2px;"/> Ejecter également les vaisseaux de combat</span><br>';
-    
-    sephi_frigos_data+='<table style="width:507px;color:#6f9fc8;"><tr><th style="width:700px;text-align:left;"><input type="text" style="width: 65px;position:relative;margin-left:30px;text-align:center;" value="'+eject_gal+'" title="Galaxie" id="eject_galaxy" onclick="if (this.value == \'Galaxie\') this.value=\'\';"/><input type="text" style="width: 65px;position:relative;margin-left:5px;text-align:center;" value="'+eject_sys+'" title="Système" id="eject_system" onclick="if (this.value == \'Système\') this.value=\'\';"/><input type="text" style="width: 65px;position:relative;margin-left:5px;text-align:center;" value="'+eject_pla+'" title="Planète" id="eject_planet" onclick="if (this.value == \'Planète\') this.value=\'\';"/> <span style="position:relative;left:20px"><input type="checkbox" id="ejectLune" title="Si vous cochez cette case, l\'ejecion se fera sur la lune des coordonées demandées." style="position:relative;top:2px;" '+(eject_onLune?'checked':'')+'/> Lune</span></th>';
-    sephi_frigos_data+='<th style="width:300px;text-align:right;position:relative;left:-20px;top:0px;">';
-            sephi_frigos_data+='<span class="factorbutton"><input class="btn_blue" id="eject_save_button" style="" type="button" value="Enregistrer"></span>';
-            sephi_frigos_data+='</th></table><br></th></tr></table>';
-    sephi_frigos_data+='<div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div></div>';
-    sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>'
+    sephi_frigos_data+='  <table><tr>';
+    sephi_frigos_data+='    <th><img src="http://www.sephiogame.com/script/eject_button.png" style="width:100px;height:auto;margin-left:30px;" /></th>';
+    sephi_frigos_data+='    <th><p style="width:480px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">';
+    sephi_frigos_data+='           Le script vous permet de faire décoller tout vos vaisseaux civils et vos ressources en un instant, vous devez cependant lui spécifier les coordonnées vers lesquelles vous souhaitez décoller pour pouvoir utiliser cette fonction. (Une mission de transport sera lors lancée vers la planète en question)<br><br><i>Vous pouvez également demander au script de faire décoller automatiquement vos vaisseaux avec vos ressources 5 minutes avant de subir une attaque.</i><br><br><br/>';
+    sephi_frigos_data+='           <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Ejecter les vaisseaux civils de cette planète : <select id="auto_eject" style="visibility: visible;"><option value="never" '+(eject_auto == 'never' ? 'selected':'')+'>Jamais</option><option value="5mins" '+(eject_auto == '5mins' ? 'selected':'')+'>5 minutes avant l\'attaque ennemie</option><option value="10mins" '+(eject_auto == '10mins' ? 'selected':'')+'>10 minutes avant l\'attaque ennemie</option><option value="20mins" '+(eject_auto == '20mins' ? 'selected':'')+'>20 minutes avant l\'attaque ennemie</option></select></span><br/>';
+    sephi_frigos_data+='           <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Ejecter également les vaisseaux de combat : <input '+(eject_all ? 'checked' : '')+' type="checkbox" id="eject_all" style="position:relative;top:2px;"/></span><br>';    
+    sephi_frigos_data+='           <table style="width:507px;color:#6f9fc8;"><tr>';
+    sephi_frigos_data+='             <th style="width:700px;text-align:left;"><input type="text" style="width: 65px;position:relative;margin-left:30px;text-align:center;" value="'+eject_gal+'" title="Galaxie" id="eject_galaxy" onclick="if (this.value == \'Galaxie\') this.value=\'\';"/><input type="text" style="width: 65px;position:relative;margin-left:5px;text-align:center;" value="'+eject_sys+'" title="Système" id="eject_system" onclick="if (this.value == \'Système\') this.value=\'\';"/><input type="text" style="width: 65px;position:relative;margin-left:5px;text-align:center;" value="'+eject_pla+'" title="Planète" id="eject_planet" onclick="if (this.value == \'Planète\') this.value=\'\';"/><span style="position:relative;left:20px"><input type="checkbox" id="ejectLune" title="Si vous cochez cette case, l\'ejecion se fera sur la lune des coordonées demandées." style="position:relative;top:2px;" '+(eject_onLune?'checked':'')+'/> Lune</span></th>';
+    sephi_frigos_data+='             <th style="width:300px;text-align:right;position:relative;left:-20px;top:0px;"><span class="factorbutton"><input class="btn_blue" id="eject_save_button" style="" type="button" value="Enregistrer"></span></th>';
+    sephi_frigos_data+='           </tr></table>';
+    sephi_frigos_data+='        </p><br>';
+    sephi_frigos_data+='    </th>';
+    sephi_frigos_data+='  </tr></table>';
+    sephi_frigos_data+='  <div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div>';
+    sephi_frigos_data+='</div>';
+    sephi_frigos_data+='  <div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>'
     
     
     // Sauvegarde
     sephi_frigos_data+='<div class="header"><h2>Gestion des données</h2></div>';
     sephi_frigos_data+='<div class="content" style="min-height: 100px;positon:relative;z-index:10;margin-bottom:50px;padding-top:15px;">';
-    sephi_frigos_data+='<table style="width:95%;positon:relative;z-index:2;"><tr style="vertical-align:top;"><th style="width:70%"><p style="padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Vos données relatives au script sont enregistrées <b>uniquement grâce à votre navigateur internet</b>. Si vous souhaitez pouvoir les retrouver à tout moment, vous pouvez <b>les enregistrer</b> grâce à cette page.<br><br>'
-    sephi_frigos_data+='Ainsi si vos données sont perdues, si vous souhaitez changer d\'ordinateur ou de navigateur, ou bien passer vos frigos à un ami, il vous suffit de cliquer sur le bouton \'\'Sauvegarder\'\' pour obtenir un fichier stockant les données de votre planète. Et plus tard de cliquer sur le bouton \'\'Restaurer\'\' pour rétablir le fichier.<br/><br/><br>En cas de disfonctionnement du script sur cette planète, vous pouvez également reinitialiser vos données de cette planète pour tenter de résoudre le problème.<br><br>';
-        sephi_frigos_data+='</p></th><th style="width:20%;text-align:right;">'
-        sephi_frigos_data+='<span class="factorbutton"><input id="save_button" class="btn_blue" style="position:relative;top:10px;" type="button" value="Sauvegarder"></span><br><br>'
-        sephi_frigos_data+='<span class="factorbutton"><input id="load_button" class="btn_blue" style="position:relative;top:10px;" type="button" value="Restaurer"></span><br><br>'  
-        sephi_frigos_data+='<span class="factorbutton"><input id="init_button" class="btn_blue" style="position:relative;top:70px;" type="button" value="Réinitialiser"></span>'             
-    sephi_frigos_data+='</tr></table>';
-    sephi_frigos_data+='<input type="file" id="fileupload" name="file" style="display:none"/>';
-    sephi_frigos_data+='<div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div></div>';
-    sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-40px;z-index:10;left:70px;"></div></div>'
-    sephi_frigos_data+='<div style="width:0px;height:0px;"><div id="barre_save" style="width:500px;height:1px;background:#202020;position:relative;top:-120px;z-index:10;left:70px;"></div></div>'
+    sephi_frigos_data+='  <table style="width:95%;positon:relative;z-index:2;"><tr style="vertical-align:top;">'
+    sephi_frigos_data+='    <th style="width:70%"><p style="padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Vos données relatives au script sont enregistrées <b>uniquement grâce à votre navigateur internet</b>. Si vous souhaitez pouvoir les retrouver à tout moment, vous pouvez <b>les enregistrer</b> grâce à cette page.<br><br>Ainsi si vos données sont perdues, si vous souhaitez changer d\'ordinateur ou de navigateur, ou bien passer vos frigos à un ami, il vous suffit de cliquer sur le bouton \'\'Sauvegarder\'\' pour obtenir un fichier stockant les données de votre planète. Et plus tard de cliquer sur le bouton \'\'Restaurer\'\' pour rétablir le fichier.<br/><br/><br>En cas de disfonctionnement du script sur cette planète, vous pouvez également reinitialiser vos données de cette planète pour tenter de résoudre le problème.<br><br></p></th>';
+    sephi_frigos_data+='    <th style="width:20%;text-align:right;"><table><tr><th colspan=2><center><span class="factorbutton"><input id="save_button" class="btn_blue" style="position:relative;top:110px;" type="button" value="Sauvegarder"></span></center></th></tr><tr><th><span class="factorbutton"><input type="file" id="fileupload" name="file" style="position:relative;top:130px;display:inline"/></span></th><th><span class="factorbutton"><input id="load_button" class="btn_blue" style="position:relative;top:130px;" type="button" value="Restaurer"></span></th></tr><tr><th colspan=2><center><span class="factorbutton"><input id="init_button" class="btn_blue" style="position:relative;top:195px;" type="button" value="Réinitialiser"></span></center></th></tr></table></th>';
+    sephi_frigos_data+='  </tr></table>';
+    sephi_frigos_data+='  <div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div>';
+    sephi_frigos_data+='  <div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-225px;z-index:10;left:70px;"></div></div>'
+    sephi_frigos_data+='  <div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-85px;z-index:10;left:70px;"></div></div>'
+    sephi_frigos_data+='  <div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:10px;z-index:10;left:70px;"></div></div>'
     document.getElementById('buttonz').innerHTML = sephi_frigos_data;
     
     
@@ -3152,9 +3325,40 @@ if (gup('sephiScript') == '1') {
     
     
     // Block alerte
-    //document.getElementById('alert_mail_button').onclick = save_alert_mail;
-    //document.getElementById('maj_button').onclick = verif_maj;
-    
+    if (is_token_valide()) {
+        var temps_restant=get_Time_Remain(parseInt(readCookie('gapi_auth','all')));
+        appendResults(document.getElementById('output'),(isFR)?'Votre authentification est encore valide pour '+temps_restant+'.':'Your authentication is alive for '+temps_restant+' yet.');
+        temps_restant=null;
+
+        document.getElementById('authorize-div').style.display = 'none';
+        document.getElementById('alertmail-div').style.display = 'inline';
+        //document.getElementById('alertmail1-div').style.display = 'inline';
+        //document.getElementById('alertmail2-div').style.display = 'inline';
+        //document.getElementById('alert_mail_button').onclick = save_alert_mail;
+        document.getElementById('alert_mail_to').onblur = function() {
+            document.getElementById('save_alert_mail_to').innerHTML = save_alert_mail();
+            document.getElementById('save_alert_mail_to').style.display = 'inline';
+            setTimeout(function () {document.getElementById('save_alert_mail_to').style.display = 'none';},1000);
+        }
+        document.getElementById('alert_mail_body').onblur = function() {
+            document.getElementById('save_alert_mail_body').innerHTML = save_alert_mail();
+            document.getElementById('save_alert_mail_body').style.display = 'inline';
+            setTimeout(function () {document.getElementById('save_alert_mail_body').style.display = 'none';},1000);         
+        }
+        document.getElementById('alert_mail_freq').onblur = function() {
+            document.getElementById('save_alert_mail_freq').innerHTML = save_alert_mail();
+            document.getElementById('save_alert_mail_freq').style.display = 'inline';
+            setTimeout(function () {document.getElementById('save_alert_mail_freq').style.display = 'none';},1000);         
+        }
+    } else {
+        document.getElementById('alertmail-div').style.display = 'none';
+        //document.getElementById('alertmail1-div').style.display = 'none';
+        //document.getElementById('alertmail2-div').style.display = 'none';
+        document.getElementById('authorize-div').style.display = 'inline';
+        document.getElementById('authorize-button').onclick=function(){checkAuth_NEW(event);};
+    }
+    if (checkmail(document.getElementById('alert_mail_to').value)) document.getElementById('test-mail').style.display="inline";
+    document.getElementById('test-mail').onclick=function(){sendMessage(document.getElementById('alert_mail_to').value,'Hello,\r\n\r\nYou received this email to confirm you the good reception of mail during attack alert on OGame. This body will be sent on attack alert:\r\n"'+readCookie('alert_mail_body','all')+'"\r\n','http://'+univers+'/game/index.php?page=shipyard&sephiScript=1');};
 
     // Paramètres AA
     document.getElementById('leave_slot_AA').onclick = function () {
@@ -3230,7 +3434,7 @@ if (gup('sephiScript') == '1') {
     
     
     //Start AA
-    if (gup('startAA') == '1') setTimeout(function(){$('#auto_attack').click();}, 1000);
+    if (gup('startAA') == '1') setTimeout(function(){$('#auto_attack').click();}, 3000);
 }
 document.getElementById('menuTable').innerHTML = '<li style="height:0px;position: relative;top: -31px;"><span class="menu_icon"><div class="menuImage shipyard" style="background:url(http://www.sephiogame.com/script/sephi_script_logo.png);background-position-x:0px;'+bonus_style+'"></div></span><a class="menubutton '+bonus_class+'" href="http://'+univers+'/game/index.php?page=shipyard&sephiScript=1" target="_self"><span class="textlabel">SephiOGame</span></a></li>'+document.getElementById('menuTable').innerHTML;
 document.getElementById('links').style.overflow = "visible";
@@ -3262,7 +3466,7 @@ if (lastActu !== null) {
     createCookie('lastActuTime', time(), 1, 'all');
 }
 
-// Affiche les frigos sur la page galaxie et ajouter un bouton "ajouter aux frigos"
+// Affiche les frigos sur la page galaxie et ajouter un bouton "ajouter aux frigos" //Imp2Toulouse- et ajouter un bouton "Supprimer des frigos"
 last_gal_state="";
 function check_galaxy_frigs() {
     cur_gal_state = document.getElementById('galaxyLoading').style.display;
@@ -3282,14 +3486,27 @@ function check_galaxy_frigs() {
             }
             $('#galaxytable').html(gal_data.join('<tr class="row'));
             for (i=1;i<15;i++) {
-                if (!gal_data[i].match("frigo")) {
-                    b = document.getElementById('planet'+i);
-                    if (b !== null) {
-                        b.getElementsByClassName('ListLinks')[0].innerHTML += "<li><a href=\"javascript:void(0);\" onclick=\"localStorage.setItem('all_add_racc', '"+(i)+"');setTimeout(function() {$('#showbutton').click();},500);this.onclick=null;\" style=\"cursor:pointer;color:#A52592;font-weight:bold\">Ajouter aux frigos</a></li>";
-                        b.getElementsByClassName('ListLinks')[0].innerHTML += '<input type="hidden" id="raccourcis_name_sep'+(i)+'" value="'+b.getElementsByClassName('textNormal')[0].innerHTML+'">';
-                        b.getElementsByClassName('ListLinks')[0].innerHTML += '<input type="hidden" id="galaxy'+(i)+'" value="'+b.getElementsByClassName('ListImage')[0].innerHTML.split('[')[1].split(':')[0]+'">';
-                        b.getElementsByClassName('ListLinks')[0].innerHTML += '<input type="hidden" id="system'+(i)+'" value="'+b.getElementsByClassName('ListImage')[0].innerHTML.split('[')[1].split(':')[1]+'">';
-                        b.getElementsByClassName('ListLinks')[0].innerHTML += '<input type="hidden" id="position'+(i)+'" value="'+b.getElementsByClassName('ListImage')[0].innerHTML.split('[')[1].split(']')[0].split(':')[2]+'">';
+                //Imp2Toulouse- If not my current planet
+                if (planame_list.indexOf(gal_data[i].split(/planetname/)[1].split(/<\/td>/)[0].match(/\w/g).join('')) < 0) {
+                    if (!gal_data[i].match("frigo")) {
+                        b = document.getElementById('planet'+i);
+                        if (b !== null) {
+                            b.getElementsByClassName('ListLinks')[0].innerHTML += "<li><a href=\"javascript:void(0);\" onclick=\"localStorage.setItem('all_add_racc', '"+(i)+"');setTimeout(function() {$('#showbutton').click();},500);this.onclick=null;\" style=\"cursor:pointer;color:#A52592;font-weight:bold\">Ajouter aux frigos</a></li>";
+                            b.getElementsByClassName('ListLinks')[0].innerHTML += '<input type="hidden" id="raccourcis_name_sep'+(i)+'" value="'+b.getElementsByClassName('textNormal')[0].innerHTML+'">';
+                            b.getElementsByClassName('ListLinks')[0].innerHTML += '<input type="hidden" id="galaxy'+(i)+'" value="'+b.getElementsByClassName('ListImage')[0].innerHTML.split('[')[1].split(':')[0]+'">';
+                            b.getElementsByClassName('ListLinks')[0].innerHTML += '<input type="hidden" id="system'+(i)+'" value="'+b.getElementsByClassName('ListImage')[0].innerHTML.split('[')[1].split(':')[1]+'">';
+                            b.getElementsByClassName('ListLinks')[0].innerHTML += '<input type="hidden" id="position'+(i)+'" value="'+b.getElementsByClassName('ListImage')[0].innerHTML.split('[')[1].split(']')[0].split(':')[2]+'">';
+                        }
+                    } else {
+                        //Imp2Toulouse- Note, insérer la suppression d'un frigo
+                        b = document.getElementById('planet'+i);
+                        if (b !== null) {
+                            b.getElementsByClassName('ListLinks')[0].innerHTML += "<li><a href=\"javascript:void(0);\" onclick=\"localStorage.setItem('all_del_racc', '["+(b.getElementsByClassName('ListImage')[0].innerHTML.split('[')[1].split(']')[0])+"]');setTimeout(function() {$('#showbutton').click();},500);this.onclick=null;\" style=\"cursor:pointer;color:#A52592;font-weight:bold\">Supprimer des frigos</a></li>";
+                            b.getElementsByClassName('ListLinks')[0].innerHTML += '<input type="hidden" id="raccourcis_name_sep'+(i)+'" value="'+b.getElementsByClassName('textNormal')[0].innerHTML+'">';
+                            b.getElementsByClassName('ListLinks')[0].innerHTML += '<input type="hidden" id="galaxy'+(i)+'" value="'+b.getElementsByClassName('ListImage')[0].innerHTML.split('[')[1].split(':')[0]+'">';
+                            b.getElementsByClassName('ListLinks')[0].innerHTML += '<input type="hidden" id="system'+(i)+'" value="'+b.getElementsByClassName('ListImage')[0].innerHTML.split('[')[1].split(':')[1]+'">';
+                            b.getElementsByClassName('ListLinks')[0].innerHTML += '<input type="hidden" id="position'+(i)+'" value="'+b.getElementsByClassName('ListImage')[0].innerHTML.split('[')[1].split(']')[0].split(':')[2]+'">';
+                        }                
                     }
                 }
             }
