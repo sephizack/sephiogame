@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.6.3.2
+// @version     3.6.3.3
 // @description Script Ogame
 // @author      Sephizack
 // @include     *ogame.gameforge.com*
@@ -39,11 +39,15 @@
 //                       *Review all frigo integration (from messages)
 //                       *Review all Auto Attack processus
 //                       *Review the Expedition send
+//3.6.3.3: Imp2Toulouse- *Correction de l'ajout de liste de construction
+//                       *Rapport général: Modification de l'url sur le nom du frigo pour inclure le nombre de PT et GT 
+//                        nécessaire pour un lancement manuel (dans les slots réservés)
+
 
 
 antiBugTimeout = setTimeout(function() {location.href=location.href;}, 5*60*1000);
 
-cur_version = '3.6.3.2';
+cur_version = '3.6.3.3';
 univers = window.location.href.split('/')[2];
 
 // Multi langues
@@ -956,8 +960,8 @@ function save_list_in_cookies() {
         if (readCookie('add_racc','all') != null && parseInt(readCookie('add_racc','all')) > 0) {
             messageID = parseInt(readCookie('add_racc','all'));
             createCookie('add_racc', 0, 1, 'all');
-            //document.getElementById('raccourcis_name_sep'+messageID).focus();
-            $('#raccourcis_name_sep'+messageID).focusin();
+            document.getElementById('raccourcis_name_sep'+messageID).focus();
+            //$('#raccourcis_name_sep'+messageID).focusin();
             
             cur_nb=importvars["frigos"].length;
             importvars["frigos"][cur_nb] = new Array();
@@ -1664,7 +1668,7 @@ function gestion_cook() {
                             } else {
                                 //add length >1 because with new version 6.0.5, Ogame has add a condition which match with "build-it_disabled" --> $(".build-it_disabled:not(.isWorking)")
                                 //so if
-                                 if ( xhr.responseText.match("build-it_disabled").length > 1 && xhr.responseText.match("$(\".build-it_disabled:not(.isWorking)\")") /*xhr.responseText.match("build-it_disabled")*/ ) {
+                                 if ( xhr.responseText.match("build-it_disabled") != null && xhr.responseText.match("build-it_disabled").length > 1 && xhr.responseText.match("$(\".build-it_disabled:not(.isWorking)\")") /*xhr.responseText.match("build-it_disabled")*/ ) {
                                     blit_message('<span style="float: none;margin: 0;color:red">Impossible de démarrer</span>, retour sur vue d\'ensemble dans 3 secondes');
                                     set_prev_data("havetoprev", i_gestion, "no");
                                     set_prev_data("donned", i_gestion, "yesno"+(time()+(1000*60*10)));
@@ -1911,8 +1915,8 @@ function start_rapport_general() {
         },20000);
         
         setTimeout(function () {
-            document.getElementById('ifr_AA_exped').src = 'http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=15&auto=yes&ID=Exped&GT='+with_exped+'';
-        },2000);
+            if (document.getElementById('ifr_AA_exped')) document.getElementById('ifr_AA_exped').src = 'http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=15&auto=yes&ID=Exped&GT='+with_exped+'';
+        },3000);
     }
     data +='<table id="rap_general_table" style="width:590px;position:relative;top:0px;left:0px;border: 1px solid #000000;color: #777;background:#0D1014;margin:auto;margin-bottom:0px;"><tbody>';
     GLOB_rgEndData = '<tr style="background:#1b1b1b;color: #999;"><th style="border: 1px solid #303030;padding: 5px 8px;text-align:center;width:80px">Coord.</th><th style="border: 1px solid #303030;padding: 5px 8px;">Planète</th><th style="border: 1px solid #303030;padding: 5px 8px;text-align:center;width:100px">Butin</th><th style="border: 1px solid #303030;padding: 5px 8px;width: 170px;text-align: center;">Attaque Automatique</th></tr>';
@@ -1924,6 +1928,7 @@ function start_rapport_general() {
     }
     //setTimeout(function () {ajaxLoad(9,1);}, 1000);
     read_rapports_and_create_table();
+    //data +='</table>';
 }
 
 
@@ -1949,6 +1954,9 @@ function anal_esp_data(data) {
 }
 
 function fill_case(butin, flotte_perso, idFrigo, curplanet_name) {
+    var tmp=$('#rap_general_planet_name_'+GLOB_rgID).parent().attr('href')+'&am202='+(2+Math.floor(butin/5000))+'&am203='+(2+Math.floor(butin/25000));
+    $('#rap_general_planet_name_'+GLOB_rgID).parent().attr("href",tmp);
+    tmp=null;
     document.getElementById('rap_general_butin_'+GLOB_rgID).innerHTML = get_cool_digit(butin);
     attack_data = '<span id="RG_PT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'http://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+'&force=0&flotte_perso='+flotte_perso+'\';setTimeout(function(){document.getElementById(\'RG_PT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Envoyer '+(2+Math.floor(butin/5000))+' PT</span> (';
     attack_data += '<span id="RG_PT2_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'http://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+'&force=1&flotte_perso='+flotte_perso+'\';setTimeout(function(){document.getElementById(\'RG_PT2_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">forcer</span>)<br/>';
@@ -3124,8 +3132,8 @@ if (gup('page') == 'messages') {
         msgids = JSON.stringify(msgids);
 
         var msgcountUrl  = "http:\/\/s129-fr.ogame.gameforge.com\/game\/index.php?page=ajaxMessageCount";
-        var playerid = "128720";
-        playerid = parseInt(playerid);
+        //var playerid = "128720";
+        playerid = parseInt(playerId);
         var action = 111;
 
         $.ajax({
@@ -3226,7 +3234,7 @@ if (gup('page') == 'messages') {
         $(this).parent().attr("aria-selected","true");
         $(this).parent().attr("aria-expanded","true");
         $(this).parent().attr("aria-hidden","false");
-        switch_tab_active();
+        //switch_tab_active();
         $(this).parent().show();
         $('#'+$(this).parent().attr("aria-controls")).show();
         
@@ -3237,7 +3245,12 @@ if (gup('page') == 'messages') {
         this.innerHTML = 'ok';
         this.style.cursor = 'default';
     };
-    document.getElementById('rapport_gen').onclick = function() {document.getElementById('old_rapport_gen').style.display="none";start_rapport_general();};
+    
+    document.getElementById('rapport_gen').onclick = function() {
+        document.getElementById('old_rapport_gen').style.display="none";
+        start_rapport_general();
+    };
+    
     if (readCookie('lastRap', 'AA') !== null) document.getElementById('old_rapport_gen').onclick = function() {
         document.getElementById('old_rapport_gen_AA').style.display = 'block';
         document.getElementById('rapport_gen_place').innerHTML = '<iframe style="display:none;" id="ifr_AA" src="http://ready"></iframe><table id="rap_general_table" style="width:600px;position:relative;top:0px;left:0px;border: 1px solid #000000;color: #777;background:#0D1014;margin:auto;margin-bottom:0px;">'+readCookie('lastRap', 'AA')+'</table>';
