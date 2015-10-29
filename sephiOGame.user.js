@@ -1473,10 +1473,10 @@ setTimeout(check_attack, 2000);
 function send_internal_message(attakerChatID, cp_attacked){
     var attaker_message_url='http://'+univers+'/game/index.php?page=ajaxChat';
     switch(parseInt(rand(1,4))){
-        case 1: text="Salut, \nJ'ai vu ton attaque. \nJ'enleverai tout avant ton arrivé afin de ne plus être rentable. \nBon jeu.\nImperator2Toulouse";break;
-        case 2: text="Bonjour, \nJe t'ai vu canaillou avec ton attaque. \nJe vais enlever avant ton arrivé. \nA plus tard et bon jeu.\nImperator2Toulouse";break;
-        case 3: text="Coucou, \nJ'ai cru voir une grosse attaque:) \nJe t'informe, afin de ne pas te faire perdre ton temps, que j'enleverai tout avant ton arrivé. Autant que tu concentres ton attaque sur quelqu'un de plus rentable. \nBon jeu.\nImperator2Toulouse";break;
-        case 4: text="Salutation à toi mon attaquant favori, \nTu te doutes bien que puisque je t'ai vu, je vais enlever tous le pillable avant ton arrivé. \nBon jeu.\nImperator2Toulouse";break;            
+        case 1: text="Salut, \nJ'ai vu ton attaque. \nJ'enleverai tout avant ton arrivé afin de ne plus être rentable. \nBon jeu.\n"+playerName;break;
+        case 2: text="Bonjour, \nJe t'ai vu canaillou avec ton attaque. \nJe vais enlever avant ton arrivé. \nA plus tard et bon jeu.\n"+playerName;break;
+        case 3: text="Coucou, \nJ'ai cru voir une grosse attaque:) \nJe t'informe, afin de ne pas te faire perdre ton temps, que j'enleverai tout avant ton arrivé. Autant que tu concentres ton attaque sur quelqu'un de plus rentable. \nBon jeu.\n"+playerName;break;
+        case 4: text="Salutation à toi mon attaquant favori, \nTu te doutes bien que puisque je t'ai vu, je vais enlever tous le pillable avant ton arrivé. \nBon jeu.\n"+playerName;break
     }
     var params = {
         ajax: 1,
