@@ -1458,7 +1458,7 @@ function check_attack() {
                             }
                         } 
                     } else // If attakerNotif cookie = cur_planet set we delete it
-                        if (readCookie("attakerNotified", "AA") == cur_planet) deleteCookie("attakerNotified", "AA");
+                        if (readCookie("attakerNotified", "AA") == cur_planet) eraseCookie("attakerNotified", "AA");
                 }
             }
         }; 
