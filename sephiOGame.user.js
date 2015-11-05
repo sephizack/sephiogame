@@ -4,7 +4,7 @@
 // @version     3.6.3.4
 // @description Script Ogame
 // @author      Sephizack
-// @include     *ogame.gameforge.com/game/*
+// @include     *ogame.gameforge.com/*
 // @exclude     http://*ajax=1*
 // @exclude     *.ogame.gameforge.com/feed/*
 // @copyright   2012+, You
