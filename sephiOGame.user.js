@@ -1,11 +1,12 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.6.3.3
+// @version     3.6.3.4
 // @description Script Ogame
 // @author      Sephizack
-// @include     *ogame.gameforge.com*
+// @include     *ogame.gameforge.com/*
 // @exclude     http://*ajax=1*
+// @exclude     *.ogame.gameforge.com/feed/*
 // @copyright   2012+, You
 // @updateURL   http://www.sephiogame.com/script/sephiOGame.user.js
 // @require     http://code.jquery.com/jquery-1.9.1.min.js
@@ -37,15 +38,16 @@
 //3.6.3.1: Imp2Toulouse- *Compatibility correction
 //3.6.3.2: Imp2Toulouse- *Integration of Ogame version 6.0.5
 //                       *Review all frigo integration (from messages)
-//                       *Review all Auto Attack processus
+//3.6.3.2: Imp2Toulouse- *Review all Auto Attack processus
 //                       *Review the Expedition send
-//3.6.3.3: Imp2Toulouse- *NEW- Internal communication to the attack owner in order to specified its attack has been discovered 
+//3.6.3.4: Imp2Toulouse- *NEW- Internal communication to the attack owner in order to specified its attack has been discovered 
 //                        (4 different sentences used in random)
+//                       *Bug correction in butin calculation (Thousand 'M' not correctly take into account)
 
 
 antiBugTimeout = setTimeout(function() {location.href=location.href;}, 5*60*1000);
 
-cur_version = '3.6.3.3';
+cur_version = '3.6.3.4';
 univers = window.location.href.split('/')[2];
 
 // Multi langues
@@ -56,8 +58,8 @@ LANG_started = isFR ? "Lancé" : "Started";
 LANG_done = isFR ? "Terminé" : "Done";
 LANG_noLocalStorage = isFR ? "Votre navigateur ne supporte pas le système de localStorage, mettez le à jour ou désinstallez le script." 
     : "Your browser does not support localStorage feature, please update to latest Chrome version or unistall SephiOGame.";
-LANG_nouveaute_update = isFR ? ' -Integration of Ogame version 6.0.5<br>-Review all frigo integration (from messages)<br>-Review all Auto Attack processus<br>-Review the Expedition send'
-    : ' -Integration of Ogame version 6.0.5<br>-Review all frigo integration (from messages)<br>-Review all Auto Attack processus<br>-Review the Expedition send';
+LANG_nouveaute_update = isFR ? ' -Integration of Ogame version 6.0.5<br>-Review all frigo integration (from messages)<br>-Review all Auto Attack processus<br>-Review the Expedition send<br>-Review Butin calculation'
+    : ' -Integration of Ogame version 6.0.5<br>-Review all frigo integration (from messages)<br>-Review all Auto Attack processus<br>-Review the Expedition send<br>-Review Butin calculation';
 
 
 
@@ -1475,7 +1477,7 @@ function send_internal_message(attakerChatID, cp_attacked){
         case 1: text="Salut, \nJ'ai vu ton attaque. \nJ'enleverai tout avant ton arrivé afin de ne plus être rentable. \nBon jeu.\n"+playerName;break;
         case 2: text="Bonjour, \nJe t'ai vu canaillou avec ton attaque. \nJe vais enlever avant ton arrivé. \nA plus tard et bon jeu.\n"+playerName;break;
         case 3: text="Coucou, \nJ'ai cru voir une grosse attaque:) \nJe t'informe, afin de ne pas te faire perdre ton temps, que j'enleverai tout avant ton arrivé. Autant que tu concentres ton attaque sur quelqu'un de plus rentable. \nBon jeu.\n"+playerName;break;
-        case 4: text="Salutation à toi mon attaquant favori, \nTu te doutes bien que puisque je t'ai vu, je vais enlever tous le pillable avant ton arrivé. \nBon jeu.\n"+playerName;break
+        case 4: text="Salutation à toi mon attaquant favori, \nTu te doutes bien que puisque je t'ai vu, je vais enlever tous le pillable avant ton arrivé. \nBon jeu.\n"+playerName;break;            
     }
     var params = {
         ajax: 1,
@@ -1874,7 +1876,7 @@ function read_rapports_and_create_table() {
                         data += '<td id="rap_general_butin_'+count_esp+'" style="border: 1px solid #303030;padding: 5px 8px;text-align:center;font-weight:bold;color:#FF9600;">-</td>';
                         data += '<td id="rap_general_attack_'+count_esp+'" style="border: 1px solid #303030;padding: 5px 8px;text-align: center;">Veuillez Patienter...</td>';
                         data += '</tr>';
-                        if ($(this).find('.msg_head .fright .js_actionKill')) delete_msg($(this).attr("data-msg-id"));
+                        //if ($(this).find('.msg_head .fright .js_actionKill')) delete_msg($(this).attr("data-msg-id"));
                     }
                 }
             });
@@ -1923,7 +1925,7 @@ function start_rapport_general() {
         planet = 16;
         if (system<1) system = rand(1,4);
         if (system>499) system = rand(495,499);
-        data+='<iframe style="display:none;" id="ifr_AA_exped" src="http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=15&auto=yes&ID=Exped&GT='+with_exped+'"></iframe>';
+        data+='<iframe style="display:none;" id="ifr_AA_exped" src="http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=15&auto=yes&ID=Exped&GT='+with_exped+'&blockswitchplanet=yes"></iframe>';
         data +='<div id="exped_launch" style="color:#999;padding:5px;text-align:left;color: #A52592;">Démarrage d\'une expédition...</div>';
         createCookie('AA_Exp','wait',1,'all')
         exp_verif = setInterval(function(){
@@ -1941,7 +1943,7 @@ function start_rapport_general() {
         },20000);
         
         setTimeout(function () {
-            if (document.getElementById('ifr_AA_exped')) document.getElementById('ifr_AA_exped').src = 'http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=15&auto=yes&ID=Exped&GT='+with_exped+'';
+            if (document.getElementById('ifr_AA_exped')) document.getElementById('ifr_AA_exped').src = 'http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=15&auto=yes&ID=Exped&GT='+with_exped+'&blockswitchplanet=yes';
         },3000);
     }
     data +='<table id="rap_general_table" style="width:590px;position:relative;top:0px;left:0px;border: 1px solid #000000;color: #777;background:#0D1014;margin:auto;margin-bottom:0px;"><tbody>';
@@ -1963,18 +1965,36 @@ function anal_esp_data(data) {
     type_multip = 0.5;
     if ($(data).text().match('status_abbr_honorableTarget')) type_multip = 0.75;
     $(data).each(function(){
-        tmp=$(this).text().replace('.','').match(/(Métal:|Cristal:|Deutérium:) (\d+)/);
-        switch (tmp[1]) {
-            case "Métal:": met=parseInt(tmp[2]); 
-                //console.log(tmp[1]+":"+met);
-                break;
-            case "Cristal:": cri=parseInt(tmp[2]); 
-                //console.log(tmp[1]+":"+cri);
-                break;
-            case "Deutérium:": deu=parseInt(tmp[2]); 
-                //console.log(tmp[1]+":"+deu);
-                break;
-        }
+        tmp=$(this).text().replace(',','.').match(/(Métal:|Cristal:|Deutérium:) (\S+)/);
+        if (tmp != null) 
+            switch (tmp[1]) {
+                case "Métal:": 
+                    if (tmp[2].match(/M/)) 
+                        met=Math.round(parseFloat(tmp[2])*Math.pow(10,6));
+                    else
+                        met=tmp[2].replace('.','');
+                    met=parseInt(met);
+                    //console.log(tmp[1]+":"+met);
+                    break;
+                case "Cristal:":
+                    //If have Thousand indicator
+                    if (tmp[2].match(/M/)) 
+                        cri=Math.round(parseFloat(tmp[2])*Math.pow(10,6));
+                    else
+                        cri=tmp[2].replace('.','');
+                    cri=parseInt(cri);
+                    //console.log(tmp[1]+":"+cri);
+                    break;
+                case "Deutérium:": 
+                    //If have Thousand indicator
+                    if (tmp[2].match(/M/)) 
+                        deu=Math.round(parseFloat(tmp[2])*Math.pow(10,6));
+                    else
+                        deu=tmp[2].replace('.','');
+                    deu=parseInt(deu);
+                    //console.log(tmp[1]+":"+deu);
+                    break;
+            }
 
     });
 }
@@ -1984,10 +2004,10 @@ function fill_case(butin, flotte_perso, idFrigo, curplanet_name) {
     $('#rap_general_planet_name_'+GLOB_rgID).parent().attr("href",tmp);
     tmp=null;
     document.getElementById('rap_general_butin_'+GLOB_rgID).innerHTML = get_cool_digit(butin);
-    attack_data = '<span id="RG_PT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'http://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+'&force=0&flotte_perso='+flotte_perso+'\';setTimeout(function(){document.getElementById(\'RG_PT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Envoyer '+(2+Math.floor(butin/5000))+' PT</span> (';
-    attack_data += '<span id="RG_PT2_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'http://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+'&force=1&flotte_perso='+flotte_perso+'\';setTimeout(function(){document.getElementById(\'RG_PT2_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">forcer</span>)<br/>';
-    attack_data += '<span id="RG_GT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'http://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&GT='+(2+Math.floor(butin/25000))+'&force=0&flotte_perso='+flotte_perso+'\';setTimeout(function(){document.getElementById(\'RG_GT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Ou '+(2+Math.floor(butin/25000))+' GT</span> (';
-    attack_data += '<span id="RG_GT2_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'http://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&GT='+(2+Math.floor(butin/25000))+'&force=1&flotte_perso='+flotte_perso+'\';setTimeout(function(){document.getElementById(\'RG_GT2_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">forcer</span>) ';
+    attack_data = '<span id="RG_PT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'http://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+'&force=0&flotte_perso='+flotte_perso+'&blockswitchplanet=yes\';setTimeout(function(){document.getElementById(\'RG_PT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Envoyer '+(2+Math.floor(butin/5000))+' PT</span> (';
+    attack_data += '<span id="RG_PT2_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'http://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+'&force=1&flotte_perso='+flotte_perso+'&blockswitchplanet=yes\';setTimeout(function(){document.getElementById(\'RG_PT2_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">forcer</span>)<br/>';
+    attack_data += '<span id="RG_GT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'http://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&GT='+(2+Math.floor(butin/25000))+'&force=0&flotte_perso='+flotte_perso+'&blockswitchplanet=yes\';setTimeout(function(){document.getElementById(\'RG_GT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Ou '+(2+Math.floor(butin/25000))+' GT</span> (';
+    attack_data += '<span id="RG_GT2_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'http://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&GT='+(2+Math.floor(butin/25000))+'&force=1&flotte_perso='+flotte_perso+'&blockswitchplanet=yes\';setTimeout(function(){document.getElementById(\'RG_GT2_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">forcer</span>) ';
     attack_data += '<span id="frigoID_'+GLOB_rgID+'" style="display:none">'+idFrigo+'</span>';
     document.getElementById('rap_general_attack_'+GLOB_rgID).innerHTML = attack_data;
     GLOB_rgButins[GLOB_rgID] = new Array();
@@ -1995,8 +2015,8 @@ function fill_case(butin, flotte_perso, idFrigo, curplanet_name) {
     GLOB_rgButins[GLOB_rgID][1] = GLOB_rgID;
     forceparam = '';
     if(readCookie('force','AA') == 'oui') forceparam = '&force=1';
-    GLOB_rgButins[GLOB_rgID][2] = 'http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+forceparam+'&flotte_perso='+flotte_perso+'';
-    GLOB_rgButins[GLOB_rgID][3] = 'http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&GT='+(2+Math.floor(butin/25000))+forceparam+'&flotte_perso='+flotte_perso+'';
+    GLOB_rgButins[GLOB_rgID][2] = 'http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+forceparam+'&flotte_perso='+flotte_perso+'&blockswitchplanet=yes';
+    GLOB_rgButins[GLOB_rgID][3] = 'http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&GT='+(2+Math.floor(butin/25000))+forceparam+'&flotte_perso='+flotte_perso+'&blockswitchplanet=yes';
     GLOB_rgID++;
 }
 
@@ -2019,11 +2039,11 @@ function fill_rapport_general() {
         idFrig=is_frigo(importvars["frigos"],document.getElementById('rap_general_coord_'+GLOB_rgID).innerHTML);
         //If 5 items set so a "flotte_perso" exist
         if (idFrig>=0 && importvars["frigos"][idFrig].length > 5) flotte_perso=importvars["frigos"][idFrig][5];
-        ////        
+        ////
         
         mail_url = document.getElementById('url_rap_esp_'+GLOB_rgID).innerHTML.replace(/&amp;/g,'&');
         if (mail_url !== "second") {
-            if (!mail_url.match('puredata:')) {
+/*            if (!mail_url.match('puredata:')) {
                 $.ajax(mail_url, {
                 dataType: "text",
                 type: "GET",
@@ -2034,17 +2054,20 @@ function fill_rapport_general() {
                         fill_rapport_general();
                     }
                 });
-            } else {
+            } else {*/
                 butin = parseInt(mail_url.replace('puredata:',''));
                 fill_case(butin, flotte_perso, idFrig,curplanet_name);
                 fill_rapport_general(); 
-            }
+            /*}*/
         } else {
-            butin = parseInt(parseInt(document.getElementById('rap_general_butin_'+(GLOB_rgID-1)).innerHTML.match(/\d/g).join("")) / 2);
+            //butin = parseInt(parseInt(document.getElementById('rap_general_butin_'+(GLOB_rgID-1)).innerHTML.match(/\d/g).join("")) / 2);
+            butin=parseInt(parseInt(document.getElementById('url_rap_esp_'+(GLOB_rgID-1)).innerHTML.replace('puredata:','')) /2);
             fill_case(butin, flotte_perso, idFrig,curplanet_name);
             
-            if (document.getElementById('url_rap_esp_'+(GLOB_rgID-2)).innerHTML.match('puredata:')) fill_rapport_general();
-            else setTimeout(fill_rapport_general, rand(15,20)*100);
+            /*if (document.getElementById('url_rap_esp_'+(GLOB_rgID-2)).innerHTML.match('puredata:')) fill_rapport_general();
+            else setTimeout(fill_rapport_general, rand(15,20)*100);*/
+            
+            fill_rapport_general();
         }
         
     } else {
@@ -2085,6 +2108,7 @@ function attack_cur() {
         
         
         setTimeout(function() {
+            // GLOB_rgButins[GLOB_curAA_ID][2] = url dans source de l'iframe
             if ((isFirstTry && type_vaisseaux_AA == 1) || (!isFirstTry && type_vaisseaux_AA == 2) || type_vaisseaux_AA == 3) {setTimeout(function(){document.getElementById('ifr_AA').src = GLOB_rgButins[GLOB_curAA_ID][2];}, 1000);}
             else {setTimeout(function(){document.getElementById('ifr_AA').src = GLOB_rgButins[GLOB_curAA_ID][3];}, 1000);}
         
@@ -2610,7 +2634,7 @@ plapla_change_time2 = 3;
 if (parseInt(readCookie("plapla_change_time1", 'all')) >= 1) plapla_change_time1 = parseInt(readCookie("plapla_change_time1", 'all'));
 if (parseInt(readCookie("plapla_change_time2", 'all')) >= plapla_change_time1) plapla_change_time2 = parseInt(readCookie("plapla_change_time2", 'all'));
 if (plapla_change_time1>= plapla_change_time2) plapla_change_time2 = plapla_change_time1 + 1;
-if (nb_planet>1 && (readCookie("change_planet", 'all') == "yes" || gup('page') == "overview")) {
+if (nb_planet>1 && (readCookie("change_planet", 'all') == "yes" || gup('page') == "overview") && gup('blockswitchplanet') != "yes") {
     attente = rand(plapla_change_time1,plapla_change_time2)*60;
     if (document.body.innerHTML.match('<div id="attack_alert" style="visibility:visible;">')) attente = rand(1,2)*30;
     
