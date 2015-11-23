@@ -1243,9 +1243,10 @@ function launch_spy(merde){
         if ( nb_fail > 10 ) {
             GLOB_abandonne_spy=true;
             clearTimeout(spyTimeout);
-            launch_spy();
-        } else 
+        } else {
             nb_fail+=1;
+        }
+        launch_spy();
     }, 5000);
     
     $.ajax('http://'+univers+'/game/index.php?page=minifleet&ajax=1', {
