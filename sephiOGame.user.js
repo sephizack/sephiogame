@@ -7,6 +7,7 @@
 // @include     *ogame.gameforge.com/*
 // @exclude     http://*ajax=1*
 // @exclude     *.ogame.gameforge.com/feed/*
+// @Exclude     *.ogame.gameforge.com/board*
 // @copyright   2012+, You
 // @updateURL   http://www.sephiogame.com/script/sephiOGame.user.js
 // @require     http://code.jquery.com/jquery-1.9.1.min.js
@@ -40,9 +41,12 @@
 //                       *Review all frigo integration (from messages)
 //3.6.3.2: Imp2Toulouse- *Review all Auto Attack processus
 //                       *Review the Expedition send
-//3.6.3.4: Imp2Toulouse- *NEW- Internal communication to the attack owner in order to specified its attack has been discovered 
+//3.6.3.4: Imp2Toulouse- *NEW- Internal communication to the attack owner in order to specified its attack has been discovered + config allowed
 //                        (4 different sentences used in random)
 //                       *Bug correction in butin calculation (Thousand 'M' not correctly take into account)
+//                       *Bug correction when more than 1000GT in calculation
+//                       *NEW- Integration of expedition personnal fleet, speed and time to spent in.
+//                       *Bug correction when a disconnection happens during a spy launch.
 
 
 antiBugTimeout = setTimeout(function() {location.href=location.href;}, 5*60*1000);
@@ -239,7 +243,7 @@ else username='unloged';
  *
  * @param  {Events} Events linked with this call
  */
-function checkAuth_NEW(event) {if (is_token_valide()){var temps_restant=get_Time_Remain(readCookie('gapi_auth','all'));appendResults(document.getElementById('output'),(isFR)?'Votre authentification est encore valide pour '+temps_restant+' minutes.':'Your authentication is alive for '+temps_restant+' minutes yet.');temps_restant=null;if (!is_gmail_loaded()) loadGmailApi();} else {blit_message('Authentification expirée, reconnexion!');gapi.auth.authorize({'client_id': '4911713620-3podd31sn547c21h1mvidibmaiiupmug.apps.googleusercontent.com','scope': ['https://www.googleapis.com/auth/gmail.send'],'approval_prompt': 'force','immediate': false},Auth_Load_Save_info);}return false; }
+function checkAuth_NEW(event) {if (is_token_valide()){var temps_restant=get_Time_Remain(f('gapi_auth','all'));appendResults(document.getElementById('output'),(isFR)?'Votre authentification est encore valide pour '+temps_restant+' minutes.':'Your authentication is alive for '+temps_restant+' minutes yet.');temps_restant=null;if (!is_gmail_loaded()) loadGmailApi();} else {blit_message('Authentification expirée, reconnexion!');gapi.auth.authorize({'client_id': '4911713620-3podd31sn547c21h1mvidibmaiiupmug.apps.googleusercontent.com','scope': ['https://www.googleapis.com/auth/gmail.send'],'approval_prompt': 'force','immediate': false},Auth_Load_Save_info);}return false; }
 
 /**
  * Auth, Save and Load gmail api
@@ -250,8 +254,6 @@ function Auth_Load_Save_info(authResult) {
     if (authResult && !authResult.error) {
         createCookie('gapi_auth',time(),1,'all'); createCookie('gapi_token',authResult.access_token,1,'all'); createCookie('gapi_expires_in',authResult.expires_in,1,'all'); createCookie('gapi_clientid',authResult.client_id,1,'all'); createCookie('gapi_scope',authResult.scope,1,'all');
         if (gup('sephiScript')){document.getElementById('authorize-div').style.display = 'none'; document.getElementById('alertmail-div').style.display = 'inline';
-            //document.getElementById('alertmail1-div').style.display = 'inline';
-            //document.getElementById('alertmail2-div').style.display = 'inline';
             appendResults(document.getElementById('output'),(isFR)?'Vous avez autorisé google à envoyer des mails en votre nom. Merci pour votre confiance.':'You have authorized google to send email for you. Thanks to trust us.');
         }
         blit_message((isFR)?'Vous êtes maintenant authentifié auprés de Google gmail!':'You are now authenticated on Google gmail!');
@@ -259,9 +261,8 @@ function Auth_Load_Save_info(authResult) {
     } else {
         createCookie('gapi_auth',0,1,'all'); createCookie('gapi_token',0,1,'all'); createCookie('gapi_expires_in',0,1,'all'); createCookie('gapi_clientid',0,1,'all'); createCookie('gapi_scope',0,1,'all');
         if (gup('sephiScript')) {
-            document.getElementById('authorize-div').style.display = 'inline';            document.getElementById('alertmail-div').style.display = 'none';
-            //document.getElementById('alertmail1-div').style.display = 'none';
-            //document.getElementById('alertmail2-div').style.display = 'none';
+            document.getElementById('authorize-div').style.display = 'inline';
+            document.getElementById('alertmail-div').style.display = 'none';
         }
         blit_message('Perte de l\'authentification Google gmail! Cliquer sur le bouton pour vous authentifier.');
     }
@@ -580,6 +581,10 @@ if (data !== null && data.split(":").length > 2) {
 // Load AA Exped_param
 with_exped = readCookie('with_exped', 'AA');
 if (with_exped == null) with_exped = 'non';
+with_exped_speed = readCookie('with_exped_speed', 'AA');
+if (with_exped_speed == null) with_exped_speed = '10';
+with_exped_temps = readCookie('with_exped_time', 'AA');
+if (with_exped_temps == null) with_exped_temps = '1';
     
 // texte pour l'ajout de frigo
 text_racc = importvars["frigos"].length+1;
@@ -714,27 +719,14 @@ function add_prevenir_button() {
                 inside = cur_content.split('<p class="amount">')[1].split('</p>')[0].replace(':','');
                 cur_content = cur_content.replace(inside, inside+' <span style="color:#ffffff">'+max_text+'</span>');
             }
-            /*cur_content = cur_content.replace('<span>Se procurer de l`antimatière</span>','<span id="button_progSephiText">Programmer</span>');
-            cur_content = cur_content.replace('<span>Commencer avec de l`AM</span>','<span id="button_progSephiText">Programmer</span>');
-            cur_content = cur_content.replace('<span>Recruter commandant</span>','<span id="button_progSephiText">Programmer</span>');
-            cur_content = cur_content.replace('<span>Développer</span>','<span id="button_progSephiText">Programmer</span>');
-            cur_content = cur_content.replace('<span>Rechercher</span>','<span id="button_progSephiText">Programmer</span>');
-            cur_content = cur_content.replace('<span>Construire</span>','<span id="button_progSephiText">Programmer</span>');
-            cur_content = cur_content.replace('<span>Ajouter à liste</span>','<span id="button_progSephiText">Programmer</span>');*/
-            
-            
-            //cur_content = cur_content.replace('Temps de ','<span id="prev_ok" style="display:none;"><b>Construction programmée</b><br/><span style="font-size:9px;position:relative;top:-5px;">Ne quittez pas cette page.</span><br/></span><div style="display:none" id="havetoprev">no</div><div style="display:none" id="cur_met_prev">'+cost_metal+'</div><div style="display:none" id="cur_crys_prev">'+cost_crystal+'</div><div style="display:none" id="cur_deut_prev">'+cost_deuterium+'</div><div style="display:none" id="title_prev">'+title+'</div><div style="display:none" id="form_type_prev">'+form_type+'</div><div style="display:none" id="form_modus_prev">'+form_modus+'</div><div style="display:none" id="form_number_prev">'+form_number+'</div><div style="display:none" id="is_ok_prev">no</div>Temps de ');
+                        
             cur_content = cur_content.replace('<a id="close"','<a id="close" onClick="document.getElementById(\'detail\').style.display = \'none\';"');   
-            //cur_content = cur_content.replace('Nombre:</p>','Nombre <span style="color:#ffffff">'+max_text+'</span></p>');
-            //cur_content = cur_content.replace('class="ago_items_shortcut">Nombre','class="ago_items_shortcut">Nombre <span style="color:#ffffff">'+max_text+'</span>');
-            
             
             document.getElementById('detail').style.display = 'block';
             document.getElementById("content").innerHTML = cur_content;
             document.getElementById("planet").getElementsByTagName("form")[0].id = 'form_finished';
             document.getElementById('form_finished').onsubmit = function () {
                 dontAddToCookies = true;
-                //sendBuildRequest(null, null, false);
                 return true;
             };
             document.getElementById('form_finished').onkeyup = null;
@@ -792,8 +784,6 @@ function add_frigo_button() {
             frigData +='<input type="hidden" id="position'+(index+1)+'" value="'+(planet)+'">';
             frigData +='</a>';
             $($(this).find('.msg_actions .msg_action_link.overlay')).before(frigData);
-            //var butin= $($(this).find('.msg_content .ctn4[title^=\'Butin\']')).attr('title').split('<br/>')[0].replace(",","").replace("M","000");
-            //$($(this).find('.msg_actions a'))[2]
         }
     });
 }
@@ -1053,37 +1043,23 @@ function is_frigo(frigos,coord){
 
 //Imp2Toulouse: Add function allowing to get button information
 function get_info_button(button){
-    var current_level, evol_level;
-    if (button.getElementsByClassName("ecke").length > 0) {
-        current_level=parseInt(button.getElementsByClassName("ecke")[0].innerHTML.replace(/<(?:.|\n)*?>/gm, '').replace(/.*\|/,/^$/).match(/\d+/));
-    } else current_level=0;
-    
-    if (button.getElementsByClassName("eckeoben").length > 0) {
-        evol_level=parseInt(button.getElementsByClassName("eckeoben")[0].innerHTML.replace(/<(?:.|\n)*?>/gm, '').replace(/.*\|/,/^$/).match(/\d+/));
-    } else evol_level=current_level;
-
-    return([current_level,evol_level]);
-
-    current_level=null;evol_level=null;
-}
-function get_info_button2(button){
     var current_level=0, evol_level=0, value="";
     if ($("#"+button+" .ecke").length > 0) {
-        current_level=parseInt($("#"+button+" .ecke")[0].innerHTML.replace(/<(?:.|\n)*?>/gm, '').replace(/.*\|/,/^$/).match(/\d+/));
+        current_level=parseInt($("#"+button+" .ecke")[0].innerHTML.replace(/<(?:.|\n)*?>/gm, '').replace(/.*\|/,/^$/).match(/\d+/g).join(""));
     } else current_level=0;
     
     if ($("#"+button+" .eckeoben").length > 0) {
-        evol_level=parseInt($("#"+button+" .eckeoben")[0].innerHTML.replace(/<(?:.|\n)*?>/gm, '').replace(/.*\|/,/^$/).match(/\d+/));
+        evol_level=parseInt($("#"+button+" .eckeoben")[0].innerHTML.replace(/<(?:.|\n)*?>/gm, '').replace(/.*\|/,/^$/).match(/\d+/g).join(""));
     } else evol_level=current_level;
 
     if ($("#"+button+" :input:text").length > 0) {
-        value=$("#"+button+" :input:text").val();
+        value=($("#"+button+" :input:text").val() != "")?parseInt($("#"+button+" :input:text").val().match(/\d+/g).join("")):0;
     }
     return([current_level,evol_level,value]);
 
     current_level=null;evol_level=null;value=null;
 }
-function set_info_button2(button, value){
+function set_info_button(button, value){
     if ($("#"+button+" :input:text").length > 0) 
         $("#"+button+" :input:text").val(value);
 }
@@ -1168,7 +1144,7 @@ auCasOu = null;
 spy_all=false;
 GLOB_spy_fail=0;
 GLOB_abandonne_spy = false;
-nb_tries = 0;
+nb_tries = nb_fail = 0;
 function launch_spy(merde){
     clearTimeout(backOverview);
     if (GLOB_abandonne_spy) {
@@ -1258,10 +1234,18 @@ function launch_spy(merde){
     if (auCasOu !== null) clearTimeout(auCasOu);
     auCasOu = setTimeout(function() {
            window.location.href = window.location.href.replace(gup('page'), 'overview').replace('&sephiScript=1', '');
-    }, 5*60*1000); 
+    }, 5*60*1000);
+    
     spyTimeout = setTimeout(function() {
-           blit_message('<span style="float: none;margin: 0;color:#d43635">Pas de réponse</span>. Nouvel essai.');
-           launch_spy();
+        blit_message('<span style="float: none;margin: 0;color:#d43635">Pas de réponse</span>. Nouvel essai ('+(nb_fail+1)+'/10).');
+        //Imperator2Toulouse- If nb fails reached, abandon the spy process which will return to the overview
+        if ( nb_fail > 10 ) {
+            GLOB_abandonne_spy=true;
+            clearTimeout(spyTimeout);
+        } else {
+            nb_fail+=1;
+        }
+        launch_spy();
     }, 5000);
     
     $.ajax('http://'+univers+'/game/index.php?page=minifleet&ajax=1', {
@@ -1423,7 +1407,7 @@ function check_attack() {
                                 attaker_playerid=parseInt(events[i].match(/data-playerId="(\d+)"/)[1]);
                                 //If using Antigame
                                 //if ($("#eventboxContent #eventContent .ago_eventlist_activity img")) {
-                                if ( cur_planet == cp_attacked && readCookie("advertAttaker", 'all') && readCookie("attakerNotified", "AA") != cp_attacked)
+                                if ( cur_planet == cp_attacked && readCookie("advertAttaker", 'all') === "1" && readCookie("attakerNotified", "AA") != cp_attacked)
                                     setTimeout(send_internal_message(attaker_playerid,cp_attacked),parseInt(rand(3,5))*60000);
                                 
                                 //Imp2Toulouse- Add frequency defined in param
@@ -1472,13 +1456,32 @@ function check_attack() {
 setTimeout(check_attack, 2000);
 
 function send_internal_message(attakerChatID, cp_attacked){
+    if (readCookie("msg_text", 'all') === null || readCookie("msg_text", 'all') === ''){
+        var msg_text = {
+            "intro":[ "Salut,\\n","Bonjour,\\n","Coucou,\\n","Salutation,\\n" ],
+            "corps":[
+                [ "J'ai vu ton attaque. \\n", "Je t'ai vu canaillou avec ton attaque. \\n", "J'ai cru voir une grosse attaque:) \\n", "Malgré que tu sois mon attaquant favori, \\n" ],
+                [ "J'enleverai tout avant ton arrivé afin de ne plus être rentable. \\n", "Je vais enlever avant ton arrivé. \\n", "Je t'informe, afin de ne pas te faire perdre ton temps, que j'enleverai tout avant ton arrivé. Autant que tu concentres ton attaque sur quelqu'un de plus rentable. \\n", "Tu te doutes bien que puisque je t'ai vu, je vais enlever tous le pillable avant ton arrivé. \\n" ]
+            ],
+            "politesse":[ "Bon jeu.\\n","A plus tard et bon jeu.\\n","Bonne journée et bon jeu.\\n","Bonne continuation dans le jeu.\\n" ],
+        };
+        createCookie("msg_text", JSON.stringify(msg_text), 1, 'all');
+    } else
+        msg_text=JSON.parse(readCookie("msg_text", 'all'));
+    
     var attaker_message_url='http://'+univers+'/game/index.php?page=ajaxChat';
-    switch(parseInt(rand(1,4))){
-        case 1: text="Salut, \nJ'ai vu ton attaque. \nJ'enleverai tout avant ton arrivé afin de ne plus être rentable. \nBon jeu.\n"+playerName;break;
-        case 2: text="Bonjour, \nJe t'ai vu canaillou avec ton attaque. \nJe vais enlever avant ton arrivé. \nA plus tard et bon jeu.\n"+playerName;break;
-        case 3: text="Coucou, \nJ'ai cru voir une grosse attaque:) \nJe t'informe, afin de ne pas te faire perdre ton temps, que j'enleverai tout avant ton arrivé. Autant que tu concentres ton attaque sur quelqu'un de plus rentable. \nBon jeu.\n"+playerName;break;
-        case 4: text="Salutation à toi mon attaquant favori, \nTu te doutes bien que puisque je t'ai vu, je vais enlever tous le pillable avant ton arrivé. \nBon jeu.\n"+playerName;break;            
-    }
+    //Introduction
+    text=msg_text.intro[parseInt(rand(1,4))].replace("\\n","\n");
+    
+    //Objectif1
+    text+=msg_text.corps[0][parseInt(rand(1,4))].replace("\\n","\n");
+
+    //Objectif2
+    text+=msg_text.corps[1][parseInt(rand(1,4))].replace("\\n","\n");
+
+    //Politesse
+    text+=msg_text.politesse[parseInt(rand(1,4))].replace("\\n","\n")+"\n"+playerName;
+    
     var params = {
         ajax: 1,
         mode: 1,
@@ -1876,7 +1879,7 @@ function read_rapports_and_create_table() {
                         data += '<td id="rap_general_butin_'+count_esp+'" style="border: 1px solid #303030;padding: 5px 8px;text-align:center;font-weight:bold;color:#FF9600;">-</td>';
                         data += '<td id="rap_general_attack_'+count_esp+'" style="border: 1px solid #303030;padding: 5px 8px;text-align: center;">Veuillez Patienter...</td>';
                         data += '</tr>';
-                        //if ($(this).find('.msg_head .fright .js_actionKill')) delete_msg($(this).attr("data-msg-id"));
+                        if ($(this).find('.msg_head .fright .js_actionKill')) delete_msg($(this).attr("data-msg-id"));
                     }
                 }
             });
@@ -1925,7 +1928,9 @@ function start_rapport_general() {
         planet = 16;
         if (system<1) system = rand(1,4);
         if (system>499) system = rand(495,499);
-        data+='<iframe style="display:none;" id="ifr_AA_exped" src="http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=15&auto=yes&ID=Exped&GT='+with_exped+'&blockswitchplanet=yes"></iframe>';
+        //Imperator2Toulouse- Launch expedition with flotte_perso
+        //data+='<iframe style="display:none;" id="ifr_AA_exped" src="http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=15&auto=yes&ID=Exped&GT='+with_exped+'&blockswitchplanet=yes"></iframe>';
+        data+='<iframe style="display:none;" id="ifr_AA_exped" src="http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=15&auto=yes&ID=Exped&GT=0&flotte_perso='+with_exped+'&blockswitchplanet=yes"></iframe>';
         data +='<div id="exped_launch" style="color:#999;padding:5px;text-align:left;color: #A52592;">Démarrage d\'une expédition...</div>';
         createCookie('AA_Exp','wait',1,'all')
         exp_verif = setInterval(function(){
@@ -1943,7 +1948,7 @@ function start_rapport_general() {
         },20000);
         
         setTimeout(function () {
-            if (document.getElementById('ifr_AA_exped')) document.getElementById('ifr_AA_exped').src = 'http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=15&auto=yes&ID=Exped&GT='+with_exped+'&blockswitchplanet=yes';
+            if (document.getElementById('ifr_AA_exped')) document.getElementById('ifr_AA_exped').src = 'http://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=15&auto=yes&ID=Exped&GT=0&flotte_perso='+with_exped+'&blockswitchplanet=yes';
         },3000);
     }
     data +='<table id="rap_general_table" style="width:590px;position:relative;top:0px;left:0px;border: 1px solid #000000;color: #777;background:#0D1014;margin:auto;margin-bottom:0px;"><tbody>';
@@ -2042,34 +2047,11 @@ function fill_rapport_general() {
         ////
         
         mail_url = document.getElementById('url_rap_esp_'+GLOB_rgID).innerHTML.replace(/&amp;/g,'&');
-        if (mail_url !== "second") {
-/*            if (!mail_url.match('puredata:')) {
-                $.ajax(mail_url, {
-                dataType: "text",
-                type: "GET",
-                success: function(data) {
-                        anal_esp_data(data);
-                        butin = Math.floor(type_multip*(met+cri+deu));
-                        fill_case(butin, flotte_perso, idFrig,curplanet_name);
-                        fill_rapport_general();
-                    }
-                });
-            } else {*/
-                butin = parseInt(mail_url.replace('puredata:',''));
-                fill_case(butin, flotte_perso, idFrig,curplanet_name);
-                fill_rapport_general(); 
-            /*}*/
-        } else {
-            //butin = parseInt(parseInt(document.getElementById('rap_general_butin_'+(GLOB_rgID-1)).innerHTML.match(/\d/g).join("")) / 2);
-            butin=parseInt(parseInt(document.getElementById('url_rap_esp_'+(GLOB_rgID-1)).innerHTML.replace('puredata:','')) /2);
-            fill_case(butin, flotte_perso, idFrig,curplanet_name);
-            
-            /*if (document.getElementById('url_rap_esp_'+(GLOB_rgID-2)).innerHTML.match('puredata:')) fill_rapport_general();
-            else setTimeout(fill_rapport_general, rand(15,20)*100);*/
-            
-            fill_rapport_general();
-        }
-        
+        //Imperator2Toulouse- If second attack, middle butin is set
+        butin = (mail_url !== "second") ? parseInt(mail_url.replace('puredata:','')) : parseInt(parseInt(document.getElementById('url_rap_esp_'+(GLOB_rgID-1)).innerHTML.replace('puredata:','')) /2);
+        fill_case(butin, flotte_perso, idFrig,curplanet_name);
+        fill_rapport_general(); 
+
     } else {
         // On trie le tableau
         GLOB_rgButins = GLOB_rgButins.sort(function(a,b) { return b[0] - a[0] });
@@ -2321,23 +2303,19 @@ if ((gup('page') == "resources" && !cur_planetIsLune) || (gup('page') == "statio
     lvlBaseLunaire_Next = 0;
 
     if (!cur_planetIsLune) {
-        //var info_button1=get_info_button(document.getElementById("button1"));
-        var info_button1=get_info_button2("button1");
+        var info_button1=get_info_button("button1");
         lvlMineMetal= parseInt(info_button1[0]);
         lvlMineMetal_Next= parseInt(info_button1[1]);
 
-        //var info_button2=get_info_button(document.getElementById("button2"));
-        var info_button2=get_info_button2("button2");
+        var info_button2=get_info_button("button2");
         lvlMineCris= parseInt(info_button2[0]);
         lvlMineCris_Next= parseInt(info_button2[1]);
 
-        //var info_button3=get_info_button(document.getElementById("button3"));
-        var info_button3=get_info_button2("button3");
+        var info_button3=get_info_button("button3");
         lvlSynthDeut= parseInt(info_button3[0]);
         lvlSynthDeut_Next= parseInt(info_button3[1]);
 
-        //var info_button4=get_info_button(document.getElementById("button4"));
-        var info_button4=get_info_button2("button4");
+        var info_button4=get_info_button("button4");
         lvlSolar= parseInt(info_button4[0]);
         lvlSolar_Next= parseInt(info_button4[1]);
 
@@ -2349,8 +2327,7 @@ if ((gup('page') == "resources" && !cur_planetIsLune) || (gup('page') == "statio
 
     } else {
 
-        //var info_button2=get_info_button(document.getElementById("button2"));
-        var info_button2=get_info_button2("button2");
+        var info_button2=get_info_button("button2");
         lvlBaseLunaire= parseInt(info_button2[0]);
         lvlBaseLunaire_Next= parseInt(info_button2[1]);
 
@@ -2841,6 +2818,8 @@ function SendFleet(response){
                 
                 if (params.sephi_opt.match('auto=yes') && params.sephi_opt.match(/ID=(\w+)/)[1] == 'Exped') {
                     params.type_mission.replace(/mission=\d+/, "mission=15");
+                    if (params.sephi_opt.match(/exped_speed=(\w+)/) !== null ) params.fleets=params.fleets.replace(/speed=\d+/,"speed="+params.sephi_opt.match(/exped_speed=(\w+)/)[1]);
+                    if (params.sephi_opt.match(/exped_time=(\w+)/) !== null ) params.fleets_opts=params.fleets_opts.replace(/expeditiontime=\d+/,"expeditiontime="+params.sephi_opt.match(/exped_time=(\w+)/)[1]);
                 }
                 createCookie('data',JSON.stringify(params), 1, 'form');
                 
@@ -2867,7 +2846,7 @@ function SendFleet(response){
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 function SendFleetSuccess(params){
-    console.log("Attack success (params=" +params+ ").");
+    console.log("Attack success (params=" +JSON.stringify(params)+ ").");
     if (params.sephi_opt.match('eject=yes')) {
         createCookie('retour_auto', 'oui', 1, 'eject'); createCookie('ejection_time', time(), 1, 'eject');
         document.getElementById('eject_button').src=document.getElementById('eject_button').src.replace("grey","green");
@@ -2884,11 +2863,18 @@ function SendFleetSuccess(params){
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 function SendFleetFailed(params){
-    console.log("Attack failled (params=" +params+ ").");
+    console.log("Attack failled (params=" +JSON.stringify(params)+ ").");
     if (params.sephi_opt.match('eject=yes')) {
         document.getElementById('eject_button').src=document.getElementById('eject_button').src.replace("grey","red");
         blit_message("<b>Ejection</b> en erreur depuis "+cur_planame+".");
         setTimeout(function(){document.getElementById('eject_button').src=document.getElementById('eject_button').src.replace("red","grey");window.location.href = "http://"+univers+"/game/index.php?page=overview&cp="+(readCookie('eject_selectPlanet', 'all'));}, 4000);
+    }
+    if (params.sephi_opt.match('auto=yes') && params.sephi_opt.match('ID=')){
+        idcook = 'AA_feed';
+        if (params.sephi_opt.match(/ID=(\w+)/)[1] == 'Exped'){
+            idcook = 'AA_Exp';
+        }
+        createCookie(idcook, gup('ID')+'_NOT_OK', 1, 'all');
     }
 }
 
@@ -2896,25 +2882,12 @@ if (gup('page') == "fleet1" && gup('eject') == 'yes') {
     createCookie('eject_selectPlanet', planet_list[planame_list.indexOf(cur_planame)], 1, 'all');
     
     var params; 
-    /*var cp ="cp="+planet_list[planame_list.indexOf(cur_planame)];
-    var url= "http://"+univers+"/game/index.php";
-    var to= "galaxy="+(importvars['eject'].split(':')[0])+"&system="+(importvars['eject'].split(':')[1])+"&position="+(importvars['eject'].split(':')[2]);
-    var type_mission= "type="+((eject_onLune)?"3":"1")+"&mission=4";
-    var fleets="speed=1&am204=99999&am205=99999&am206=99999&am207=99999&am215=99999&am211=99999&am213=99999&am214=99999"+((eject_all)?"&am202=99999&am203=99999&am208=99999&am209=99999&am210=99999":""); 
-    var ressources="metal=999999999&crystal=999999999&deuterium=999999999&prioMetal=1&prioCrystal=2&prioDeuterium=3";
-    var fleets_opts= "union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=0&expeditiontime=0&retreatAfterDefenderRetreat=0";
-    var token= "token=";
-    var step = 1;
-    var sephi_opt="eject=yes";
-    params=JSON.parse('{ "url": "'+url+'", "page": "page=fleet1", "from": "'+cp+'", "to": "'+to+'", "type_mission": "'+type_mission+'", "fleets": "'+fleets+'", "ressources": "'+ressources+'", "fleets_opts": "'+fleets_opts+'", "token": "'+token+'", "step": "'+step+'", "sehi_opt": "'+sephi_opt+'"}');*/
-    
     sephi_opt="eject=yes";
     
     params=JSON.parse('{ "url": "'+"http://"+univers+"/game/index.php"+'", "page": "page=fleet1", "from": "'+"cp="+planet_list[planame_list.indexOf(cur_planame)]+'", "to": "'+"galaxy="+(importvars['eject'].split(':')[0])+"&system="+(importvars['eject'].split(':')[1])+"&position="+(importvars['eject'].split(':')[2])+'", "type_mission": "'+"type="+((eject_onLune)?"3":"1")+"&mission=4"+'", "fleets": "'+"speed=1&am204=99999&am205=99999&am206=99999&am207=99999&am215=99999&am211=99999&am213=99999&am214=99999"+((eject_all)?"&am202=99999&am203=99999&am208=99999&am209=99999&am210=99999":"")+'", "ressources": "'+"metal=999999999&crystal=999999999&deuterium=999999999&prioMetal=1&prioCrystal=2&prioDeuterium=3"+'", "fleets_opts": "'+"union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0"+'", "token": "'+"token="+'", "step": "'+1+'", "sephi_opt":"'+sephi_opt+'"}');
     createCookie('data',JSON.stringify(params), 1, 'form');
     PostXMLHttpRequest(params.url+"?"+params.page+"&"+params.from,"",SendFleet);
     params=null;
-//    PostXMLHttpRequest("http://s129-fr.ogame.gameforge.com/game/index.php?page=fleet1&cp="+(planet_list[planame_list.indexOf(cur_planame)]),"",SendFleet);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2963,57 +2936,34 @@ if (gup('page') == "fleet1" && gup('auto') == 'yes') {
     nbGT = 0;
     if (gup('PT') !== "") nbPT = parseInt(gup('PT'));
     if (gup('GT') !== "") nbGT = parseInt(gup('GT'));
-
-    //maxPT = parseInt(document.body.innerHTML.split('Petit transporteur </span>')[1].split('</span>')[0].match(/\d/g).join(""))
-    //maxGT = parseInt(document.body.innerHTML.split('Grand transporteur </span>')[1].split('</span>')[0].match(/\d/g).join(""))
     
-    maxPT= get_info_button2("button202")[0];
-    maxGT= get_info_button2("button203")[0];
+    maxPT= get_info_button("button202")[0];
+    maxGT= get_info_button("button203")[0];
 
     maxNames = new Array('Chasseur léger','Chasseur lourd','Croiseur','Vaisseau de bataille','Traqueur','Bombardier','Destructeur','Étoile de la mort','Petit transporteur','Grand transporteur','Vaisseau de colonisation','Recycleur','Sonde d`espionnage');
     maxNames_button = new Array('204','205','206','207','215','211','213','214','202','203','208','209','210');
 
     perso_is_ok = true;
-/*    if (gup('flotte_perso') !== '') {
-        nbf = gup('flotte_perso').split(':');
-        e=document.getElementsByClassName('fleetValues');
-        for (i=0; i<e.length ; i++) {
-            e[i].value = nbf[i];
-            //if maxNames_button[i] == "202" supPT = nbf[i];
-            //if maxNames_button[i] == "203" supGT = nbf[i];
-            //if (parseInt(nbf[i]) > parseInt(document.body.innerHTML.split(maxNames[i]+' </span>')[1].split('</span>')[0].match(/\d/g).join("")))
-            if (parseInt(nbf[i]) > parseInt(get_info_button2(document.getElementById("button"+maxNames_button[i]))[0])) {
-                perso_is_ok=false;
-                fleets_tmp="";
-            }
-        }
-    }
-*/
+
     //Check if flotte_perso is ok
     fleets_perso="";
     if (gup('flotte_perso') !== '') {
-        supPT = "";
-        supGT = "";
+        
         nbf = gup('flotte_perso').split(':');
-        for (i=0; i<nbf.length ; i++) {
+        for (i=0, supPT = 0, supGT = 0; i<nbf.length ; i++) {
+            if (maxNames_button[i] === undefined) break;
             if (maxNames_button[i] == "202" || maxNames_button[i] == "203"){
                 if (maxNames_button[i] == "202") supPT = parseInt(nbf[i]);
                 if (maxNames_button[i] == "203") supGT = parseInt(nbf[i]);
             } else {
                 fleets_perso+= "&am"+maxNames_button[i]+"="+nbf[i];
             }
-            if (parseInt(nbf[i]) > parseInt(get_info_button2("button"+maxNames_button[i])[0]))    
+            if (parseInt(nbf[i]) > parseInt(get_info_button("button"+maxNames_button[i])[0]))    
                 perso_is_ok=false;
         }
-        //supPT = get_info_button2("button202")[2];//get value
-        //supPT = document.getElementById('ship_202').value;
-        if (supPT == "") supPT = 0;
-        else supPT = parseInt(supPT);
 
-        //supGT = get_info_button2("button203")[2];//get value
-        //supGT = document.getElementById('ship_203').value;
-        if (supGT == "") supGT = 0;
-        else supGT = parseInt(supGT);
+        supPT = parseInt(supPT);
+        supGT = parseInt(supGT);
         
         if (perso_is_ok) {
             nbPT= supPT + nbPT;
@@ -3021,11 +2971,6 @@ if (gup('page') == "fleet1" && gup('auto') == 'yes') {
         }
         supPT=null;supGT=null;
     }
-
-    //document.getElementById('ship_202').value= supPT + nbPT;
-    //set_info_button2("button202",nbPT);
-    //document.getElementById('ship_203').value= supGT + nbGT;
-    //set_info_button2("button203",nbGT);
 
     has_flotte = document.body.innerHTML.split('<span>Flottes:</span>')[1].split('</span>')[0].split('class="').length == 1;
     //Calcule si le lancement d'une flotte est possible en fonction des slots disponibles
@@ -3048,8 +2993,6 @@ if (gup('page') == "fleet1" && gup('auto') == 'yes') {
     else if (nbGT > maxGT && (gup('force') !== '1' || maxGT==0)) {document.title = 'Manque de Grands transporteurs'; createCookie(idcook, gup('ID')+'_NO_GT', 1, 'all');}
     else {
 
-
-
         ////////////////////////////
         //// USE NEW SendFleet
         var params; 
@@ -3058,12 +3001,14 @@ if (gup('page') == "fleet1" && gup('auto') == 'yes') {
         var to= "galaxy="+gup('galaxy')+"&system="+gup('system')+"&position="+gup('position');
         var type_mission= "type="+gup('type')+"&mission="+gup('mission');
         var fleets="speed=10&am202="+(nbPT)+"&am203="+(nbGT)+fleets_perso; 
-        console.log("fleets="+fleets);
+        console.log("fleets sent from "+cur_planame+"="+fleets);
         var ressources="metal=0&crystal=0&deuterium=0&prioMetal=1&prioCrystal=2&prioDeuterium=3";
         var fleets_opts= "union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0";
         var token= "token=";
         var step = 1;
         sephi_opt="auto=yes&ID="+gup('ID');
+        if (gup('ID') == 'Exped') sephi_opt+=((readCookie('with_exped_speed','AA') == null || readCookie('with_exped_speed','AA') == '')?'':"&exped_speed="+parseInt(readCookie('with_exped_speed','AA'))) + ((readCookie('with_exped_time','AA') == null || readCookie('with_exped_time','AA') == '')?'':"&exped_time="+parseInt(readCookie('with_exped_time','AA')));
+
         params=JSON.parse('{ "url": "'+url+'", "page": "page=fleet1", "from": "'+cp+'", "to": "'+to+'", "type_mission": "'+type_mission+'", "fleets": "'+fleets+'", "ressources": "'+ressources+'", "fleets_opts": "'+fleets_opts+'", "token": "'+token+'", "step": "'+step+'", "sephi_opt": "'+sephi_opt+'"}');
 
         //    params=JSON.parse('{ "url": "'+"http://"+univers+"/game/index.php"+'", "page": "page=fleet1", "from": "'+"cp="+planet_list[planame_list.indexOf(cur_planame)]+'", "to": "'+"galaxy="+(importvars['eject'].split(':')[0])+"&system="+(importvars['eject'].split(':')[1])+"&position="+(importvars['eject'].split(':')[2])+'", "type_mission": "'+"type="+((eject_onLune)?"3":"1")+"&mission=4"+'", "fleets": "'+"speed=1&am204=99999&am205=99999&am206=99999&am207=99999&am215=99999&am211=99999&am213=99999&am214=99999"+((eject_all)?"&am202=99999&am203=99999&am208=99999&am209=99999&am210=99999":"")+'", "ressources": "'+"metal=999999999&crystal=999999999&deuterium=999999999"+'", "fleets_opts": "'+"union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=0&expeditiontime=0&retreatAfterDefenderRetreat=0"+'", "token": "'+"token="+'", "step": "'+1+'"}');
@@ -3072,23 +3017,9 @@ if (gup('page') == "fleet1" && gup('auto') == 'yes') {
         params=null;
         //////////
 
-        //document.getElementById('shipsChosen').action += '&auto=yes&ID='+gup('ID');
-        //  setTimeout(function(){document.getElementById('shipsChosen').submit();}, 3000);
     }
 }
-/*if ((gup('page') == "fleet2") && gup('auto') == 'yes') {
-    if (document.getElementById('consumption').innerHTML.match('overmark')) {
-        createCookie(idcook, gup('ID')+'_DEUT', 1, 'all');
-    } else {
-        document.getElementsByTagName('form')[0].action += '&auto=yes&ID='+gup('ID');
-        setTimeout(function(){document.getElementsByTagName('form')[0].submit();}, 3000);
-    }
-}
-if ((gup('page') == "fleet3") && gup('auto') == 'yes') {
-    document.getElementsByTagName('form')[0].action += '&auto=yes&ID='+gup('ID');
-    if (gup('ID') !== 'Exped') $('#missionButton1').click();
-    setTimeout(function(){document.getElementsByTagName('form')[0].submit();}, 3000);
-}*/
+
 if (gup('page') == "movement" && gup('auto') == 'yes') {
     idcook = 'AA_feed';
     if (gup('ID') == 'Exped') idcook = 'AA_Exp';
@@ -3439,14 +3370,15 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-7px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="repeat_AA" style="position:relative;top:2px;"/> Répéter cette auto-attaque toutes les <input type="text" id="repeat_AA_h" value="6" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onfocus="document.getElementById(\'repeat_AA\').checked = true;">h<input type="text" id="repeat_AA_m" value="0" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onfocus="document.getElementById(\'repeat_AA\').checked = true;"></span><br><br>';
     sephi_frigos_data+='<div style="width:80%;height:1px;background:#404040;position:relative;top:-25px;left:7%;margin-top:20px"></div>';
     sephi_frigos_data+='<span style="text-align:left;color:#c0c0c0;position:relative;top:-12px;padding-left:40px;font-weight:normal;">Options spécifiques à cette planète :</span><br><br>';
-    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:60px;font-weight:normal;">• Attaquer seulement les frigos dont le butin dépasse : <input type="text" id="butin_AA_RG" value="'+defaut_AA_butin+'" style="text-align:center; width:50px;margin-left:5px;margin-right:5px;height: 15px;"/>  <i><span id="save_AA_butin" style="display:none;">(enregistré)</span></i></span><br><br>';
-    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:60px;font-weight:normal;">• Démarrer également une expédition : <select id="do_exp_AA" style="position:relative;top:-1px;visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;"><option value="non">Non</option><option value="50" '+(with_exped == '50' ? 'selected' : '')+'>50 GT (Optimal si le 1er a moins de 100k de points)</option><option value="100" '+(with_exped == '100' ? 'selected' : '')+'>100 GT (Optimal si le 1er a moins de 1M de points)</option><option value="150" '+(with_exped == '150' ? 'selected' : '')+'>150 GT (Optimal si le 1er a moins de 5M de points)</option><option value="200" '+(with_exped == '200' ? 'selected' : '')+'>200 GT (Optimal si le 1er a plus de 5M de points)</option><option value="250" '+(with_exped == '250' ? 'selected' : '')+'>250 GT (Mode MadMax pour les warriors)</option></select> <i><span id="save_AA_do_exp" style="display:none;">(enregistré)</span></i></span><br><br>';
+    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:60px;font-weight:normal;">• Attaquer seulement les frigos dont le butin dépasse <input type="text" id="butin_AA_RG" value="'+defaut_AA_butin+'" style="text-align:center; width:50px;margin-left:5px;margin-right:5px;height: 15px;"/>  <i><span id="save_AA_butin" style="display:none;">(enregistré)</span></i></span><br><br>';
+    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:60px;font-weight:normal;">• Démarrer aussi une expédition avec <select id="do_exp_AA" style="position:relative;top:-1px;visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;"><option value="non">Aucune flotte</option><option value="perso" '+(with_exped.match(/:/) ? 'selected' : '')+'>Une flotte personalisée</option><option value="50" '+(with_exped == '50' ? 'selected' : '')+'>50 GT (Optimal si le 1er a moins de 100k points)</option><option value="100" '+(with_exped == '100' ? 'selected' : '')+'>100 GT (Optimal si le 1er a moins de 1M points)</option><option value="150" '+(with_exped == '150' ? 'selected' : '')+'>150 GT (Optimal si le 1er a moins de 5M points)</option><option value="200" '+(with_exped == '200' ? 'selected' : '')+'>200 GT (Optimal si le 1er a plus de 5M points)</option><option value="250" '+(with_exped == '250' ? 'selected' : '')+'>250 GT (Mode MadMax pour les warriors)</option></select> <i><span id="save_AA_do_exp" style="display:none;">(enregistré)</span></i></span><br><br>';
+    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:150px;font-weight:normal;">ou personnalisée<span style="cursor:help;" title="Rendez vous sur la page Flotte pour créer un tag de flotte personalisé.">(?)</span> <input id="do_exp_AA_perso" type="text" style="position:relative;top:-1px;visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;width:80px" '+(with_exped.match(/:/) ? '' : 'disabled')+' value="'+(with_exped.match(/:/) ? with_exped : '')+'">, Speed:<select id="do_exp_AA_perso_speed" style="position:relative;top:-1px;visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;width:60px;" '+(with_exped.match(/:/) ? '' : 'disabled')+'><option value="1"'+(with_exped_speed == '1' ? 'selected' : '')+'>10%</option><option value="2" '+(with_exped_speed == '2' ? 'selected' : '')+'>20%</option><option value="3" '+(with_exped_speed == '3' ? 'selected' : '')+'>30%</option><option value="4"'+(with_exped_speed == '4' ? 'selected' : '')+'>40%</option><option value="5" '+(with_exped_speed == '5' ? 'selected' : '')+'>50%</option><option value="6" '+(with_exped_speed == '6' ? 'selected' : '')+'>60%</option><option value="7" '+(with_exped_speed == '7' ? 'selected' : '')+'>70%</option><option value="8" '+(with_exped_speed == '8' ? 'selected' : '')+'>80%</option><option value="9" '+(with_exped_speed == '9' ? 'selected' : '')+'>90%</option><option value="10" '+(with_exped_speed == '10' ? 'selected' : '')+'>100%</option></select>, Temps:<select id="do_exp_AA_perso_temps" style="position:relative;top:-1px;visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;width:60px;" '+(with_exped.match(/:/) ? '' : 'disabled')+'><option value="1"'+(with_exped_temps == '1' ? 'selected' : '')+'>1</option><option value="2"'+(with_exped_temps == '2' ? 'selected' : '')+'>2</option><option value="3"'+(with_exped_temps == '3' ? 'selected' : '')+'>3</option><option value="4"'+(with_exped_temps == '4' ? 'selected' : '')+'>4</option><option value="5"'+(with_exped_temps == '5' ? 'selected' : '')+'>5</option><option value="6"'+(with_exped_temps == '6' ? 'selected' : '')+'>6</option><option value="7" '+(with_exped_temps == '7' ? 'selected' : '')+'>7</option><option value="8" '+(with_exped_temps == '8' ? 'selected' : '')+'>8</option><option value="9"'+(with_exped_temps == '9' ? 'selected' : '')+'>9</option><option value="10" '+(with_exped_temps == '10' ? 'selected' : '')+'>10</option><option value="11" '+(with_exped_temps == '11' ? 'selected' : '')+'>11</option><option value="12" '+(with_exped_temps == '12' ? 'selected' : '')+'>12</option><option value="13" '+(with_exped_temps == '13' ? 'selected' : '')+'>13</option><option value="14" '+(with_exped_temps == '14' ? 'selected' : '')+'>14</option><option value="15" '+(with_exped_temps == '15' ? 'selected' : '')+'>15</option></select></span><i><span id="save_AA_do_exp_perso" style="display:none;">(enregistré)</span></i></span><br><br>';
     //Imp2Toulouse- Added an input to specify the number of free slot
     sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-18px;padding-left:60px;font-weight:normal;"><input type="checkbox" id="leave_slot_AA" style="position:relative;top:2px;" '+leave_slot+'/> Laisser <input type="text" size="1" id="nb_slot_AA" value="'+defaut_AA_nb_slot+'" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;"/> slot(s) de flotte libre <i><span id="save_AA_slot" style="display:none;">(enregistré)</span></i></span><br><br>';
-    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-18px;padding-left:60px;font-weight:normal;">Lors d\'une auto-attaque, envoyer : <select id="type_vaisseaux_AA" style="position:relative;top:-1px;visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;"><option value="1" '+(type_vaisseaux_AA == '1' ? 'selected' : '')+'>Les Petits Transporteurs en prioritée, puis Grands</option><option value="2" '+(type_vaisseaux_AA == '2' ? 'selected' : '')+'>Les Grands Transporteurs en prioritée, puis Petits</option><option value="3" '+(type_vaisseaux_AA == '3' ? 'selected' : '')+'>Des Petits Transporteurs uniquement</option><option value="4" '+(type_vaisseaux_AA == '4' ? 'selected' : '')+'>Des Grands Transporteurs uniquement</option></select></span><br><br>';
+    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-18px;padding-left:60px;font-weight:normal;">Lors d\'une auto-attaque, envoyer <select id="type_vaisseaux_AA" style="position:relative;top:-1px;visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;"><option value="1" '+(type_vaisseaux_AA == '1' ? 'selected' : '')+'>Les Petits Transporteurs en prioritée, puis les Grands</option><option value="2" '+(type_vaisseaux_AA == '2' ? 'selected' : '')+'>Les Grands Transporteurs en prioritée, puis les Petits</option><option value="3" '+(type_vaisseaux_AA == '3' ? 'selected' : '')+'>Des Petits Transporteurs uniquement</option><option value="4" '+(type_vaisseaux_AA == '4' ? 'selected' : '')+'>Des Grands Transporteurs uniquement</option></select></span><br><br>';
     sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-18px;padding-left:60px;font-weight:normal;"><input type="checkbox" id="force_AA" style="position:relative;top:2px;" '+forceAA+'/> Envoyer la flotte même si il manque des transporteurs <i><span id="save_AA_force" style="display:none;">(enregistré)</span></i></span><br><br>';
     sephi_frigos_data+='<div style="width:80%;height:1px;background:#404040;position:relative;top:-25px;left:7%;margin-top:20px"></div>';
-    sephi_frigos_data+='<span style="color:#6f9fc8;padding-left:87px;">Ignorer<span style="width:0px;height:0px;position:relative;top:3px;left:-70px;"><input type="checkbox" title="Tout cocher/décocher" id="check_all"/></span></span><span style="color:#6f9fc8;padding-left:58px;">Nom</span><span style="color:#6f9fc8;padding-left:54px;">Importance</span><span style="color:#6f9fc8;padding-left:90px;">Flotte personalisée <span style="cursor:help;" title="Rendez vous sur la page Flotte pour créer un tag de flotte personalisée.">(?)</span></span><br><br>';
+    sephi_frigos_data+='<span style="color:#6f9fc8;padding-left:87px;">Ignorer<span style="width:0px;height:0px;position:relative;top:3px;left:-70px;"><input type="checkbox" title="Tout cocher/décocher" id="check_all"/></span></span><span style="color:#6f9fc8;padding-left:58px;">Nom</span><span style="color:#6f9fc8;padding-left:54px;">Importance</span><span style="color:#6f9fc8;padding-left:90px;">Flotte personalisée <span style="cursor:help;" title="Rendez vous sur la page Flotte pour créer un tag de flotte personalisé.">(?)</span></span><br><br>';
     for (i=0;i<importvars["frigos"].length;i++) {
         if (importvars["frigos"][i].length == 5) {importvars["frigos"][i][5] = '';}
         sephi_frigos_data+='<table style="width:604px;color:#6f9fc8;"><tr><th style="width:70px;text-align:center;position:relative;top:-2px;left:5px;"><span onClick="window.location.href = \'http://'+univers+'/game/index.php?page=galaxy&no_header=1&galaxy='+importvars["frigos"][i][1]+'&system='+importvars["frigos"][i][2]+'&planet='+importvars["frigos"][i][3]+'\'" style="cursor:pointer;" title="Voir dans la galaxie">['+importvars["frigos"][i][1]+':'+importvars["frigos"][i][2]+':'+importvars["frigos"][i][3]+']</span></th>';
@@ -3520,9 +3452,41 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='    <p style="width:480px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Le script permet également l\'envoi d\'un message instantanné (unique) à destination de votre attaquant (utilisation de 4 messages différents aléatoires).<br>';
     sephi_frigos_data+='      <table>';
     sephi_frigos_data+='        <tr><td colspan=2><span style="padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;"><input type="checkbox" id="advertAttaker" '+(readCookie("advertAttaker", 'all') == 1 ? 'checked' : '')+'/> Activer l\'envoi d\'un message instantannée lors des attaques <i><span id="save_advertAttaker" style="display:none;">(enregistré)</span></i></span><br/><br/></td></tr>';
+    //Imperator2Toulouse- Init msg texte
+    if (readCookie("msg_text", 'all') === null || readCookie("msg_text", 'all') === ''){
+        var msg_text = {
+            "intro":[ "Salut,\\n","Bonjour,\\n","Coucou,\\n","Salutation,\\n" ],
+            "corps":[
+                [ "J'ai vu ton attaque. \\n", "Je t'ai vu canaillou avec ton attaque. \\n", "J'ai cru voir une grosse attaque:) \\n", "Malgré que tu sois mon attaquant favori, \\n" ],
+                [ "J'enleverai tout avant ton arrivé afin de ne plus être rentable. \\n", "Je vais enlever avant ton arrivé. \\n", "Je t'informe, afin de ne pas te faire perdre ton temps, que j'enleverai tout avant ton arrivé. Autant que tu concentres ton attaque sur quelqu'un de plus rentable. \\n", "Tu te doutes bien que puisque je t'ai vu, je vais enlever tous le pillable avant ton arrivé. \\n" ]
+            ],
+            "politesse":[ "Bon jeu.\\n","A plus tard et bon jeu.\\n","Bonne journée et bon jeu.\\n","Bonne continuation dans le jeu.\\n" ],
+        };
+        createCookie("msg_text", JSON.stringify(msg_text), 1, 'all');
+    } else
+        msg_text=JSON.parse(readCookie("msg_text", 'all'));
+    
+    sephi_frigos_data+='        <tr><td colspan=2><span style="padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">• Configurations des phrases (combinaison aléatoire) <i><span id="save_msg_text" style="display:none;">(enregistré)</span></i>:</span><br/>';
+    sephi_frigos_data+='          <table style="padding-left:35px;width:504px;color:#6f9fc8;align:center;">';
+    sephi_frigos_data+='            <tr align="center"><th>Introductions</th><th>Corps1</th><th>Corps2</th><th>Politesses</th></tr>';
+    for (i=0; i<4;i++){
+        sephi_frigos_data+='            <tr>';
+        for (j=0; j<4;j++){
+            objet=null;
+            switch (j){
+                case 0: objet=msg_text.intro;break;
+                case 1: objet=msg_text.corps[0];break;
+                case 2: objet=msg_text.corps[1];break;
+                case 3: objet=msg_text.politesse;break;
+            }
+            sephi_frigos_data+='              <td id="msg_text" style="width:120px;"><input style="width:120px;height:25px;" name="msg_text['+(i+1)+']['+(j+1)+']" value="'+(objet[i])+'"/></td>';
+        }
+        sephi_frigos_data+='</tr>';        
+    }
+    sephi_frigos_data+='          </table>';
     sephi_frigos_data+='      </table>';
-    sephi_frigos_data+='    </p>';
-    sephi_frigos_data+='  </th></tr></table>\n';
+    sephi_frigos_data+='    <br><br></p>';
+    sephi_frigos_data+='  </th></tr></table>';
     sephi_frigos_data+='  <div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div>';
     sephi_frigos_data+='</div>';
     sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>';
@@ -3622,18 +3586,21 @@ if (gup('sephiScript') == '1') {
         //document.getElementById('alert_mail_button').onclick = save_alert_mail;
         document.getElementById('alert_mail_to').onblur = function() {
             document.getElementById('save_alert_mail_to').innerHTML = save_alert_mail();
-            document.getElementById('save_alert_mail_to').style.display = 'inline';
-            setTimeout(function () {document.getElementById('save_alert_mail_to').style.display = 'none';},1000);
+            $('#save_alert_mail_to').show(1500,function(){$('#save_alert_mail_to').hide();});
+            /*document.getElementById('save_alert_mail_to').style.display = 'inline';
+            setTimeout(function () {document.getElementById('save_alert_mail_to').style.display = 'none';},1000);*/
         }
         document.getElementById('alert_mail_body').onblur = function() {
             document.getElementById('save_alert_mail_body').innerHTML = save_alert_mail();
-            document.getElementById('save_alert_mail_body').style.display = 'inline';
-            setTimeout(function () {document.getElementById('save_alert_mail_body').style.display = 'none';},1000);         
+             $('#save_alert_mail_body').show(1500,function(){$('#save_alert_mail_body').hide();});
+            /*document.getElementById('save_alert_mail_body').style.display = 'inline';
+            setTimeout(function () {document.getElementById('save_alert_mail_body').style.display = 'none';},1000);  */       
         }
         document.getElementById('alert_mail_freq').onblur = function() {
             document.getElementById('save_alert_mail_freq').innerHTML = save_alert_mail();
-            document.getElementById('save_alert_mail_freq').style.display = 'inline';
-            setTimeout(function () {document.getElementById('save_alert_mail_freq').style.display = 'none';},1000);         
+            $('#save_alert_mail_freq').show(1500,function(){$('#save_alert_mail_freq').hide();});
+            /*document.getElementById('save_alert_mail_freq').style.display = 'inline';
+            setTimeout(function () {document.getElementById('save_alert_mail_freq').style.display = 'none';},1000);    */     
         }
     } else {
         document.getElementById('alertmail-div').style.display = 'none';
@@ -3647,23 +3614,29 @@ if (gup('sephiScript') == '1') {
     document.getElementById('advertAttaker').onclick = function() {
         if (this.checked) createCookie('advertAttaker', 1, 1, 'all');
         else createCookie('advertAttaker', 0, 1, 'all');
-        document.getElementById('save_advertAttaker').style.display = 'inline';
-        setTimeout(function () {document.getElementById('save_advertAttaker').style.display = 'none';},1000);         
+        $('#save_advertAttaker').show(1500,function(){$('#save_advertAttaker').hide();});
+        /*document.getElementById('save_advertAttaker').style.display = 'inline';
+        setTimeout(function () {document.getElementById('save_advertAttaker').style.display = 'none';},1000);*/         
     }
-
+    $("input[name^=msg_text]").change(function() {
+        createCookie("msg_text", JSON.stringify({"intro":[ $("input[name=msg_text\\[1\\]\\[1\\]]").val(),$("input[name=msg_text\\[2\\]\\[1\\]]").val(),$("input[name=msg_text\\[3\\]\\[1\\]]").val(),$("input[name=msg_text\\[4\\]\\[1\\]]").val() ],"corps":[[ $("input[name=msg_text\\[1\\]\\[2\\]]").val(),$("input[name=msg_text\\[2\\]\\[2\\]]").val(),$("input[name=msg_text\\[3\\]\\[2\\]]").val(),$("input[name=msg_text\\[4\\]\\[2\\]]").val() ],[ $("input[name=msg_text\\[1\\]\\[3\\]]").val(),$("input[name=msg_text\\[2\\]\\[3\\]]").val(),$("input[name=msg_text\\[3\\]\\[3\\]]").val(),$("input[name=msg_text\\[4\\]\\[3\\]]").val() ]],"politesse":[ $("input[name=msg_text\\[1\\]\\[4\\]]").val(),$("input[name=msg_text\\[2\\]\\[4\\]]").val(),$("input[name=msg_text\\[3\\]\\[4\\]]").val(),$("input[name=msg_text\\[4\\]\\[4\\]]").val() ],}), 1, 'all');
+        $('#save_msg_text').show(1500,function(){$('#save_msg_text').hide();});  
+    });
 
     // Paramètres AA
     document.getElementById('leave_slot_AA').onclick = function () {
         if (this.checked) createCookie('AA_leave_slot', 'oui', 1, 'AA');
         else createCookie('AA_leave_slot', 'non', 1, 'AA');
-        document.getElementById('save_AA_slot').style.display = 'inline';
-        setTimeout(function () {document.getElementById('save_AA_slot').style.display = 'none';},1000);
+        $('#save_AA_slot').show(1500,function(){$('#save_AA_slot').hide();});
+        /*document.getElementById('save_AA_slot').style.display = 'inline';
+        setTimeout(function () {document.getElementById('save_AA_slot').style.display = 'none';},1000);*/
     };
     //Imp2Toulouse- request to save the free slot number wished
     document.getElementById('nb_slot_AA').onchange = function () {
         createCookie('AA_nb_slot', document.getElementById('nb_slot_AA').value.match(/\d/g).join(""), 1, 'AA');
-        document.getElementById('save_AA_slot').style.display = 'inline';
-        setTimeout(function () {document.getElementById('save_AA_slot').style.display = 'none';},1000);
+        $('#save_AA_slot').show(1500,function(){$('#save_AA_slot').hide();});
+        /*document.getElementById('save_AA_slot').style.display = 'inline';
+        setTimeout(function () {document.getElementById('save_AA_slot').style.display = 'none';},1000);*/
     };
     ///////
     document.getElementById('type_vaisseaux_AA').onclick = function () {
@@ -3672,45 +3645,85 @@ if (gup('sephiScript') == '1') {
     document.getElementById('force_AA').onclick = function () {
         if (this.checked) createCookie('force', 'oui', 1, 'AA');
         else createCookie('force', 'non', 1, 'AA');
-        document.getElementById('save_AA_force').style.display = 'inline';
-        setTimeout(function () {document.getElementById('save_AA_force').style.display = 'none';},1000);
+        $('#save_AA_force').show(1500,function(){$('#save_AA_force').hide();});
+        /*document.getElementById('save_AA_force').style.display = 'inline';
+        setTimeout(function () {document.getElementById('save_AA_force').style.display = 'none';},1000);*/
     };
     document.getElementById('butin_AA_RG').onchange = function (){
         createCookie('AA_butin', document.getElementById('butin_AA_RG').value.match(/\d/g).join(""), 1, 'AA');
-        document.getElementById('save_AA_butin').style.display = 'inline';
-        setTimeout(function () {document.getElementById('save_AA_butin').style.display = 'none';},1000);
+        $('#save_AA_butin').show(1500,function(){$('#save_AA_butin').hide();});
+        /*document.getElementById('save_AA_butin').style.display = 'inline';
+        setTimeout(function () {document.getElementById('save_AA_butin').style.display = 'none';},1000);*/
     };
     document.getElementById('do_exp_AA').onchange = function () {
-        with_exped = document.getElementById('do_exp_AA').value;
-        createCookie('with_exped', document.getElementById('do_exp_AA').value, 1, 'AA');
+        if (document.getElementById('do_exp_AA').value != "perso") {
+            $("#do_exp_AA_perso:input").val(""); 
+            $("#do_exp_AA_perso:input").prop("disabled", true);
+            $("#do_exp_AA_perso_speed").val("10"); 
+            $("#do_exp_AA_perso_speed").prop("disabled", true);
+            eraseCookie('with_exped_speed', 'AA');
+            $("#do_exp_AA_perso_temps").val("1"); 
+            $("#do_exp_AA_perso_temps").prop("disabled", true);
+            eraseCookie('with_exped_time', 'AA');
+            //with_exped = document.getElementById('do_exp_AA').value;
+            with_exped = document.getElementById('do_exp_AA').value;
+            createCookie('with_exped', document.getElementById('do_exp_AA').value, 1, 'AA');
+            $('#save_AA_do_exp').show(1500,function(){$('#save_AA_do_exp').hide();});
+
+        } else {
+            $("#do_exp_AA_perso:input").prop("disabled", false).focus();
+            $("#do_exp_AA_perso_speed").prop("disabled", false);
+            $("#do_exp_AA_perso_temps").prop("disabled", false);
+            $('#save_AA_do_exp').show(1500,function(){$('#save_AA_do_exp').hide();});
+
+        }
+    }
+    document.getElementById('do_exp_AA_perso').onchange = function () {
+        with_exped = document.getElementById('do_exp_AA_perso').value;
+        createCookie('with_exped', with_exped, 1, 'AA');
+        $('#save_AA_do_exp_perso').show(1500,function(){$('#save_AA_do_exp_perso').hide();});
+    }
+    document.getElementById('do_exp_AA_perso_speed').onchange = function () {
+        with_exped_speed = document.getElementById('do_exp_AA_perso_speed').value;
+        createCookie('with_exped_speed', with_exped_speed, 1, 'AA');
+        $('#save_AA_do_exp_perso').show(1500,function(){$('#save_AA_do_exp_perso').hide();});
+    }
+    document.getElementById('do_exp_AA_perso_temps').onchange = function () {
+        with_exped_time = document.getElementById('do_exp_AA_perso_temps').value;
+        createCookie('with_exped_time', with_exped_time, 1, 'AA');
+        $('#save_AA_do_exp_perso').show(1500,function(){$('#save_AA_do_exp_perso').hide();});
     }
     
     // Options script
     document.getElementById('alarmeONOFF').onclick = function () {
         if (this.checked) createCookie('desactive_alarm', 'yes', 1, 'all');
         else createCookie('desactive_alarm', 'no', 1, 'all');
-        document.getElementById('save_alarmeONOFF').style.display = 'inline';
-        setTimeout(function () {document.getElementById('save_alarmeONOFF').style.display = 'none';},1000);
+        $('#save_alarmeONOFF').show(1500,function(){$('#save_alarmeONOFF').hide();});
+        /*document.getElementById('save_alarmeONOFF').style.display = 'inline';
+        setTimeout(function () {document.getElementById('save_alarmeONOFF').style.display = 'none';},1000);*/
     };
     document.getElementById('noplaplaChange').onclick = function () {
         if (this.checked) createCookie('noplaplaChange', 'oui', 1, 'all');
         else createCookie('noplaplaChange', 'non', 1, 'all');
-        document.getElementById('save_noplaplaChange').style.display = 'inline';
-        setTimeout(function () {document.getElementById('save_noplaplaChange').style.display = 'none';},1000);
+        $('#save_noplaplaChange').show(1500,function(){$('#save_noplaplaChange').hide();});
+        /*document.getElementById('save_noplaplaChange').style.display = 'inline';
+        setTimeout(function () {document.getElementById('save_noplaplaChange').style.display = 'none';},1000);*/
     };
-     document.getElementById('changeTime1').onchange = function () {
-         if (parseInt(this.value) > 1) {
+    document.getElementById('changeTime1').onchange = function () {
+        if (parseInt(this.value) > 1) {
             createCookie('plapla_change_time1', this.value, 1, 'all');
-            document.getElementById('save_timechange').style.display = 'inline';
-            setTimeout(function () {document.getElementById('save_timechange').style.display = 'none';},1000);
-         }
+            $('#save_timechange').show(1500,function(){$('#save_timechange').hide();});
+            /*document.getElementById('save_timechange').style.display = 'inline';
+            setTimeout(function () {document.getElementById('save_timechange').style.display = 'none';},1000);*/
+        }
     };
     document.getElementById('changeTime2').onchange = function () {
-         if (parseInt(this.value) > 1) {
+        if (parseInt(this.value) > 1) {
             createCookie('plapla_change_time2', this.value, 1, 'all');
-            document.getElementById('save_timechange').style.display = 'inline';
-            setTimeout(function () {document.getElementById('save_timechange').style.display = 'none';},1000);
-         }
+            $('#save_timechange').show(1500,function(){$('#save_timechange').hide();});
+            /*document.getElementById('save_timechange').style.display = 'inline';
+            setTimeout(function () {document.getElementById('save_timechange').style.display = 'none';},1000);*/
+        }
     };
     if (!cur_check_all_state) document.getElementById("check_all").checked = true;
     document.getElementById("check_all").onclick = function () {
