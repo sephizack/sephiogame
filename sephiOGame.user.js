@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.6.4
+// @version     3.6.4.1
 // @description Script Ogame
 // @author      Sephizack
 // @include     *ogame.gameforge.com/*
 // @exclude     http://*ajax=1*
 // @exclude     *.ogame.gameforge.com/feed/*
-// @Exclude     *.ogame.gameforge.com/board*
+// @exclude     *.ogame.gameforge.com/board*
+// @exclude     www.*
 // @copyright   2012+, You
 // @updateURL   http://www.sephiogame.com/script/sephiOGame.user.js
 // @require     http://code.jquery.com/jquery-1.9.1.min.js
@@ -49,11 +50,14 @@
 //                       *Bug correction when a disconnection happens during a spy launch.
 //3.6.3.5: Imp2Toulouse- Add change for full https protocol
 //3.6.4: Official release
-
+//
+//3.6.4.1: Imp2Toulouse-  *Add functionnalities
+//                          *link with TopRaider on api button in combat and spy report
+//                          *launch specific raid directly by clicking in target button in spy report
 
 antiBugTimeout = setTimeout(function() {location.href=location.href;}, 5*60*1000);
 
-cur_version = '3.6.4';
+cur_version = '3.6.4.1';
 univers = window.location.href.split('/')[2];
 
 // Multi langues
@@ -270,15 +274,17 @@ function Auth_Load_Save_info(authResult) {
     }
 }
 
-$(document).ready(function() 
-                  {
-                      var s = document.createElement("script");
-                      s.type = "text/javascript";
-                      s.src = "https://apis.google.com/js/client.js?onload=checkAuth";
-                      // Use any selector
-                      $("head").append(s);
-                      
-                  });
+$(document).ready(function() {
+    var s = document.createElement("script");
+    s.type = "text/javascript";
+    s.src = "https://apis.google.com/js/client.js?onload=checkAuth";
+    // Use any selector
+    $("head").append(s);
+
+    var s = '<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />\n        <meta http-equiv="Pragma" content="no-cache" />\n        <meta http-equiv="Expires" content="0" />\n';
+    $("head").prepend(s);
+    
+});
 
 
 havetoprev = "no";
@@ -749,18 +755,32 @@ function add_frigo_button() {
     //rapports = $('#ui-id-20 .tab_inner .msg');  //document.getElementsByClassName('material spy');
     $('#ui-id-20 .tab_inner .msg').each(function(index){
         if (! $(this).attr('class').match("dejafais")) {
-            planame =  $(this).html().split('</figure>')[1].split('<a')[0].split(' [')[0].trim();
-            coord =  $(this).html().split('</figure>')[1].split('<a')[0].match(/\[[0-9:]+\]/)[0];
-            tmp = coord.replace('[','').replace(']','').split(':');
-            galaxy = tmp[0];
-            system = tmp[1];
-            planet = tmp[2];
-
+            if ($(this).html().split('</figure>').length > 1) {
+                planame =  $(this).html().split('</figure>')[1].split('<a')[0].split(' [')[0].trim();
+                coord =  $(this).html().split('</figure>')[1].split('<a')[0].match(/\[[0-9:]+\]/)[0];
+                tmp = coord.replace('[','').replace(']','').split(':');
+                galaxy = tmp[0];
+                system = tmp[1];
+                planet = tmp[2];
+            }
+            if ( $(this).find(".msg_actions .icon_attack").length > 0) {
+                //Get information about butin (sum of metal, cristal and deut) * type_multifactor (50%, 75%, 100%, ...)
+                anal_esp_data($(this).find("span.ctn4 .resspan"));
+                butin=Math.floor(type_multip*(met+cri+deu));
+                var obj=$(this).find(".msg_actions .icon_attack").parent()
+                obj.attr("href",obj.attr("href").replace("mission=1","mission=1&auto=yes&ID=0&GT="+(2+Math.floor(butin/25000))+"&Referer="+(encodeURIComponent($(location).attr('href').replace(/.*\?(.*)/g,"$1")))));
+                var obj = null;
+            }
+            if ( $(this).find(".msg_actions .icon_apikey").length > 0) {
+                var obj=$(this).find(".msg_actions .icon_apikey").parent();
+                obj.attr("href",obj.attr("href").replace("ogame-api://sr-","http://topraider.eu/index.php?langue=fr&SR_KEYconv=sr-"));
+                obj.attr('target','_blank');
+                var obj = null;
+            }
             // Recherche d'un frigo avec ces coordonnées
             //Imp2Toulouse- Factorize with is_frigo fonction
             infrig=is_frigo(importvars["frigos"],coord)>=0?'yes':'no';
             ////
-            $(this).addClass("dejafais");
             if (infrig == 'no') {
                 var message_res_action='Bienvenue dans les frigos !';
                 var info='Je ne suis pas encore un de vos frigos !';
@@ -785,7 +805,21 @@ function add_frigo_button() {
             frigData +='<input type="hidden" id="system'+(index+1)+'" value="'+(system)+'">';
             frigData +='<input type="hidden" id="position'+(index+1)+'" value="'+(planet)+'">';
             frigData +='</a>';
+            
+            //Add the object built
             $($(this).find('.msg_actions .msg_action_link.overlay')).before(frigData);
+
+            //Set to already done
+            $(this).addClass("dejafais");
+        }
+    });
+    
+    $('#ui-id-22 .tab_inner .msg').each(function(index){
+        if (! $(this).attr('class').match("dejafais") && $(this).find(".msg_actions .icon_apikey").length > 0) {
+            var obj=$(this).find(".msg_actions .icon_apikey").parent();
+            obj.attr("href",obj.attr("href").replace("ogame-api://cr-","http://topraider.eu/index.php?langue=fr&CR_KEY=cr-"));
+            obj.attr('target','_blank');
+            $(this).addClass("dejafais");
         }
     });
 }
@@ -1122,7 +1156,7 @@ function get_Time_Remain(myvalue){
 }
 
 if (readCookie('lastServVer', 'all') !== null && readCookie('lastServVer', 'all') !== '' && parseInt(readCookie('lastServVer', 'all').match(/\d/g).join("")) > parseInt(cur_version.match(/\d/g).join(""))){
-    blit_message('<span style="float: none;margin: 0;color:#109E18">Version '+readCookie('lastServVer', 'all')+' disponible</span>.<br><a href="http://www.sephiogame.com/Actualites?curVer='+cur_version+'#Infos" target=_blank>Rendez-vous sur le site pour l\'installer</a>');
+    blit_message('<span style="float: none;margin: 0;color:#109E18">Version '+readCookie('lastServVer', 'all')+' disponible</span>.<br><a href="http://www.sephiogame.com/Actualites?curVer='+cur_version+'#Infos" target="sephiogame">Rendez-vous sur le site pour l\'installer</a>');
     document.getElementById('fadeBox').style.pointerEvents = 'auto';
 } 
 function getServerLastVer() {
@@ -1136,11 +1170,12 @@ function getServerLastVer() {
                 last_ver = rep.replace('OK:','');
                 createCookie('lastServVer', last_ver, 1, 'all');
             }
+            //Imp2Toulouse: Malwritten correction
             document.getElementById('servQuestion').src = "";
         }
     },500);      
 }
-if(rand(1,10) == 1) getServerLastVer();
+//if(rand(1,10) == 1) getServerLastVer();
 
 auCasOu = null;
 spy_all=false;
@@ -2265,6 +2300,7 @@ if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page')
 
 function countdownRetour() {
     t=retour_time - time() + parseInt(readCookie('ejection_time', 'eject'));
+    //Imp2Toulouse malwritten correction countdonwRetour by countdownRetour
     if (t>0) {document.getElementById('countdownRetour').innerHTML = get_cool_time(t/1000);setTimeout(countdownRetour,1000);}
     else setTimeout(function(){window.location.href = 'https://'+univers+'/game/index.php?page=movement';}, 2000);
 }
@@ -2297,6 +2333,7 @@ if ((gup('page') == "resources" && !cur_planetIsLune) || (gup('page') == "statio
     lvlSynthDeut = 10;
     lvlSolar = 10;
     lvlBaseLunaire = 10;
+
     //Imp2Toulouse- Factorization + Antigame compatibility  
     //Call function get_info_button returns back current button level and evolution (if one running)
     //Allow to answer to the bug
@@ -2338,6 +2375,7 @@ if ((gup('page') == "resources" && !cur_planetIsLune) || (gup('page') == "statio
         info_button2=null;
 
     } 
+    ///
     
     if (importvars["listPrev"].length == 0 && ( (!cur_planetIsLune && lvlMineMetal <= 1 && lvlMineCris <= 1 && lvlSolar <= 1) || (cur_planetIsLune && lvlBaseLunaire==0))){
         blit_message_time("<b>Pack de démarrage rapide</b> disponible pour votre nouvelle "+(cur_planetIsLune ? 'lune' : 'planète')+" !", 6000);
@@ -2733,44 +2771,44 @@ function getXmlHttp() {
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 function PostXMLHttpRequest(_url,_data,_callback){
-    xmlhttp = getXmlHttp();
-    xmlhttp.onreadystatechange = function() {
-        if (xmlhttp.readyState==4) {
-            _callback(xmlhttp.responseText);
-        }
-    }
-    xmlhttp.open("POST", _url, true);
-    xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xmlhttp.send(_data);
-    return xmlhttp;
+	xmlhttp = getXmlHttp();
+	xmlhttp.onreadystatechange = function() {
+		if (xmlhttp.readyState==4) {
+			_callback(xmlhttp.responseText);
+		}
+	}
+	xmlhttp.open("POST", _url, true);
+	xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	xmlhttp.send(_data);
+	return xmlhttp;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function SmartCut(source,prefix,suffix){
-    if(typeof(prefix)=='object'){
-        var pi=0;
-        for(var i=0;(i<prefix.length)&&(pi!=-1);i++){
-            pi=source.indexOf(prefix[i],pi);
-        }
-        if(pi!=-1){
-            var copyFrom=pi+prefix[prefix.length-1].length;
-            var si=source.indexOf(suffix,copyFrom);
-            var r=source.substring(copyFrom,si);
-            return r;
-        }else return false;
-    }else{
-        var pi=source.indexOf(prefix);
-        if(pi!=-1){
-            var si=source.indexOf(suffix,pi+prefix.length);
-            var r=source.substring(pi+prefix.length,si);
-            return r;
-        }else return false;
-    };
+	if(typeof(prefix)=='object'){
+		var pi=0;
+		for(var i=0;(i<prefix.length)&&(pi!=-1);i++){
+			pi=source.indexOf(prefix[i],pi);
+		}
+		if(pi!=-1){
+			var copyFrom=pi+prefix[prefix.length-1].length;
+			var si=source.indexOf(suffix,copyFrom);
+			var r=source.substring(copyFrom,si);
+			return r;
+		}else return false;
+	}else{
+		var pi=source.indexOf(prefix);
+		if(pi!=-1){
+			var si=source.indexOf(suffix,pi+prefix.length);
+			var r=source.substring(pi+prefix.length,si);
+			return r;
+		}else return false;
+	};
 };
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function Info(text){
-    var txt="";
-    for( var i = 0; i < arguments.length; i++ ) txt+=arguments[i];
-    console.log(txt);
+	var txt="";
+	for( var i = 0; i < arguments.length; i++ ) txt+=arguments[i];
+	console.log(txt);
 };
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 function SendFleet(response){
@@ -2799,7 +2837,7 @@ function SendFleet(response){
                 createCookie('data',JSON.stringify(params), 1, 'form');
                 
                 //Case of auto=yes
-                if (params.sephi_opt.match('auto=yes') && params.sephi_opt.match('ID=')) {
+                if (params.sephi_opt.match('auto=yes') && params.sephi_opt.match('ID=') != null) {
                     var ID=params.sephi_opt.match(/ID=(\w+)/)[1];
                     //if (document.getElementById('consumption').innerHTML.match('overmark')) {
                     if ($('#consumption').length >0 && $('#consumption').html().find('overmark')) {
@@ -2862,7 +2900,17 @@ function SendFleetSuccess(params){
         if (params.sephi_opt.match(/ID=(\w+)/)[1] == 'Exped'){
             idcook = 'AA_Exp';
         }
+        if (params.sephi_opt.match(/ID=(\w+)/)[1] == '0'){
+            if (typeof(params.sephi_opt.match(/Referer=(.*)/)) == 'object' && params.sephi_opt.match(/Referer=(.*)/) != null){
+                if (params.sephi_opt.match(/Referer=(.*)/).length > 0 && params.sephi_opt.match(/Referer=(.*)/)[1] != "") {
+                    setTimeout(function(){window.location.href = "https://"+univers+"/game/index.php?"+decodeURIComponent(params.sephi_opt.match(/Referer=(.*)/)[1]);}, 4000);
+                    blit_message("<b>Attaque</b> correctement envoyée en "+params.to.replace(/\w+=(\d+)/g,"$1 ").replace(/&/g,"").trim().replace(/ /g,":")+"(retour auto vers la page).");
+                }
+            } else
+                blit_message("<b>Attaque</b> correctement envoyée en "+params.to.replace(/\w+=(\d+)/g,"$1 ").replace(/&/g,"").trim().replace(/ /g,":")+".");
+        }
         createCookie(idcook, gup('ID')+'_IS_OK', 1, 'all');
+        
     }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2877,6 +2925,15 @@ function SendFleetFailed(params){
         idcook = 'AA_feed';
         if (params.sephi_opt.match(/ID=(\w+)/)[1] == 'Exped'){
             idcook = 'AA_Exp';
+        }
+        if (params.sephi_opt.match(/ID=(\w+)/)[1] == '0'){
+            if (typeof(params.sephi_opt.match(/Referer=(.*)/)) == 'object' && params.sephi_opt.match(/Referer=(.*)/) != null){
+                if (params.sephi_opt.match(/Referer=(.*)/).length > 0 && params.sephi_opt.match(/Referer=(.*)/)[1] != "") {
+                    setTimeout(function(){window.location.href = "https://"+univers+"/game/index.php?"+decodeURIComponent(params.sephi_opt.match(/Referer=(.*)/)[1]);}, 4000);
+                    blit_message("<b>Attaque</b> en echec en "+params.to.replace(/\w+=(\d+)/g,"$1 ").replace(/&/g,"").trim().replace(/ /g,":")+"(retour auto vers la page).");
+                }
+            } else
+                blit_message("<b>Attaque</b> en echec en "+params.to.replace(/\w+=(\d+)/g,"$1 ").replace(/&/g,"").trim().replace(/ /g,":")+".");
         }
         createCookie(idcook, gup('ID')+'_NOT_OK', 1, 'all');
     }
@@ -2991,8 +3048,19 @@ if (gup('page') == "fleet1" && gup('auto') == 'yes') {
 
     idcook = 'AA_feed';
     if (gup('ID') == 'Exped') idcook = 'AA_Exp';
-    if (!has_flotte) {document.title = 'Pas de flotte disponible';createCookie(idcook, gup('ID')+'_FLOTTE', 1, 'all');}
-    else if (!perso_is_ok) {document.title = 'Flotte Perso impossible'; createCookie(idcook, gup('ID')+'_NO_PERSO', 1, 'all');}
+    if (!has_flotte) {
+        document.title = 'Pas de flotte disponible';
+        //Imperator2Toulouse- In case of single auto attack
+        if (gup('ID') == 0){
+            if (gup('Referer') != "") {
+                setTimeout(function(){window.location.href = "https://"+univers+"/game/index.php?"+decodeURIComponent(gup('Referer'));}, 4000);
+                blit_message("<b>Attaque</b> en echec par manque de slot libre(retour auto vers la page).");
+            }
+            else
+                blit_message("<b>Attaque</b> en echec par manque de slot libre.");
+        } else 
+            createCookie(idcook, gup('ID')+'_FLOTTE', 1, 'all');
+    } else if (!perso_is_ok) {document.title = 'Flotte Perso impossible'; createCookie(idcook, gup('ID')+'_NO_PERSO', 1, 'all');}
     else if (nbPT > maxPT && (gup('force') !== '1' || maxPT==0)) {document.title = 'Manque de Petits transporteurs'; createCookie(idcook, gup('ID')+'_NO_PT', 1, 'all');}
     else if (nbGT > maxGT && (gup('force') !== '1' || maxGT==0)) {document.title = 'Manque de Grands transporteurs'; createCookie(idcook, gup('ID')+'_NO_GT', 1, 'all');}
     else {
@@ -3010,7 +3078,7 @@ if (gup('page') == "fleet1" && gup('auto') == 'yes') {
         var fleets_opts= "union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0";
         var token= "token=";
         var step = 1;
-        sephi_opt="auto=yes&ID="+gup('ID');
+        sephi_opt="auto=yes&ID="+gup('ID')+"&Referer="+gup('Referer');
         if (gup('ID') == 'Exped') sephi_opt+=((readCookie('with_exped_speed','AA') == null || readCookie('with_exped_speed','AA') == '')?'':"&exped_speed="+parseInt(readCookie('with_exped_speed','AA'))) + ((readCookie('with_exped_time','AA') == null || readCookie('with_exped_time','AA') == '')?'':"&exped_time="+parseInt(readCookie('with_exped_time','AA')));
 
         params=JSON.parse('{ "url": "'+url+'", "page": "page=fleet1", "from": "'+cp+'", "to": "'+to+'", "type_mission": "'+type_mission+'", "fleets": "'+fleets+'", "ressources": "'+ressources+'", "fleets_opts": "'+fleets_opts+'", "token": "'+token+'", "step": "'+step+'", "sephi_opt": "'+sephi_opt+'"}');
@@ -3157,7 +3225,8 @@ if (gup('page') == 'messages') {
 
         msgids = JSON.stringify(msgids);
 
-        var msgcountUrl  = "https:\/\/"+univers+"\/game\/index.php?page=ajaxMessageCount";
+        //var msgcountUrl  = "http:\/\/s129-fr.ogame.gameforge.com\/game\/index.php?page=ajaxMessageCount";
+        var msgcountUrl  = "https://"+univers+"\/game\/index.php?page=ajaxMessageCount";
         //var playerid = "128720";
         playerid = parseInt(playerId);
         var action = 111;
@@ -3423,7 +3492,7 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='    <p style="width:470px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Depuis notre site web vous pouvez apprendre à uiliser le script, et nous repporter les bugs que vous trouvez pour nous aider à améliorer sephiOGame. Nous ferons notre possible pour les corriger dans les futures mises à jour du script :<br><br>'
     sephi_frigos_data+='      <span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com\',\'_blank\');">• Accéder au site de SephiOGame</span>';
     sephi_frigos_data+='      <br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Utilisation\',\'_blank\');">• Apprendre à utiliser le scrript</span>';
-    sephi_frigos_data+='      <br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Actualites?curVer='+cur_version+'#Infos\',\'_blank\');">• Vérifier les mises à jour</span>';
+    sephi_frigos_data+='      <br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Actualites?curVer='+cur_version+'#Infos\',\'sephiogame\');">• Vérifier les mises à jour</span>';
     sephi_frigos_data+='      <br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Actualites#reportBug\',\'_blank\');">• Repporter un bug</span>';
     sephi_frigos_data+='    </p><br>';
     sephi_frigos_data+='  </th></tr></table>';
@@ -3761,7 +3830,7 @@ if (lastActu !== null) {
     if (lastActu > 10*60*60*1000 && lastActuSecu>10*60*1000) {
         document.body.onclick = function(){
             createCookie('lastActuTimeSecu', time(), 1, 'all');
-            document.getElementById('menuTable').innerHTML += '<form id="actuSephiOgame" action="http://www.sephiogame.com/Actualites?curVer='+cur_version+'&serv='+univers+'#Infos" style="display:none" target="_blank" method="post"><input type="submit" id="submitpopup"></form>';
+            document.getElementById('menuTable').innerHTML += '<form id="actuSephiOgame" action="http://www.sephiogame.com/Actualites?curVer='+cur_version+'&serv='+univers+'#Infos" style="display:none" target="sephiogame" method="post"><input type="submit" id="submitpopup"></form>';
             
             var evt = document.createEvent("MouseEvents");
             evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, true, false, false, false, 0, null);
