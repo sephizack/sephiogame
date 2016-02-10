@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.6.3.5
+// @version     3.6.4
 // @description Script Ogame
 // @author      Sephizack
 // @include     *ogame.gameforge.com/*
@@ -48,11 +48,12 @@
 //                       *NEW- Integration of expedition personnal fleet, speed and time to spent in.
 //                       *Bug correction when a disconnection happens during a spy launch.
 //3.6.3.5: Imp2Toulouse- Add change for full https protocol
+//3.6.4: Official release
 
 
 antiBugTimeout = setTimeout(function() {location.href=location.href;}, 5*60*1000);
 
-cur_version = '3.6.3.5';
+cur_version = '3.6.4';
 univers = window.location.href.split('/')[2];
 
 // Multi langues
@@ -1135,7 +1136,6 @@ function getServerLastVer() {
                 last_ver = rep.replace('OK:','');
                 createCookie('lastServVer', last_ver, 1, 'all');
             }
-            //Imp2Toulouse: Malwritten correction
             document.getElementById('servQuestion').src = "";
         }
     },500);      
@@ -2265,7 +2265,6 @@ if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page')
 
 function countdownRetour() {
     t=retour_time - time() + parseInt(readCookie('ejection_time', 'eject'));
-    //Imp2Toulouse malwritten correction countdonwRetour by countdownRetour
     if (t>0) {document.getElementById('countdownRetour').innerHTML = get_cool_time(t/1000);setTimeout(countdownRetour,1000);}
     else setTimeout(function(){window.location.href = 'https://'+univers+'/game/index.php?page=movement';}, 2000);
 }
@@ -2298,7 +2297,6 @@ if ((gup('page') == "resources" && !cur_planetIsLune) || (gup('page') == "statio
     lvlSynthDeut = 10;
     lvlSolar = 10;
     lvlBaseLunaire = 10;
-
     //Imp2Toulouse- Factorization + Antigame compatibility  
     //Call function get_info_button returns back current button level and evolution (if one running)
     //Allow to answer to the bug
@@ -2340,7 +2338,6 @@ if ((gup('page') == "resources" && !cur_planetIsLune) || (gup('page') == "statio
         info_button2=null;
 
     } 
-    ///
     
     if (importvars["listPrev"].length == 0 && ( (!cur_planetIsLune && lvlMineMetal <= 1 && lvlMineCris <= 1 && lvlSolar <= 1) || (cur_planetIsLune && lvlBaseLunaire==0))){
         blit_message_time("<b>Pack de démarrage rapide</b> disponible pour votre nouvelle "+(cur_planetIsLune ? 'lune' : 'planète')+" !", 6000);
@@ -2736,44 +2733,44 @@ function getXmlHttp() {
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 function PostXMLHttpRequest(_url,_data,_callback){
-	xmlhttp = getXmlHttp();
-	xmlhttp.onreadystatechange = function() {
-		if (xmlhttp.readyState==4) {
-			_callback(xmlhttp.responseText);
-		}
-	}
-	xmlhttp.open("POST", _url, true);
-	xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-	xmlhttp.send(_data);
-	return xmlhttp;
+    xmlhttp = getXmlHttp();
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState==4) {
+            _callback(xmlhttp.responseText);
+        }
+    }
+    xmlhttp.open("POST", _url, true);
+    xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xmlhttp.send(_data);
+    return xmlhttp;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function SmartCut(source,prefix,suffix){
-	if(typeof(prefix)=='object'){
-		var pi=0;
-		for(var i=0;(i<prefix.length)&&(pi!=-1);i++){
-			pi=source.indexOf(prefix[i],pi);
-		}
-		if(pi!=-1){
-			var copyFrom=pi+prefix[prefix.length-1].length;
-			var si=source.indexOf(suffix,copyFrom);
-			var r=source.substring(copyFrom,si);
-			return r;
-		}else return false;
-	}else{
-		var pi=source.indexOf(prefix);
-		if(pi!=-1){
-			var si=source.indexOf(suffix,pi+prefix.length);
-			var r=source.substring(pi+prefix.length,si);
-			return r;
-		}else return false;
-	};
+    if(typeof(prefix)=='object'){
+        var pi=0;
+        for(var i=0;(i<prefix.length)&&(pi!=-1);i++){
+            pi=source.indexOf(prefix[i],pi);
+        }
+        if(pi!=-1){
+            var copyFrom=pi+prefix[prefix.length-1].length;
+            var si=source.indexOf(suffix,copyFrom);
+            var r=source.substring(copyFrom,si);
+            return r;
+        }else return false;
+    }else{
+        var pi=source.indexOf(prefix);
+        if(pi!=-1){
+            var si=source.indexOf(suffix,pi+prefix.length);
+            var r=source.substring(pi+prefix.length,si);
+            return r;
+        }else return false;
+    };
 };
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function Info(text){
-	var txt="";
-	for( var i = 0; i < arguments.length; i++ ) txt+=arguments[i];
-	console.log(txt);
+    var txt="";
+    for( var i = 0; i < arguments.length; i++ ) txt+=arguments[i];
+    console.log(txt);
 };
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 function SendFleet(response){
