@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.6.4.1
+// @version     3.6.4.2
 // @description Script Ogame
 // @author      Sephizack
 // @include     http://s*.ogame.gameforge.com/game/*
@@ -18,10 +18,8 @@
 // @copyright   2012+, You
 // @updateURL   http://www.sephiogame.com/script/sephiOGame.user.js
 // @require     http://code.jquery.com/jquery-1.9.1.min.js
-// @fuckrequire http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js
 // @require     http://www.sephiogame.com/script/FileSaver.js
 // @require     http://www.sephiogame.com/script/googleMailAPI.js
-
 // ==/UserScript==
 
 //History Version
@@ -79,7 +77,6 @@ LANG_nouveaute_update = isFR ? ' -Integration of Ogame version 6.0.5<br>-Review 
     : ' -Integration of Ogame version 6.0.5<br>-Review all frigo integration (from messages)<br>-Review all Auto Attack processus<br>-Review the Expedition send<br>-Review Butin calculation';
 
 
-
 function exit(i){throw new Error('This is not an error. This is just to abort javascript');}
 if (document.getElementById('banner_skyscraper') !== null) document.getElementById('banner_skyscraper').innerHTML = '';
 if (localStorage == null) {
@@ -89,8 +86,6 @@ if (localStorage == null) {
 
 d = document.getElementsByClassName('ago_clock');
 if (d.length >= 1) d[0].style.display = 'none';
-
-
 
 // Fonctions de base
 function time() {mytime=new Date();return mytime.getTime();}
@@ -527,7 +522,7 @@ if (importvars["frigos"] == null || importvars["frigos"] == 'undefinied' || impo
 importvars["frigos"] = importvars["frigos"].sort(function(a,b) { return parseFloat(b[4])- parseFloat(a[4]) } );
 
 // Afficher la version du script
-document.getElementById('helper').innerHTML='<div style="width:0px;height:0px;position:relative;top:10px;left:655px;"><p style="width:400px;height:15px;color:#808080;text-align: right;font-size:10px;position: relative;left: -70px;">SephiOGame Version '+cur_version+'</p></div>';
+document.getElementById('helper').innerHTML='<div style="width:0px;height:0px;position:relative;top:10px;left:655px;"><p style="width:400px;height:15px;color:#808080;text-align: right;font-size:10px;position: relative;left: -70px;top:-5px">SephiOGame Version '+cur_version+'</p></div>';
 document.getElementById('helper').innerHTML+='<div style="width:0px;height:0px;position:relative;top:23px;left:952px;"><a href="https://'+univers+'/game/index.php?page=premium&amp;openDetail=12" style="top: 0px;left: 0px;background:none;"><img class="tooltipHTML" title="SephiOGame version '+cur_version+'|Liste de constructions sans limite, sauvegarde des frigos, alerte sonore et envoi de mails lors des missions hostiles, agrandissement des images dans flotte, messages, ect... Et d\'autres améliorations diverses<br><br><u>Nouveautés de la '+cur_version+'</u> :<br>'+LANG_nouveaute_update+'" src="http://www.sephiogame.com/script/icon_ahri2.jpg" style="border:1px solid #000000"/></a></div>';
 document.getElementById('officers').style.paddingRight+='40px';
 document.getElementById('officers').className="one";
@@ -538,7 +533,7 @@ if(gup('page') == 'premium') {
         if (con.replace('allOfficers','') !== con){
             document.getElementById('detail').innerHTML = con.replace('<div class="officers200  allOfficers ">','<div class="officers200  allOfficers "><img src="http://www.sephiogame.com/script/icon_ahri_high3.jpg" width="198" height="198" style="border:2px solid #000000;">');
             document.getElementById('features').innerHTML = 'Ce script fournis par Sephizack vous permettra de préparer des listes de constructions bien plus longues e intelligentes que celles du compte Commandant, même si vous n\'avez pas les ressources, la liste reste !<br>Et surtout, vous pourrez créer une liste de vos frigos favoris sur chacune de vos planètes qui seront espionnées et attaqués automatiquement en fonction des ressources qu\'ils ont.<br><br>Enfin, le script vous offre un système d\'alerte et d\'ejection des vaisseaux lors d\'attaques ennemies, une alarme retentira pour vous reveiller dans la nuit !';
-            document.getElementById('detail').innerHTML = document.getElementById('detail').innerHTML.replace('Commandant','SephiOGame version '+cur_version);
+            document.getElementById('detail').innerHTML = document.getElementById('detail').innerHTML.replace('Commandement','SephiOGame version '+cur_version);
             document.getElementsByClassName('benefitlist')[0].innerHTML = '<span>Liste de constructions améliorée</span><span>Auto-Attaque intelligente</span><span>Ejection en cas d\'attaque</span><span>Alertes par mail</span>'
             document.getElementsByClassName('level')[0].innerHTML = '<span class="undermark">Actif à vie</span>'
         } else setTimeout(replace_pack,100);
@@ -724,7 +719,9 @@ function add_prevenir_button() {
             
             inside = cur_content.split('<div class="build-it_wrap">')[1].split('<span')[1];
             inside = inside.split('</span>')[0];
+            
             cur_content = cur_content.replace(inside,' id="button_progSephiText">'+LANG_programm);
+            
             
             inside = cur_content.split('<ul class="production_info')[1].split('<li>')[1];
             inside = inside.split('</li>')[0];
@@ -1786,8 +1783,7 @@ function gestion_cook() {
                                 setTimeout(function(){window.location.href = window.location.href.replace(gup('page'), 'overview');}, 3000);
                             } else {
                                 //add length >1 because with new version 6.0.5, Ogame has add a condition which match with "build-it_disabled" --> $(".build-it_disabled:not(.isWorking)")
-                                //so if
-                                 if ( xhr.responseText.match("build-it_disabled") != null && xhr.responseText.match("build-it_disabled").length > 1 && xhr.responseText.match("$(\".build-it_disabled:not(.isWorking)\")") /*xhr.responseText.match("build-it_disabled")*/ ) {
+                                if ( xhr.responseText.match("class=\"build-it_disabled") != null) { /*&& xhr.responseText.match("build-it_disabled").length > 1 && xhr.responseText.match("$(\".build-it_disabled:not(.isWorking)\")"*/ /*xhr.responseText.match("build-it_disabled")*/
                                     blit_message('<span style="float: none;margin: 0;color:red">Impossible de démarrer</span>, retour sur vue d\'ensemble dans 3 secondes');
                                     set_prev_data("havetoprev", i_gestion, "no");
                                     set_prev_data("donned", i_gestion, "yesno"+(time()+(1000*60*10)));
@@ -2819,44 +2815,44 @@ function getXmlHttp() {
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 function PostXMLHttpRequest(_url,_data,_callback){
-	xmlhttp = getXmlHttp();
-	xmlhttp.onreadystatechange = function() {
-		if (xmlhttp.readyState==4) {
-			_callback(xmlhttp.responseText);
-		}
-	}
-	xmlhttp.open("POST", _url, true);
-	xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-	xmlhttp.send(_data);
-	return xmlhttp;
+    xmlhttp = getXmlHttp();
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState==4) {
+            _callback(xmlhttp.responseText);
+        }
+    }
+    xmlhttp.open("POST", _url, true);
+    xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xmlhttp.send(_data);
+    return xmlhttp;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function SmartCut(source,prefix,suffix){
-	if(typeof(prefix)=='object'){
-		var pi=0;
-		for(var i=0;(i<prefix.length)&&(pi!=-1);i++){
-			pi=source.indexOf(prefix[i],pi);
-		}
-		if(pi!=-1){
-			var copyFrom=pi+prefix[prefix.length-1].length;
-			var si=source.indexOf(suffix,copyFrom);
-			var r=source.substring(copyFrom,si);
-			return r;
-		}else return false;
-	}else{
-		var pi=source.indexOf(prefix);
-		if(pi!=-1){
-			var si=source.indexOf(suffix,pi+prefix.length);
-			var r=source.substring(pi+prefix.length,si);
-			return r;
-		}else return false;
-	};
+    if(typeof(prefix)=='object'){
+        var pi=0;
+        for(var i=0;(i<prefix.length)&&(pi!=-1);i++){
+            pi=source.indexOf(prefix[i],pi);
+        }
+        if(pi!=-1){
+            var copyFrom=pi+prefix[prefix.length-1].length;
+            var si=source.indexOf(suffix,copyFrom);
+            var r=source.substring(copyFrom,si);
+            return r;
+        }else return false;
+    }else{
+        var pi=source.indexOf(prefix);
+        if(pi!=-1){
+            var si=source.indexOf(suffix,pi+prefix.length);
+            var r=source.substring(pi+prefix.length,si);
+            return r;
+        }else return false;
+    };
 };
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function Info(text){
-	var txt="";
-	for( var i = 0; i < arguments.length; i++ ) txt+=arguments[i];
-	console.log(txt);
+    var txt="";
+    for( var i = 0; i < arguments.length; i++ ) txt+=arguments[i];
+    console.log(txt);
 };
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 function SendFleet(response){
@@ -3378,20 +3374,20 @@ if (gup('page') == 'messages') {
         //switch_tab_active();
         $(this).parent().show();
         $('#'+$(this).parent().attr("aria-controls")).show();
-        
+
     });
-    
+
     document.getElementById('save_AA_butin').onclick = function (){
         createCookie('AA_butin', document.getElementById('butin_AA_RG').value.match(/\d/g).join(""), 1, 'AA');
         this.innerHTML = 'ok';
         this.style.cursor = 'default';
     };
-    
+
     document.getElementById('rapport_gen').onclick = function() {
         document.getElementById('old_rapport_gen').style.display="none";
         start_rapport_general();
     };
-    
+
     if (readCookie('lastRap', 'AA') !== null) document.getElementById('old_rapport_gen').onclick = function() {
         document.getElementById('old_rapport_gen_AA').style.display = 'block';
         document.getElementById('rapport_gen_place').innerHTML = '<iframe style="display:none;" id="ifr_AA" src="https://ready"></iframe><table id="rap_general_table" style="width:600px;position:relative;top:0px;left:0px;border: 1px solid #000000;color: #777;background:#0D1014;margin:auto;margin-bottom:0px;">'+readCookie('lastRap', 'AA')+'</table>';
@@ -3404,7 +3400,7 @@ if (gup('page') == 'messages') {
         flotte_perso='';
         idFrig = -1;
         document.getElementById('old_rapport_gen_AA').style.display = 'none';
-        
+
         while(document.getElementById('rap_general_coord_'+GLOB_rgID) != null) {
             butin = parseInt(document.getElementById('rap_general_butin_'+GLOB_rgID).innerHTML.match(/\d/g).join(""));
             tmp = document.getElementById('rap_general_coord_'+GLOB_rgID).innerHTML.replace('[','').replace(']','').split(':');
@@ -3418,7 +3414,7 @@ if (gup('page') == 'messages') {
             //If 5 items set so a "flotte_perso" exist
             if (idFrig>=0 && importvars["frigos"][idFrig].length > 5) flotte_perso=importvars["frigos"][idFrig][5];
             ////
-            
+
             document.getElementById('rap_general_planet_name_'+GLOB_rgID).innerHTML = clean_name(document.getElementById('rap_general_planet_name_'+GLOB_rgID).innerHTML);
             document.getElementById('rap_general_planet_name_'+GLOB_rgID).style.color = '';
             GLOB_rgButins[GLOB_rgID] = new Array();
@@ -3430,21 +3426,21 @@ if (gup('page') == 'messages') {
             GLOB_rgButins[GLOB_rgID][3] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+(GLOB_rgID)+'&GT='+(2+Math.floor(butin/25000))+forceparam+'&flotte_perso='+flotte_perso+'';
             GLOB_rgID++;
         }
-           
+
         GLOB_rgButins = GLOB_rgButins.sort(function(a,b) { return b[0] - a[0] });
         GLOB_curAA_ID = 0;
-        
+
         //I2T: If enable and NOT out of time else no launch auto attack
         if (is_AA_launchable()) launchAA=true;
         else launchAA=false;
-        
+
         isFirstTry = true;
         if (!waitingExped) attack_cur();
     };
 
     if (gup('RG') == 'OUI') {
         $( '.tabs_btn a' ).trigger("click");
-        
+
         setTimeout(start_rapport_general,2000);
     }
     if (gup('AA') == 'OUI')
@@ -3471,14 +3467,14 @@ if (gup('sephiScript') == '1') {
     bonus_class="selected"
     bonus_style=" background-position:0px 27px;"
     document.getElementById('menuTable').innerHTML = document.getElementById('menuTable').innerHTML.replace('shipyard highlighted','shipyard').replace('menubutton  selected','menubutton');
-    
+
     document.getElementById('planet').style.backgroundImage = 'url(http://www.sephiogame.com/script/cadre_sephi_script_page.png)';
     document.getElementById('header_text').innerHTML = document.getElementById('header_text').innerHTML.replace('Chantier spatial','SephiOGame');
     sephi_frigos_data= '';
-    
+
     //Imp2toulouse- Factorize this part to the get_Time_Remain (previously get_last_AA_coolTime) function
     lastAAcoolTime=get_Time_Remain(readCookie("last_start", "AA"));
-    
+
     titletext = 'Mes frigos';
     if (importvars["frigos"].length == 1) titletext = 'Mon frigo';
     if (importvars["frigos"].length>1) titletext = 'Mes '+importvars["frigos"].length+' frigos';
@@ -3486,11 +3482,11 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='<div class="header" style=""><h2>'+titletext+'</h2></div>';
     sephi_frigos_data+='<div class="content" style="min-height: 90px;positon:relative;z-index:10;margin-bottom:40px;padding-top:25px;padding-left:30px;">';
     if (lastAAcoolTime != null) sephi_frigos_data+='<p style="color:#A52592;position:relative;top:-10px;margin-bottom:5px;padding-left:20px;">Dernier rapport global généré il y a ' + lastAAcoolTime+ '</p>';
-    
+
     sephi_frigos_data+='<span id="spy_all" style="cursor:pointer;color:#6f9fc8;padding-left:20px;position:relative;top:px;">&#9658; <b>Espionner tout mes frigos</b> (ne quittez pas la page avant que tous soient cochés)</span><br><br>';
     sephi_frigos_data+='<span id="rap_gene" style="cursor:pointer;color:#6f9fc8;padding-left:20px;position:relative;top:px;">&#9658; Demander un <b>Rapport Général</b> (patientez ici avant d\'avoir votre rapport)</span><br><br>';
     sephi_frigos_data+='<div style="width:80%;height:1px;background:#404040;position:relative;top:-15px;left:7%;margin-top:20px"></div>';
-    
+
     sephi_frigos_data+='<span id="auto_attack" style="cursor:pointer;color:#6f9fc8;padding-left:20px;">&#9658; Lancer un <b>rapport général</b> sur mes frigos avec les options configurées (laisser faire le script).</span><br><br>';
     sephi_frigos_data+='<div style="background:#404040;position:relative;top:-25px;left:7%;margin-top:20px"></div>';
     sephi_frigos_data+='<span style="text-align:left;color:#c0c0c0;position:relative;top:-12px;padding-left:40px;font-weight:normal;">Configuration de l\'Auto-Attaque:</span><br><br>';
@@ -3522,26 +3518,26 @@ if (gup('sephiScript') == '1') {
         sephi_frigos_data+='</table>';
         sephi_frigos_data += "\n"+'<div id="del_button_'+i+'" style="height:0px;position:relative;left:-5px;top:-22px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/newsletter-close-button.png" title="Supprimer le frigo"/></div>';
         sephi_frigos_data+='<div style="width:0px;height:0px;position:relative;top: -29px;left: 360px;"><img src="http://www.sephiogame.com/script/icon_spy.png" style="width:30px;height:auto;cursor:pointer;" title="Espionner" id="spy_button_'+i+'"/><img src="http://www.sephiogame.com/script/icon-tick.png" style="position:relative;left:18px;top:-17px;display:none;" id="spy_isok_'+i+'"/></div>';
-        
+
         sephi_frigos_data+='<div style="background:#202020;height:1px;width:80%;margin:auto;margin-top:14px;"></div><br>';
         cur_check_all_state = cur_check_all_state || importvars["frigos"][i][6] == '0';
     }
     if (importvars["frigos"].length == 0) sephi_frigos_data+='<p style="padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;width:500px;">Aucun frigo n\'a été ajouté pour cette planète.<br><br>Pour ajouter un nouveau frigo, vous devez entrer les coordonées du frigo dans le menu flotte puis cliquer sur "Ajouter". Il apparaitra ensuite sur cette page.</p>'
     sephi_frigos_data+='<div class="footer" style="positon:relative;z-index:1;bottom:-30px;"></div></div>';
     sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-45px;z-index:10;left:70px;"></div></div>'
-    
+
     // Options du script
     sephi_frigos_data+='<div class="header"><h2>Options du script</h2></div>';
     sephi_frigos_data+='<div class="content" style="min-height: 100px;positon:relative;z-index:10;margin-bottom:50px;padding-top:15px;">';
-    
+
     sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="alarmeONOFF" style="position:relative;top:2px;" '+(readCookie("desactive_alarm", 'all') == 'yes' ? 'checked' : '')+'/> Désactiver l\'alarme lors des attaques <i><span id="save_alarmeONOFF" style="display:none;">(enregistré)</span></i></span><br><br>';
     sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="noplaplaChange" style="position:relative;top:2px;" '+(readCookie("noplaplaChange", 'all') == 'oui' ? 'checked' : '')+'/> Désactiver le changement automatique de planètes <i><span id="save_noplaplaChange" style="display:none;">(enregistré)</span></i></span><br><br>';
     sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-5px;padding-left:60px;font-weight:normal;font-size:10px;">(Attention certaines fonctionnalités sont indisponibles sans le changement de planète)</span><br><br>';
     sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:px;padding-left:40px;font-weight:normal;">Changement de planète toutes les <input type="input" id="changeTime1" style="position:relative;top:2px;width:30px;text-align:center;" value="'+plapla_change_time1+'"/> à <input type="input" id="changeTime2" style="position:relative;top:2px;width:30px;text-align:center;" value="'+plapla_change_time2+'"/> minutes <i><span id="save_timechange" style="display:none;">(enregistré)</span></i></span><br><br>';
-        
+
     sephi_frigos_data+='<div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div></div>';
     sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>'
-   
+
     // Repport de bug
     sephi_frigos_data+='<div class="header"><h2>Site officiel du script</h2></div>';
     sephi_frigos_data+='  <div class="content" style="min-height: 100px;positon:relative;z-index:10;margin-bottom:50px;padding-top:15px;">';
@@ -3556,8 +3552,7 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='  <div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div>';
     sephi_frigos_data+='</div>';
     sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>';
-    
-  
+
     // Mail alerte
     sephi_frigos_data+='<div class="header"><h2>Alertes sur missions hostiles</h2></div>';
     sephi_frigos_data+='<div class="content" style="min-height: 100px;positon:relative;z-index:10;margin-bottom:50px;padding-top:15px;">';
@@ -3595,7 +3590,7 @@ if (gup('sephiScript') == '1') {
         createCookie("msg_text", JSON.stringify(msg_text), 1, 'all');
     } else
         msg_text=JSON.parse(readCookie("msg_text", 'all'));
-    
+
     sephi_frigos_data+='        <tr><td colspan=2><span style="padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">• Configurations des phrases (combinaison aléatoire) <i><span id="save_msg_text" style="display:none;">(enregistré)</span></i>:</span><br/>';
     sephi_frigos_data+='          <table style="padding-left:35px;width:504px;color:#6f9fc8;align:center;">';
     sephi_frigos_data+='            <tr align="center"><th>Introductions</th><th>Corps1</th><th>Corps2</th><th>Politesses</th></tr>';
@@ -3611,7 +3606,7 @@ if (gup('sephiScript') == '1') {
             }
             sephi_frigos_data+='              <td id="msg_text" style="width:120px;"><input style="width:120px;height:25px;" name="msg_text['+(i+1)+']['+(j+1)+']" value="'+(objet[i])+'"/></td>';
         }
-        sephi_frigos_data+='</tr>';        
+        sephi_frigos_data+='</tr>';
     }
     sephi_frigos_data+='          </table>';
     sephi_frigos_data+='      </table>';
@@ -3620,7 +3615,7 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='  <div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div>';
     sephi_frigos_data+='</div>';
     sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>';
-    
+
     // EJECT
     sephi_frigos_data+='<div class="header"><h2>Bouton EJECT</h2></div>';
     sephi_frigos_data+='<div class="content" style="min-height: 100px;positon:relative;z-index:10;margin-bottom:50px;padding-top:15px;">';
@@ -3640,8 +3635,7 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='  <div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div>';
     sephi_frigos_data+='</div>';
     sephi_frigos_data+='  <div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>'
-    
-    
+
     // Sauvegarde
     sephi_frigos_data+='<div class="header"><h2>Gestion des données</h2></div>';
     sephi_frigos_data+='<div class="content" style="min-height: 100px;positon:relative;z-index:10;margin-bottom:50px;padding-top:15px;">';
@@ -3654,14 +3648,13 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='  <div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-85px;z-index:10;left:70px;"></div></div>'
     sephi_frigos_data+='  <div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:10px;z-index:10;left:70px;"></div></div>'
     document.getElementById('buttonz').innerHTML = sephi_frigos_data;
-    
-    
+
     // Lancement Auto-Attaque
     document.getElementById('spy_all').onclick = launch_spy;
     document.getElementById('rap_gene').onclick = launch_spy;
     document.getElementById('auto_attack').onclick = launch_spy;
 
-    document.getElementById('prog_AA').onclick = function () { 
+    document.getElementById('prog_AA').onclick = function () {
         //programmé oui démarrage direct, auquel cas : le prog time vaut le repeat time
         if (document.getElementById('prog_AA').checked) progTime = time() + 60*60*1000*parseInt('0'+document.getElementById('time_AA_h').value) + 60*1000*parseInt('0'+document.getElementById('time_AA_m').value);
         //else progTime = time() + 3*1000;
@@ -3669,29 +3662,29 @@ if (gup('sephiScript') == '1') {
         //document.getElementById('auto_attack').style.color='#A52592';
         //document.getElementById('auto_attack').innerHTML='&#9658; Rapport général <u>'+((readCookie('aa_enable','AA') == 'oui')?'AVEC':'SANS')+'</u> auto-attaque programmé avec succès';
         $('#save_AA_prog').show(1500,function(){$('#save_AA_prog').hide();});
-        
+
         if (readCookie('isProg', 'AA') == 'non') {
             createCookie('isProg', 'oui', 1,'AA' );
-            window.location.href = window.location.href; 
+            window.location.href = window.location.href;
         }
     }
 
-    document.getElementById('repeat_AA').onclick = function () { 
+    document.getElementById('repeat_AA').onclick = function () {
         if (document.getElementById('repeat_AA').checked) {
             createCookie('repeat', 'oui', 1,'AA');
             createCookie('repeatTime', 60*60*1000*parseInt('0'+document.getElementById('repeat_AA_h').value) + 60*1000*parseInt('0'+document.getElementById('repeat_AA_m').value), 1,'AA');
             $('#AA_repeat').html(get_cool_time(readCookie('repeatTime','AA')/1000).replace('.00',''));
         } else createCookie('repeat', 'non', 1,'AA');
-        
+
         $('#save_AA_repeatTime').show(1500,function(){$('#save_AA_repeatTime').hide();});
 
         if (readCookie('isProg', 'AA') == 'non') {
             createCookie('isProg', 'oui', 1,'AA' );
-            window.location.href = window.location.href; 
+            window.location.href = window.location.href;
         }
     }
 
-    document.getElementById('aa_enable').onclick = function () { 
+    document.getElementById('aa_enable').onclick = function () {
         if (document.getElementById('aa_enable').checked) {
             createCookie('aa_enable', 'oui', 1,'AA');
             $('#is_AA_enable').html("avec");
@@ -3703,31 +3696,31 @@ if (gup('sephiScript') == '1') {
 
         if (readCookie('isProg', 'AA') == 'non') {
             createCookie('isProg', 'oui', 1,'AA' );
-            window.location.href = window.location.href; 
+            window.location.href = window.location.href;
         }
     }
 
-    document.getElementById('time_no_AA').onclick = function () { 
+    document.getElementById('time_no_AA').onclick = function () {
         if (document.getElementById('time_no_AA').checked) {
             createCookie('time_no_AA', 'oui', 1,'AA');
             createCookie('time_no_AA_start', 60*60*1000*parseInt('0'+document.getElementById('time_no_AA_h_start').value) + 60*1000*parseInt('0'+document.getElementById('time_no_AA_m_start').value), 1,'AA');
             createCookie('time_no_AA_end', 60*60*1000*parseInt('0'+document.getElementById('time_no_AA_h_end').value) + 60*1000*parseInt('0'+document.getElementById('time_no_AA_m_end').value), 1,'AA');
         } else createCookie('time_no_AA', 'non', 1,'AA');
-        
+
         $('#save_time_no_AA').show(1500,function(){$('#save_time_no_AA').hide();});
 
         if (readCookie('isProg', 'AA') == 'non') {
             createCookie('isProg', 'oui', 1,'AA' );
-            window.location.href = window.location.href; 
+            window.location.href = window.location.href;
         }
     }
 
-    function is_AA_launchable(){        
-        var start_time 	= get_cool_time(readCookie('time_no_AA_start','AA')/1000).split("<")[0].split("h");
-        var end_time 	= get_cool_time(readCookie('time_no_AA_end','AA')/1000).split("<")[0].split("h");
+    function is_AA_launchable(){
+        var start_time  = get_cool_time(readCookie('time_no_AA_start','AA')/1000).split("<")[0].split("h");
+        var end_time    = get_cool_time(readCookie('time_no_AA_end','AA')/1000).split("<")[0].split("h");
         //We've got the two start times as an array of hours/minutes values.
-        var dateObj 	= new Date(); //I just feel dirty making multiple calls to new Date().etc
-        var now 		= [dateObj.getHours(),dateObj.getMinutes()]; //Gets the current Hours/Minutes 
+        var dateObj     = new Date(); //I just feel dirty making multiple calls to new Date().etc
+        var now         = [dateObj.getHours(),dateObj.getMinutes()]; //Gets the current Hours/Minutes 
 
         if(parseInt(end_time[0]) < parseInt(start_time[0]) && parseInt(now[0]) < parseInt(start_time[0])){
             start_time[0] -= 24; //This is something I came up with because I do a lot of math.
@@ -3739,7 +3732,7 @@ if (gup('sephiScript') == '1') {
         var end_string   = to_hms_string(end_time); //See Above
         var now_string   = to_hms_string(now); //Above
         console.log(start_string, now_string, end_string);
-        
+
         return (
             (
                 (readCookie('aa_enable','AA') == 'oui' || readCookie('aa_enable','AA') == null) && 
@@ -3768,7 +3761,7 @@ if (gup('sephiScript') == '1') {
         document.getElementById('del_button_'+i).onclick = delete_frigo;
         document.getElementById('spy_button_'+i).onclick = launch_spy;
     }
-    
+
     // Block Ejection
     document.getElementById('eject_save_button').onclick = function () {
         eject_data = document.getElementById('eject_galaxy').value+':';
@@ -3779,28 +3772,27 @@ if (gup('sephiScript') == '1') {
         if (document.getElementById('auto_eject').value == '5mins') eject_data += '5mins:';
         if (document.getElementById('auto_eject').value == '10mins') eject_data += '10mins:';
         if (document.getElementById('auto_eject').value == '20mins') eject_data += '20mins:';
-        
+
         if (document.getElementById('eject_all').checked) eject_data += 'ALL:';
-        
+
         if (document.getElementById('ejectLune').checked) eject_data += 'OnLune';
 
         createCookie('isDead', 'n', 1, 'eject');
         importvars["eject"] = eject_data;
         save_important_vars();
-        
+
         blit_message("Données pour l'ejection enregistrées");
-        window.location.href += ''; 
+        window.location.href += '';
     }
-    
+
     // Block Sauvegarde
     document.getElementById('save_button').onclick = save_important_vars_in_cloud;
     document.getElementById('load_button').onclick = function () {
-        $('#fileupload').click();    
+        $('#fileupload').click();
     };
     document.getElementById('fileupload').onchange = load_important_vars_in_cloud;
     document.getElementById('init_button').onclick = init_vars;
-    
-    
+
     // Block alerte
     if (is_token_valide()) {
         var temps_restant=get_Time_Remain(parseInt(readCookie('gapi_auth','all')));
@@ -3822,13 +3814,13 @@ if (gup('sephiScript') == '1') {
             document.getElementById('save_alert_mail_body').innerHTML = save_alert_mail();
              $('#save_alert_mail_body').show(1500,function(){$('#save_alert_mail_body').hide();});
             /*document.getElementById('save_alert_mail_body').style.display = 'inline';
-            setTimeout(function () {document.getElementById('save_alert_mail_body').style.display = 'none';},1000);  */       
+            setTimeout(function () {document.getElementById('save_alert_mail_body').style.display = 'none';},1000);  */
         }
         document.getElementById('alert_mail_freq').onblur = function() {
             document.getElementById('save_alert_mail_freq').innerHTML = save_alert_mail();
             $('#save_alert_mail_freq').show(1500,function(){$('#save_alert_mail_freq').hide();});
             /*document.getElementById('save_alert_mail_freq').style.display = 'inline';
-            setTimeout(function () {document.getElementById('save_alert_mail_freq').style.display = 'none';},1000);    */     
+            setTimeout(function () {document.getElementById('save_alert_mail_freq').style.display = 'none';},1000);    */
         }
     } else {
         document.getElementById('alertmail-div').style.display = 'none';
@@ -3844,11 +3836,11 @@ if (gup('sephiScript') == '1') {
         else createCookie('advertAttaker', 0, 1, 'all');
         $('#save_advertAttaker').show(1500,function(){$('#save_advertAttaker').hide();});
         /*document.getElementById('save_advertAttaker').style.display = 'inline';
-        setTimeout(function () {document.getElementById('save_advertAttaker').style.display = 'none';},1000);*/         
+        setTimeout(function () {document.getElementById('save_advertAttaker').style.display = 'none';},1000);*/
     }
     $("input[name^=msg_text]").change(function() {
         createCookie("msg_text", JSON.stringify({"intro":[ $("input[name=msg_text\\[1\\]\\[1\\]]").val(),$("input[name=msg_text\\[2\\]\\[1\\]]").val(),$("input[name=msg_text\\[3\\]\\[1\\]]").val(),$("input[name=msg_text\\[4\\]\\[1\\]]").val() ],"corps":[[ $("input[name=msg_text\\[1\\]\\[2\\]]").val(),$("input[name=msg_text\\[2\\]\\[2\\]]").val(),$("input[name=msg_text\\[3\\]\\[2\\]]").val(),$("input[name=msg_text\\[4\\]\\[2\\]]").val() ],[ $("input[name=msg_text\\[1\\]\\[3\\]]").val(),$("input[name=msg_text\\[2\\]\\[3\\]]").val(),$("input[name=msg_text\\[3\\]\\[3\\]]").val(),$("input[name=msg_text\\[4\\]\\[3\\]]").val() ]],"politesse":[ $("input[name=msg_text\\[1\\]\\[4\\]]").val(),$("input[name=msg_text\\[2\\]\\[4\\]]").val(),$("input[name=msg_text\\[3\\]\\[4\\]]").val(),$("input[name=msg_text\\[4\\]\\[4\\]]").val() ],}), 1, 'all');
-        $('#save_msg_text').show(1500,function(){$('#save_msg_text').hide();});  
+        $('#save_msg_text').show(1500,function(){$('#save_msg_text').hide();});
     });
 
     // Paramètres AA
@@ -3885,12 +3877,12 @@ if (gup('sephiScript') == '1') {
     };
     document.getElementById('do_exp_AA').onchange = function () {
         if (document.getElementById('do_exp_AA').value != "perso") {
-            $("#do_exp_AA_perso:input").val(""); 
+            $("#do_exp_AA_perso:input").val("");
             $("#do_exp_AA_perso:input").prop("disabled", true);
-            $("#do_exp_AA_perso_speed").val("10"); 
+            $("#do_exp_AA_perso_speed").val("10");
             $("#do_exp_AA_perso_speed").prop("disabled", true);
             eraseCookie('with_exped_speed', 'AA');
-            $("#do_exp_AA_perso_temps").val("1"); 
+            $("#do_exp_AA_perso_temps").val("1");
             $("#do_exp_AA_perso_temps").prop("disabled", true);
             eraseCookie('with_exped_time', 'AA');
             //with_exped = document.getElementById('do_exp_AA').value;
@@ -3921,7 +3913,7 @@ if (gup('sephiScript') == '1') {
         createCookie('with_exped_time', with_exped_time, 1, 'AA');
         $('#save_AA_do_exp_perso').show(1500,function(){$('#save_AA_do_exp_perso').hide();});
     }
-    
+
     // Options script
     document.getElementById('alarmeONOFF').onclick = function () {
         if (this.checked) createCookie('desactive_alarm', 'yes', 1, 'all');
@@ -3964,8 +3956,7 @@ if (gup('sephiScript') == '1') {
         blit_message_time('Modifications <span style="float: none;margin: 0;color:#109E18">enregistrées avec succès</span> !',1000);
         //document.getElementById('save_changes').style.color='#109E18';
     };
-    
-    
+
     //Start AA
     if (gup('startAA') == '1') setTimeout(function(){$('#auto_attack').click();}, 3000);
 }
@@ -3973,7 +3964,6 @@ document.getElementById('menuTable').innerHTML = '<li style="height:0px;position
 document.getElementById('links').style.overflow = "visible";
 
 // Page actualité
-/*
 lastActu = readCookie('lastActuTime', 'all');
 lastActuSecu = readCookie('lastActuTimeSecu', 'all');
 if (lastActuSecu == null) {
@@ -3987,19 +3977,19 @@ if (lastActu !== null) {
         document.body.onclick = function(){
             createCookie('lastActuTimeSecu', time(), 1, 'all');
             document.getElementById('menuTable').innerHTML += '<form id="actuSephiOgame" action="http://www.sephiogame.com/Actualites?curVer='+cur_version+'&serv='+univers+'#Infos" style="display:none" target="sephiogame" method="post"><input type="submit" id="submitpopup"></form>';
-            
-            var evt = document.createEvent("MouseEvents");
-            evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, true, false, false, false, 0, null);
-            document.getElementById('submitpopup').dispatchEvent(evt);
+
+            // var evt = document.createEvent("MouseEvents");
+            // evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, true, false, false, false, 0, null);
+            document.getElementById('submitpopup').click();
             document.body.onclick = null;
             window.focus();
             setTimeout(function(){window.focus();},1000);
         }
     }
-} else {*/
+} else {
     createCookie('lastActuTime', time(), 1, 'all');
-/*}
-*/
+}
+
 // Affiche les frigos sur la page galaxie et ajouter un bouton "ajouter aux frigos" //Imp2Toulouse- et ajouter un bouton "Supprimer des frigos"
 last_gal_state="";
 function check_galaxy_frigs() {
@@ -4039,7 +4029,7 @@ function check_galaxy_frigs() {
                             b.getElementsByClassName('ListLinks')[0].innerHTML += '<input type="hidden" id="galaxy'+(i)+'" value="'+b.getElementsByClassName('ListImage')[0].innerHTML.split('[')[1].split(':')[0]+'">';
                             b.getElementsByClassName('ListLinks')[0].innerHTML += '<input type="hidden" id="system'+(i)+'" value="'+b.getElementsByClassName('ListImage')[0].innerHTML.split('[')[1].split(':')[1]+'">';
                             b.getElementsByClassName('ListLinks')[0].innerHTML += '<input type="hidden" id="position'+(i)+'" value="'+b.getElementsByClassName('ListImage')[0].innerHTML.split('[')[1].split(']')[0].split(':')[2]+'">';
-                        }                
+                        }
                     }
                 }
             }
@@ -4102,7 +4092,7 @@ if (enable_quick_pack) {
                 dataPack += '\n'+'yes_Ar2_no_Ar2_2000_Ar2_2000_Ar2_0_Ar2_shipyard_Ar2_1_Ar2_202_Ar2_1_Ar2_1_Ar2_Petit_esp_transporteur_Ar2_';                       // PT
                 dataPack += '\n'+'yes_Ar2_no_Ar2_1922_Ar2_768_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';              // Centrale Solaire 9
                 dataPack += '\n'+'yes_Ar2_no_Ar2_1025_Ar2_256_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                            // Mine de métal 8
-                dataPack += '\n'+'yes_Ar2_no_Ar2_1537_Ar2_384_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                            // Mine de métal 9                
+                dataPack += '\n'+'yes_Ar2_no_Ar2_1537_Ar2_384_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                            // Mine de métal 9
                 dataPack += '\n'+'yes_Ar2_no_Ar2_805_Ar2_402_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                           // Mine de cristal 7
                 dataPack += '\n'+'yes_Ar2_no_Ar2_2883_Ar2_1153_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';             // Centrale Solaire 10
                 dataPack += '\n'+'yes_Ar2_no_Ar2_400_Ar2_800_Ar2_200_Ar2_station_Ar2_1_Ar2_31_Ar2__Ar2__Ar2_Laboratoire_esp_de_esp_recherche_Ar2_';                 // Labo 2
@@ -4165,15 +4155,15 @@ if (enable_quick_pack) {
             dataPack += '\n'+'yes_Ar2_no_Ar2_40000_Ar2_80000_Ar2_40000_Ar2_station_Ar2_1_Ar2_41_Ar2__Ar2__Ar2_Base_esp_lunaire_Ar2_';                                                // Base Lunaire 2
             dataPack += '\n'+'yes_Ar2_no_Ar2_1600_Ar2_480_Ar2_400_Ar2_station_Ar2_1_Ar2_14_Ar2__Ar2__Ar2_Usine_esp_de_esp_robots_Ar2_';                                             // Usine de robots 3
             dataPack += '\n'+'yes_Ar2_no_Ar2_80000_Ar2_160000_Ar2_80000_Ar2_station_Ar2_1_Ar2_41_Ar2__Ar2__Ar2_Base_esp_lunaire_Ar2_';                                               // Base Lunaire 3
-            dataPack += '\n'+'yes_Ar2_no_Ar2_20000_Ar2_40000_Ar2_20000_Ar2_station_Ar2_1_Ar2_42_Ar2__Ar2__Ar2_Phalange_esp_de_esp_capteur_Ar2_';                                     // Phalange de capteur 1  
-            dataPack += '\n'; 
+            dataPack += '\n'+'yes_Ar2_no_Ar2_20000_Ar2_40000_Ar2_20000_Ar2_station_Ar2_1_Ar2_42_Ar2__Ar2__Ar2_Phalange_esp_de_esp_capteur_Ar2_';                                     // Phalange de capteur 1
+            dataPack += '\n';
         }
-        
+
         curd = make_important_vars_data();
         curd = curd.split('/_/_/');
         curd[0] = dataPack;
         newd = curd.join('/_/_/');
-        
+
         save_important_vars(newd);
         location.href = location.href;
     };
@@ -4187,9 +4177,5 @@ if (gup("page") == "preferences" && gup("autoRapComp") == 1) {
     document.getElementById('prefs').innerHTML += '<input type="checkbox" name="fullSpioReport" checked>';
     document.getElementById('prefs').submit();
 }
-
-
-//if (rand(1,150) == 1) blit_message("Pensez à cliquer sur les pubs de sephiogame.com pour nous soutenir :)");
-//if (rand(1,150) == 1) blit_message("Partagez notre page facebook à vos amis ;)");
 
 clearTimeout(antiBugTimeout);
