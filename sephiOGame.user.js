@@ -1,13 +1,20 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.6.4
+// @version     3.6.4.1
 // @description Script Ogame
 // @author      Sephizack
-// @include     *ogame.gameforge.com/*
+// @include     http://s*.ogame.gameforge.com/game/*
+// @include     https://s*.ogame.gameforge.com/game/*
+// @include     http://fr.ogame.gameforge.com/
+// @include     https://fr.ogame.gameforge.com/
+// @exclude     http://s*.ogame.gameforge.com/feed/*
+// @exclude     https://s*.ogame.gameforge.com/feed/*
+// @exclude     https://*.ogame.gameforge.com/board*
+// @exclude     http://www.*
+// @exclude     https://www.*
 // @exclude     http://*ajax=1*
-// @exclude     *.ogame.gameforge.com/feed/*
-// @Exclude     *.ogame.gameforge.com/board*
+// @exclude     https://*ajax=1*
 // @copyright   2012+, You
 // @updateURL   http://www.sephiogame.com/script/sephiOGame.user.js
 // @require     http://code.jquery.com/jquery-1.9.1.min.js
@@ -47,13 +54,17 @@
 //                       *Bug correction when more than 1000GT in calculation
 //                       *NEW- Integration of expedition personnal fleet, speed and time to spent in.
 //                       *Bug correction when a disconnection happens during a spy launch.
-//3.6.3.5: Imp2Toulouse- Add change for full https protocol
-//3.6.4: Official release
-
+//                       *NEW- Integration of a link to a fight report convertisseur on API button in messages' "Rapport de Combat" Tab
+//
+//3.6.4: Imp2Toulouse- *Official version integrating all beta changes
+//
+//3.6.4.1: Imp2Toulouse-  *Add functionnalities
+//                          *link with TopRaider on api button in combat and spy report
+//                          *launch specific raid directly by clicking in target button in spy report
 
 antiBugTimeout = setTimeout(function() {location.href=location.href;}, 5*60*1000);
 
-cur_version = '3.6.4';
+cur_version = '3.6.4.1';
 univers = window.location.href.split('/')[2];
 
 // Multi langues
@@ -270,15 +281,17 @@ function Auth_Load_Save_info(authResult) {
     }
 }
 
-$(document).ready(function() 
-                  {
-                      var s = document.createElement("script");
-                      s.type = "text/javascript";
-                      s.src = "https://apis.google.com/js/client.js?onload=checkAuth";
-                      // Use any selector
-                      $("head").append(s);
-                      
-                  });
+$(document).ready(function() {
+    var s = document.createElement("script");
+    s.type = "text/javascript";
+    s.src = "https://apis.google.com/js/client.js?onload=checkAuth";
+    // Use any selector
+    $("head").append(s);
+
+    var s = '<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />\n        <meta http-equiv="Pragma" content="no-cache" />\n        <meta http-equiv="Expires" content="0" />\n';
+    $("head").prepend(s);
+    
+});
 
 
 havetoprev = "no";
@@ -747,20 +760,36 @@ function add_prevenir_button() {
 function add_frigo_button() {
     // Messages complets
     //rapports = $('#ui-id-20 .tab_inner .msg');  //document.getElementsByClassName('material spy');
-    $('#ui-id-20 .tab_inner .msg').each(function(index){
+    //I2T: Ogame change Screen id 
+    //$('#ui-id-20 .tab_inner .msg').each(function(index){
+    $('#ui-id-14 .tab_inner .msg').each(function(index){
         if (! $(this).attr('class').match("dejafais")) {
-            planame =  $(this).html().split('</figure>')[1].split('<a')[0].split(' [')[0].trim();
-            coord =  $(this).html().split('</figure>')[1].split('<a')[0].match(/\[[0-9:]+\]/)[0];
-            tmp = coord.replace('[','').replace(']','').split(':');
-            galaxy = tmp[0];
-            system = tmp[1];
-            planet = tmp[2];
-
+            if ($(this).html().split('</figure>').length > 1) {
+                planame =  $(this).html().split('</figure>')[1].split('<a')[0].split(' [')[0].trim();
+                coord =  $(this).html().split('</figure>')[1].split('<a')[0].match(/\[[0-9:]+\]/)[0];
+                tmp = coord.replace('[','').replace(']','').split(':');
+                galaxy = tmp[0];
+                system = tmp[1];
+                planet = tmp[2];
+            }
+            if ( $(this).find(".msg_actions .icon_attack").length > 0) {
+                //Get information about butin (sum of metal, cristal and deut) * type_multifactor (50%, 75%, 100%, ...)
+                anal_esp_data($(this).find("span.ctn4 .resspan"));
+                butin=Math.floor(type_multip*(met+cri+deu));
+                var obj=$(this).find(".msg_actions .icon_attack").parent();
+                obj.attr("href",obj.attr("href").replace("mission=1","mission=1&auto=yes&ID=0&GT="+(2+Math.floor(butin/25000))+"&Referer="+(encodeURIComponent($(location).attr('href').replace(/.*\?(.*)/g,"$1")))));
+                var obj = null;
+            }
+            if ( $(this).find(".msg_actions .icon_apikey").length > 0) {
+                var obj=$(this).find(".msg_actions .icon_apikey").parent();
+                obj.attr("href",obj.attr("href").replace("ogame-api://sr-","http://topraider.eu/index.php?langue=fr&SR_KEYconv=sr-"));
+                obj.attr('target','_blank');
+                var obj = null;
+            }
             // Recherche d'un frigo avec ces coordonnées
             //Imp2Toulouse- Factorize with is_frigo fonction
             infrig=is_frigo(importvars["frigos"],coord)>=0?'yes':'no';
             ////
-            $(this).addClass("dejafais");
             if (infrig == 'no') {
                 var message_res_action='Bienvenue dans les frigos !';
                 var info='Je ne suis pas encore un de vos frigos !';
@@ -785,10 +814,48 @@ function add_frigo_button() {
             frigData +='<input type="hidden" id="system'+(index+1)+'" value="'+(system)+'">';
             frigData +='<input type="hidden" id="position'+(index+1)+'" value="'+(planet)+'">';
             frigData +='</a>';
+            
+            //Add the object built
             $($(this).find('.msg_actions .msg_action_link.overlay')).before(frigData);
+
+            //Set to already done
+            $(this).addClass("dejafais");
+        }
+    });
+
+    //I2T: Ogame change Screen id 
+    //$('#ui-id-22 .tab_inner .msg').each(function(index){
+    $('#ui-id-16 .tab_inner .msg').each(function(index){
+        if (! $(this).attr('class').match("dejafais") && $(this).find(".msg_actions .icon_apikey").length > 0) {
+            var obj=$(this).find(".msg_actions .icon_apikey").parent();
+            obj.attr("href",obj.attr("href").replace("ogame-api://cr-","http://topraider.eu/index.php?langue=fr&CR_KEY=cr-"));
+            obj.attr('target','_blank');
+            $(this).addClass("dejafais");
+        }
+    });
+    
+    //I2T: Add change in actions on details view
+    $('.detail_msg').each(function(index){
+        if (! $(this).attr('class').match("dejafais")) {
+            if ( $(this).find(".msg_actions .icon_attack").length > 0) {
+                //Get information about butin (sum of metal, cristal and deut) * type_multifactor (50%, 75%, 100%, ...)
+                anal_esp_data($(this).find("span.ctn4 .resspan"));
+                butin=Math.floor(type_multip*(met+cri+deu));
+                var obj=$(this).find(".msg_actions .icon_attack").parent();
+                obj.attr("href",obj.attr("href").replace("mission=1","mission=1&auto=yes&ID=0&GT="+(2+Math.floor(butin/25000))+"&Referer="+(encodeURIComponent($(location).attr('href').replace(/.*\?(.*)/g,"$1")))));
+                var obj = null;
+            }
+            if ( $(this).find(".msg_actions .icon_apikey").length > 0) {
+                var obj=$(this).find(".msg_actions .icon_apikey").parent();
+                obj.attr("href",obj.attr("href").replace("ogame-api://sr-","http://topraider.eu/index.php?langue=fr&CR_KEY=sr-"));
+                obj.attr('target','_blank');
+            }
+            //Set to already done
+            $(this).addClass("dejafais");
         }
     });
 }
+
 if (gup('page') == 'messages') 
     setInterval(add_frigo_button,500);
 
@@ -1122,7 +1189,7 @@ function get_Time_Remain(myvalue){
 }
 
 if (readCookie('lastServVer', 'all') !== null && readCookie('lastServVer', 'all') !== '' && parseInt(readCookie('lastServVer', 'all').match(/\d/g).join("")) > parseInt(cur_version.match(/\d/g).join(""))){
-    blit_message('<span style="float: none;margin: 0;color:#109E18">Version '+readCookie('lastServVer', 'all')+' disponible</span>.<br><a href="http://www.sephiogame.com/Actualites?curVer='+cur_version+'#Infos" target=_blank>Rendez-vous sur le site pour l\'installer</a>');
+    blit_message('<span style="float: none;margin: 0;color:#109E18">Version '+readCookie('lastServVer', 'all')+' disponible</span>.<br><a href="http://www.sephiogame.com/Actualites?curVer='+cur_version+'#Infos" target="sephiogame">Rendez-vous sur le site pour l\'installer</a>');
     document.getElementById('fadeBox').style.pointerEvents = 'auto';
 } 
 function getServerLastVer() {
@@ -1136,11 +1203,12 @@ function getServerLastVer() {
                 last_ver = rep.replace('OK:','');
                 createCookie('lastServVer', last_ver, 1, 'all');
             }
+            //Imp2Toulouse: Malwritten correction
             document.getElementById('servQuestion').src = "";
         }
     },500);      
 }
-if(rand(1,10) == 1) getServerLastVer();
+//if(rand(1,10) == 1) getServerLastVer();
 
 auCasOu = null;
 spy_all=false;
@@ -1190,7 +1258,7 @@ function launch_spy(merde){
     
     
     //Programmer
-    if(want_a_AA && (document.getElementById('prog_AA').checked || document.getElementById('repeat_AA').checked)) {
+    /*if(want_a_AA && (document.getElementById('prog_AA').checked || document.getElementById('repeat_AA').checked || document.getElementById('aa_enable').checked || document.getElementById('time_no_AA').checked)) {
         createCookie('isProg', 'oui', 1,'AA' );
         
         //programmé oui démarrage direct, auquel cas : le prog time vaut le repeat time
@@ -1201,12 +1269,25 @@ function launch_spy(merde){
             createCookie('repeat', 'oui', 1,'AA');
             createCookie('repeatTime', 60*60*1000*parseInt('0'+document.getElementById('repeat_AA_h').value) + 60*1000*parseInt('0'+document.getElementById('repeat_AA_m').value), 1,'AA');
         } else createCookie('repeat', 'non', 1,'AA');
+        
+        //I2T: Intégre l'auto-attaque
+        if (document.getElementById('aa_enable').checked) {
+            createCookie('aa_enable', 'oui', 1,'AA');
+        } else createCookie('aa_enable', 'non', 1,'AA');
+        
+        if (document.getElementById('time_no_AA').checked) {
+            createCookie('time_no_AA', 'oui', 1,'AA');
+            createCookie('time_no_AA_start', 60*60*1000*parseInt('0'+document.getElementById('time_no_AA_h_start').value) + 60*1000*parseInt('0'+document.getElementById('time_no_AA_m_start').value), 1,'AA');
+            createCookie('time_no_AA_end', 60*60*1000*parseInt('0'+document.getElementById('time_no_AA_h_end').value) + 60*1000*parseInt('0'+document.getElementById('time_no_AA_m_end').value), 1,'AA');
+        } else createCookie('time_no_AA', 'non', 1,'AA');
+        
         createCookie('progTime', progTime, 1,'AA');
         document.getElementById('auto_attack').style.color='#A52592';
-        document.getElementById('auto_attack').innerHTML='&#9658; Attaque programmée avec succès';
+        document.getElementById('auto_attack').innerHTML='&#9658; Rapport général <u>'+((readCookie('aa_enable','AA') == 'oui')?'AVEC':'SANS')+'</u> auto-attaque programmé avec succès';
+        
         window.location.href = window.location.href;
         return;
-    }
+    }*/
        
     if(spy_all && spy_id==init_spy_id) {
         document.getElementById('spy_all').style.color='#808080';
@@ -1218,7 +1299,7 @@ function launch_spy(merde){
     }
     if(want_a_AA && spy_id==init_spy_id) {
         document.getElementById('auto_attack').style.color='#808080';
-        document.getElementById('auto_attack').innerHTML='&#9658; En attente des rapports d\'espionage...';
+        document.getElementById('auto_attack').innerHTML='&#9658; En attente des rapports d\'espionnage...';
     }
     nb_sondes = parseInt(document.getElementById('frig_sondes_'+spy_id).value);
     
@@ -1307,7 +1388,8 @@ function launch_spy(merde){
                 // Au bout de 5 erreurs on abandonne
                 if (want_a_AA && nb_tries>5 && next_id==0) {
                     document.getElementById('auto_attack').style.color='#F02020';
-                    document.getElementById('auto_attack').innerHTML='&#9658; Auto-Attaque reportée dans une heure (impossible d\'espionner)';
+                    if (readCookie('aa_enable','AA') == 'oui') document.getElementById('auto_attack').innerHTML='&#9658; Rapport général + Auto-Attaque reportés dans une heure (impossible d\'espionner)';
+                    else document.getElementById('auto_attack').innerHTML='&#9658; Rapport général reporté dans une heure (impossible d\'espionner)';
                     GLOB_abandonne_spy = true;
                     if (gup('startAA') == '1') {
                         createCookie('progTime', time() + 60*60*1000, 1,'AA' ); // re-essaye dans 30min
@@ -1343,6 +1425,7 @@ function launch_spy(merde){
     
     //window.location.href = 'https://'+univers+'/game/index.php?page=fleet1&nb_sondes='+nb_sondes+'&galaxy='+importvars["frigos"][spy_id][1]+'&system='+importvars["frigos"][spy_id][2]+'&position='+importvars["frigos"][spy_id][3]+'&type=1&launch_spy=1';
 }
+
 
 function save_alert_mail() {
     var mail = document.getElementById('alert_mail_to').value;
@@ -1512,9 +1595,11 @@ function check_espionnage_finished() {
                     bonus = '';
                     if (want_a_AA) {
                         createCookie('last_start', time(), 1,'AA');
-                        bonus = '&AA=OUI';
+                        //I2T: Add condition to launch AA
+                        if (is_AA_launchable()) bonus = '&AA=OUI';
+                        else  blit_message_time("<b>Auto-Attack aborted ligne 1580</b> due to condition not reached!", 6000);
                     }
-                    setTimeout(function() {window.location.href = 'https://'+univers+'/game/index.php?page=messages&RG=OUI'+bonus;}, 1000);
+                    setTimeout(function() {window.location.href = 'https://'+univers+'/game/index.php?page=messages&RG=OUI'+bonus;}, 5000);
                 } else {
                        document.getElementById('rap_gene').innerHTML='&#9658; En attente du retour des sondes... (Il reste '+(xhr.responseText.split("https://gf3.geo.gfsrv.net/cdnb7/60a018ae3104b4c7e5af8b2bde5aee.gif").length-1)+' évènements d\'espionnage)' ;
                 }
@@ -1911,7 +1996,7 @@ stopMail = false;
 no_more_new_esp = false;
 count_esp=0;
 nb_limit = 10000000;
-class_bonus = 'msg_new';
+class_bonus = 'msg';
 waitingExped = false;
 function start_rapport_general() {
     document.getElementById('rapport_gen').style.cursor = 'default';
@@ -2072,12 +2157,15 @@ function fill_rapport_general() {
         document.getElementById('rapport_gen').style.color = '#109E18';
         createCookie('AA_feed', 'rien', 1, 'all');
         launchAA=false;
-        if (document.getElementById('AA_RG').checked) {
+        
+        if (document.getElementById('AA_RG').checked) { // && (((readCookie('aa_enable','AA') == 'oui' || readCookie('aa_enable','AA') == null)) && ((time() <= parseInt(readCookie('time_no_AA_start','AA')) || readCookie('time_no_AA_start','AA') == null) && (time() >= parseInt(readCookie('time_no_AA_end','AA')) || readCookie('time_no_AA_end','AA') == null)))) {
             GLOB_curAA_ID = 0;
-            launchAA=true;
+            //I2T: Add aa_enable condition to launch auto_attack or not
+            if (is_AA_launchable()) launchAA=true;
+            else  blit_message_time("<b>Auto-Attack aborted ligne 2151</b> due to condition not reached!", 6000);
             isFirstTry = true;
             if (!waitingExped) attack_cur();
-        }
+        } //else blit_message_time("<b>Auto attaque</b> annulée !", 6000);
         check_AA_feedback();
     }
 }
@@ -2146,7 +2234,7 @@ function check_AA_feedback() { // Checkout Auto Attack feedback
         ID = parseInt(readCookie('AA_feed','all').match(/\d/g).join(""));
         e = document.getElementById('rap_general_planet_name_'+ID);
         flotte_succes = false;
-        
+
         if (readCookie('AA_feed','all').match('IS_OK')) {
             e.innerHTML = '<span title="Flotte envoyée">[OK]</span> ' + clean_name(e.innerHTML); e.style.color='#109E18'; flotte_succes = true;
             // On augmente l'importance du frigo
@@ -2166,7 +2254,7 @@ function check_AA_feedback() { // Checkout Auto Attack feedback
         if (AATimeout !== null) clearTimeout(AATimeout);
         createCookie('lastRap', document.getElementById('rap_general_table').innerHTML, 1, 'AA');
         document.getElementById('ifr_AA').src = 'https://ready';
-        
+
         if (launchAA) {
             isFirstTry = true;
             if (flotte_succes) {
@@ -2184,7 +2272,6 @@ function check_AA_feedback() { // Checkout Auto Attack feedback
     } 
     setTimeout(check_AA_feedback,500);
 }
-
 /* Enregiste la vitesse de production */
 importvars["prods"] = new Array();
 importvars["prods"][0] = parseInt(document.body.innerHTML.split(',"tooltip":')[1].split('<span')[3].split('/span>')[0].match(/\d/g).join(""))
@@ -2223,6 +2310,7 @@ function countdownAA() {
 }
 function startAA() {
     if (document.body.innerHTML.match('<div id="attack_alert" style="visibility:visible;">')) return;
+    
     if (readCookie('repeat','AA') == 'oui' && readCookie('repeatTime','AA') !== null) {
         createCookie('progTime', time()+parseInt(readCookie('repeatTime','AA')), 1, 'AA');
         createCookie('isProg', 'oui', 1, 'AA');
@@ -2233,7 +2321,6 @@ function startAA() {
     // On démarre l'AA
     window.location.href='https://'+univers+'/game/index.php?page=shipyard&sephiScript=1&startAA=1';
 }
-
 /* Affiche l'attaques en attente */
 retard_AA_button = false;
 if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page') !== 'galaxy' && gup('page') !== 'highscore' && gup('page') !== 'fleet1' && gup('page') !== 'fleet2' && gup('page') !== 'fleet3' && readCookie('isProg','AA') == 'oui' && readCookie('progTime','AA') !== null) {
@@ -2246,14 +2333,14 @@ if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page')
         time_repeat=0;
         if (readCookie('repeat','AA') == 'oui' && readCookie('repeatTime','AA') !== null) {
             time_repeat = parseInt(readCookie('repeatTime','AA'));
-            repeat_text = ' <span style="color:#761B68">(Répéter toutes les '+get_cool_time(time_repeat/1000).replace('.00','')+')</span>';
+            repeat_text = ' <span style="color:#761B68">(Répéter toutes les <span id="AA_repeat">'+get_cool_time(time_repeat/1000).replace('.00','')+'</span>)</span>';
         }
         data += "\n"+'<div style="height:0px;position:relative;top:'+(27*(count_progs-1))+'px;"><div id="AA_bandeau" style="cursor:default;word-wrap: normal;height:20px;font: 700 12px Verdana,Arial,Helvetica,sans-serif;position:relative;left:-8px;padding-top:7px;background: url(https://gf1.geo.gfsrv.net/cdn63/10e31cd5234445e4084558ea3506ea.gif) no-repeat;background-position:0px -1px;width:640px;margin-bottom:0px;color:#A52592;padding-left:40px;font-weight:normal;">';
         //Imp2Toulouse: MalWritten correction
-        data += '<p style="width:600px;height:20px;white-space: nowrap">Auto-Attaque <b>prévue dans <span id="countdownAA">'+get_cool_time(time_restant/1000)+'</span></b>'+repeat_text;
-        data += "\n"+'<div id="del_button_AA" style="height:0px;position:relative;left:578px;top:-20px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/newsletter-close-button.png" title="Annuler l\'auto attaque" onclick="localStorage.setItem(\''+cur_planet+'_AA_isProg\', \'non\');window.location.href=window.location.href.replace(\'startAA=1\',\'\');"/></div>';
-        data += "\n"+'<div id="retrad_AA_button" style="height:0px;position:relative;left:555px;top:-21px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/IconeChrono2.png" title="Retarder l\'auto attaque de 15 minutes"/></div>';
-        data += "\n"+'<div id="launch_AA_button" style="height:0px;position:relative;left:530px;top:-20px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/icon_launch.png" title="Démarrer l\'auto attaque maintenant"/></div>';
+        data += '<p style="width:600px;height:20px;white-space: nowrap">Rapport général <span id="is_AA_enable">'+((readCookie('aa_enable','AA') == 'oui')?'avec':'sans')+'</span> Auto-Attaque <b>prévue dans <span id="countdownAA">'+get_cool_time(time_restant/1000)+'</span></b>'+repeat_text;
+        data += "\n"+'<div id="del_button_AA" style="height:0px;position:relative;left:578px;top:-20px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/newsletter-close-button.png" title="Annuler la configuration de la génération des rapports" onclick="localStorage.setItem(\''+cur_planet+'_AA_isProg\', \'non\');window.location.href=window.location.href.replace(\'startAA=1\',\'\');"/></div>';
+        data += "\n"+'<div id="retrad_AA_button" style="height:0px;position:relative;left:555px;top:-21px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/IconeChrono2.png" title="Retarder la génération du rapport'+((readCookie('aa_enable','AA') == 'oui')?' avec ':' sans ')+'auto attaque de 15 minutes"/></div>';
+        data += "\n"+'<div id="launch_AA_button" style="height:0px;position:relative;left:530px;top:-20px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/icon_launch.png" title="Démarrer la génération du rapport'+((readCookie('aa_enable','AA') == 'oui')?' avec ':' sans ')+'auto attaque maintenant"/></div>';
         data += "\n"+'</div>';
         data += "\n"+'</div>';
         retard_AA_button = true;
@@ -2265,6 +2352,7 @@ if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page')
 
 function countdownRetour() {
     t=retour_time - time() + parseInt(readCookie('ejection_time', 'eject'));
+    //Imp2Toulouse malwritten correction countdonwRetour by countdownRetour
     if (t>0) {document.getElementById('countdownRetour').innerHTML = get_cool_time(t/1000);setTimeout(countdownRetour,1000);}
     else setTimeout(function(){window.location.href = 'https://'+univers+'/game/index.php?page=movement';}, 2000);
 }
@@ -2297,6 +2385,7 @@ if ((gup('page') == "resources" && !cur_planetIsLune) || (gup('page') == "statio
     lvlSynthDeut = 10;
     lvlSolar = 10;
     lvlBaseLunaire = 10;
+
     //Imp2Toulouse- Factorization + Antigame compatibility  
     //Call function get_info_button returns back current button level and evolution (if one running)
     //Allow to answer to the bug
@@ -2338,6 +2427,7 @@ if ((gup('page') == "resources" && !cur_planetIsLune) || (gup('page') == "statio
         info_button2=null;
 
     } 
+    ///
     
     if (importvars["listPrev"].length == 0 && ( (!cur_planetIsLune && lvlMineMetal <= 1 && lvlMineCris <= 1 && lvlSolar <= 1) || (cur_planetIsLune && lvlBaseLunaire==0))){
         blit_message_time("<b>Pack de démarrage rapide</b> disponible pour votre nouvelle "+(cur_planetIsLune ? 'lune' : 'planète')+" !", 6000);
@@ -2733,44 +2823,44 @@ function getXmlHttp() {
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 function PostXMLHttpRequest(_url,_data,_callback){
-    xmlhttp = getXmlHttp();
-    xmlhttp.onreadystatechange = function() {
-        if (xmlhttp.readyState==4) {
-            _callback(xmlhttp.responseText);
-        }
-    }
-    xmlhttp.open("POST", _url, true);
-    xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xmlhttp.send(_data);
-    return xmlhttp;
+	xmlhttp = getXmlHttp();
+	xmlhttp.onreadystatechange = function() {
+		if (xmlhttp.readyState==4) {
+			_callback(xmlhttp.responseText);
+		}
+	}
+	xmlhttp.open("POST", _url, true);
+	xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	xmlhttp.send(_data);
+	return xmlhttp;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function SmartCut(source,prefix,suffix){
-    if(typeof(prefix)=='object'){
-        var pi=0;
-        for(var i=0;(i<prefix.length)&&(pi!=-1);i++){
-            pi=source.indexOf(prefix[i],pi);
-        }
-        if(pi!=-1){
-            var copyFrom=pi+prefix[prefix.length-1].length;
-            var si=source.indexOf(suffix,copyFrom);
-            var r=source.substring(copyFrom,si);
-            return r;
-        }else return false;
-    }else{
-        var pi=source.indexOf(prefix);
-        if(pi!=-1){
-            var si=source.indexOf(suffix,pi+prefix.length);
-            var r=source.substring(pi+prefix.length,si);
-            return r;
-        }else return false;
-    };
+	if(typeof(prefix)=='object'){
+		var pi=0;
+		for(var i=0;(i<prefix.length)&&(pi!=-1);i++){
+			pi=source.indexOf(prefix[i],pi);
+		}
+		if(pi!=-1){
+			var copyFrom=pi+prefix[prefix.length-1].length;
+			var si=source.indexOf(suffix,copyFrom);
+			var r=source.substring(copyFrom,si);
+			return r;
+		}else return false;
+	}else{
+		var pi=source.indexOf(prefix);
+		if(pi!=-1){
+			var si=source.indexOf(suffix,pi+prefix.length);
+			var r=source.substring(pi+prefix.length,si);
+			return r;
+		}else return false;
+	};
 };
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function Info(text){
-    var txt="";
-    for( var i = 0; i < arguments.length; i++ ) txt+=arguments[i];
-    console.log(txt);
+	var txt="";
+	for( var i = 0; i < arguments.length; i++ ) txt+=arguments[i];
+	console.log(txt);
 };
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 function SendFleet(response){
@@ -2799,7 +2889,7 @@ function SendFleet(response){
                 createCookie('data',JSON.stringify(params), 1, 'form');
                 
                 //Case of auto=yes
-                if (params.sephi_opt.match('auto=yes') && params.sephi_opt.match('ID=')) {
+                if (params.sephi_opt.match('auto=yes') && params.sephi_opt.match('ID=') != null) {
                     var ID=params.sephi_opt.match(/ID=(\w+)/)[1];
                     //if (document.getElementById('consumption').innerHTML.match('overmark')) {
                     if ($('#consumption').length >0 && $('#consumption').html().find('overmark')) {
@@ -2862,7 +2952,17 @@ function SendFleetSuccess(params){
         if (params.sephi_opt.match(/ID=(\w+)/)[1] == 'Exped'){
             idcook = 'AA_Exp';
         }
+        if (params.sephi_opt.match(/ID=(\w+)/)[1] == '0'){
+            if (typeof(params.sephi_opt.match(/Referer=(.*)/)) == 'object' && params.sephi_opt.match(/Referer=(.*)/) != null){
+                if (params.sephi_opt.match(/Referer=(.*)/).length > 0 && params.sephi_opt.match(/Referer=(.*)/)[1] != "") {
+                    setTimeout(function(){window.location.href = "https://"+univers+"/game/index.php?"+decodeURIComponent(params.sephi_opt.match(/Referer=(.*)/)[1]);}, 4000);
+                    blit_message("<b>Attaque</b> correctement envoyée en "+params.to.replace(/\w+=(\d+)/g,"$1 ").replace(/&/g,"").trim().replace(/ /g,":")+"(retour auto vers la page).");
+                }
+            } else
+                blit_message("<b>Attaque</b> correctement envoyée en "+params.to.replace(/\w+=(\d+)/g,"$1 ").replace(/&/g,"").trim().replace(/ /g,":")+".");
+        }
         createCookie(idcook, gup('ID')+'_IS_OK', 1, 'all');
+        
     }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2877,6 +2977,15 @@ function SendFleetFailed(params){
         idcook = 'AA_feed';
         if (params.sephi_opt.match(/ID=(\w+)/)[1] == 'Exped'){
             idcook = 'AA_Exp';
+        }
+        if (params.sephi_opt.match(/ID=(\w+)/)[1] == '0'){
+            if (typeof(params.sephi_opt.match(/Referer=(.*)/)) == 'object' && params.sephi_opt.match(/Referer=(.*)/) != null){
+                if (params.sephi_opt.match(/Referer=(.*)/).length > 0 && params.sephi_opt.match(/Referer=(.*)/)[1] != "") {
+                    setTimeout(function(){window.location.href = "https://"+univers+"/game/index.php?"+decodeURIComponent(params.sephi_opt.match(/Referer=(.*)/)[1]);}, 4000);
+                    blit_message("<b>Attaque</b> en echec en "+params.to.replace(/\w+=(\d+)/g,"$1 ").replace(/&/g,"").trim().replace(/ /g,":")+"(retour auto vers la page).");
+                }
+            } else
+                blit_message("<b>Attaque</b> en echec en "+params.to.replace(/\w+=(\d+)/g,"$1 ").replace(/&/g,"").trim().replace(/ /g,":")+".");
         }
         createCookie(idcook, gup('ID')+'_NOT_OK', 1, 'all');
     }
@@ -2991,8 +3100,19 @@ if (gup('page') == "fleet1" && gup('auto') == 'yes') {
 
     idcook = 'AA_feed';
     if (gup('ID') == 'Exped') idcook = 'AA_Exp';
-    if (!has_flotte) {document.title = 'Pas de flotte disponible';createCookie(idcook, gup('ID')+'_FLOTTE', 1, 'all');}
-    else if (!perso_is_ok) {document.title = 'Flotte Perso impossible'; createCookie(idcook, gup('ID')+'_NO_PERSO', 1, 'all');}
+    if (!has_flotte) {
+        document.title = 'Pas de flotte disponible';
+        //Imperator2Toulouse- In case of single auto attack
+        if (gup('ID') == 0){
+            if (gup('Referer') != "") {
+                setTimeout(function(){window.location.href = "https://"+univers+"/game/index.php?"+decodeURIComponent(gup('Referer'));}, 4000);
+                blit_message("<b>Attaque</b> en echec par manque de slot libre(retour auto vers la page).");
+            }
+            else
+                blit_message("<b>Attaque</b> en echec par manque de slot libre.");
+        } else 
+            createCookie(idcook, gup('ID')+'_FLOTTE', 1, 'all');
+    } else if (!perso_is_ok) {document.title = 'Flotte Perso impossible'; createCookie(idcook, gup('ID')+'_NO_PERSO', 1, 'all');}
     else if (nbPT > maxPT && (gup('force') !== '1' || maxPT==0)) {document.title = 'Manque de Petits transporteurs'; createCookie(idcook, gup('ID')+'_NO_PT', 1, 'all');}
     else if (nbGT > maxGT && (gup('force') !== '1' || maxGT==0)) {document.title = 'Manque de Grands transporteurs'; createCookie(idcook, gup('ID')+'_NO_GT', 1, 'all');}
     else {
@@ -3010,7 +3130,7 @@ if (gup('page') == "fleet1" && gup('auto') == 'yes') {
         var fleets_opts= "union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0";
         var token= "token=";
         var step = 1;
-        sephi_opt="auto=yes&ID="+gup('ID');
+        sephi_opt="auto=yes&ID="+gup('ID')+"&Referer="+gup('Referer');
         if (gup('ID') == 'Exped') sephi_opt+=((readCookie('with_exped_speed','AA') == null || readCookie('with_exped_speed','AA') == '')?'':"&exped_speed="+parseInt(readCookie('with_exped_speed','AA'))) + ((readCookie('with_exped_time','AA') == null || readCookie('with_exped_time','AA') == '')?'':"&exped_time="+parseInt(readCookie('with_exped_time','AA')));
 
         params=JSON.parse('{ "url": "'+url+'", "page": "page=fleet1", "from": "'+cp+'", "to": "'+to+'", "type_mission": "'+type_mission+'", "fleets": "'+fleets+'", "ressources": "'+ressources+'", "fleets_opts": "'+fleets_opts+'", "token": "'+token+'", "step": "'+step+'", "sephi_opt": "'+sephi_opt+'"}');
@@ -3157,8 +3277,7 @@ if (gup('page') == 'messages') {
 
         msgids = JSON.stringify(msgids);
 
-        var msgcountUrl  = "https:\/\/"+univers+"\/game\/index.php?page=ajaxMessageCount";
-        //var playerid = "128720";
+        var msgcountUrl  = "https://"+univers+"\/game\/index.php?page=ajaxMessageCount";
         playerid = parseInt(playerId);
         var action = 111;
 
@@ -3318,7 +3437,11 @@ if (gup('page') == 'messages') {
            
         GLOB_rgButins = GLOB_rgButins.sort(function(a,b) { return b[0] - a[0] });
         GLOB_curAA_ID = 0;
-        launchAA=true;
+        
+        //I2T: If enable and NOT out of time else no launch auto attack
+        if (is_AA_launchable()) launchAA=true;
+        else launchAA=false;
+        
         isFirstTry = true;
         if (!waitingExped) attack_cur();
     };
@@ -3328,8 +3451,11 @@ if (gup('page') == 'messages') {
         
         setTimeout(start_rapport_general,2000);
     }
-    if (gup('AA') == 'OUI') document.getElementById('AA_RG').checked = true;
-    
+    if (gup('AA') == 'OUI')
+        //I2T: If enable and NOT out of time else no launch auto attack
+        if (is_AA_launchable()) document.getElementById('AA_RG').checked = true;
+        else  setTimeout(blit_message_time("<b>Auto-Attack aborted ligne 3453</b> due to condition not reached!", 6000), 4000);
+
 }
 // END - Rapport général
 
@@ -3363,16 +3489,20 @@ if (gup('sephiScript') == '1') {
     // Les frigos
     sephi_frigos_data+='<div class="header" style=""><h2>'+titletext+'</h2></div>';
     sephi_frigos_data+='<div class="content" style="min-height: 90px;positon:relative;z-index:10;margin-bottom:40px;padding-top:25px;padding-left:30px;">';
-    if (lastAAcoolTime != null) sephi_frigos_data+='<p style="color:#A52592;position:relative;top:-10px;margin-bottom:5px;padding-left:20px;">Dernière auto attaque lancé il y a ' + lastAAcoolTime+ '</p>';
+    if (lastAAcoolTime != null) sephi_frigos_data+='<p style="color:#A52592;position:relative;top:-10px;margin-bottom:5px;padding-left:20px;">Dernier rapport global généré il y a ' + lastAAcoolTime+ '</p>';
     
     sephi_frigos_data+='<span id="spy_all" style="cursor:pointer;color:#6f9fc8;padding-left:20px;position:relative;top:px;">&#9658; <b>Espionner tout mes frigos</b> (ne quittez pas la page avant que tous soient cochés)</span><br><br>';
     sephi_frigos_data+='<span id="rap_gene" style="cursor:pointer;color:#6f9fc8;padding-left:20px;position:relative;top:px;">&#9658; Demander un <b>Rapport Général</b> (patientez ici avant d\'avoir votre rapport)</span><br><br>';
     sephi_frigos_data+='<div style="width:80%;height:1px;background:#404040;position:relative;top:-15px;left:7%;margin-top:20px"></div>';
     
-    sephi_frigos_data+='<span id="auto_attack" style="cursor:pointer;color:#6f9fc8;padding-left:20px;">&#9658; Lancer une <b>Auto-Attaque</b> sur mes frigos (laisser faire le script un moment)</span><br><br>';
-    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-2px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="prog_AA" style="position:relative;top:2px;"/> Lancer l\'auto-attaque dans <input type="text" id="time_AA_h" value="1" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onfocus="document.getElementById(\'prog_AA\').checked = true;">h<input type="text" id="time_AA_m" value="0" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onfocus="document.getElementById(\'prog_AA\').checked = true;"></span><br><br>';
-    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-7px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="repeat_AA" style="position:relative;top:2px;"/> Répéter cette auto-attaque toutes les <input type="text" id="repeat_AA_h" value="6" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onfocus="document.getElementById(\'repeat_AA\').checked = true;">h<input type="text" id="repeat_AA_m" value="0" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onfocus="document.getElementById(\'repeat_AA\').checked = true;"></span><br><br>';
-    sephi_frigos_data+='<div style="width:80%;height:1px;background:#404040;position:relative;top:-25px;left:7%;margin-top:20px"></div>';
+    sephi_frigos_data+='<span id="auto_attack" style="cursor:pointer;color:#6f9fc8;padding-left:20px;">&#9658; Lancer un <b>rapport général</b> sur mes frigos avec les options configurées (laisser faire le script).</span><br><br>';
+    sephi_frigos_data+='<div style="background:#404040;position:relative;top:-25px;left:7%;margin-top:20px"></div>';
+    sephi_frigos_data+='<span style="text-align:left;color:#c0c0c0;position:relative;top:-12px;padding-left:40px;font-weight:normal;">Configuration de l\'Auto-Attaque:</span><br><br>';
+    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-2px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="prog_AA" style="position:relative;top:2px;"/> Lancer l\'action dans <input type="text" id="time_AA_h" value="1" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onfocus="document.getElementById(\'prog_AA\').checked = true;">h<input type="text" id="time_AA_m" value="0" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onfocus="document.getElementById(\'prog_AA\').checked = true;">  <i><span id="save_AA_prog" style="display:none;">(enregistré)</span></i></span><br><br>';
+    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-7px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="repeat_AA" style="position:relative;top:2px;"'+((readCookie('repeat','AA') == 'oui')?'checked':'')+'/> Répéter cette action toutes les <input type="text" id="repeat_AA_h" value="'+((readCookie('repeatTime','AA') == null)?'6':parseInt('0'+get_cool_time(readCookie('repeatTime','AA')/1000).replace('.00','').split('h')[0]))+'" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onchange="$(\'#repeat_AA\').trigger(\'click\');document.getElementById(\'repeat_AA\').checked = true;">h<input type="text" id="repeat_AA_m" value="'+((readCookie('repeatTime','AA') == null)?'0':parseInt('0'+get_cool_time(readCookie('repeatTime','AA')/1000).replace('.00','').split('h')[1]))+'" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onchange="$(\'#repeat_AA\').trigger(\'click\');document.getElementById(\'repeat_AA\').checked = true;">  <i><span id="save_AA_repeatTime" style="display:none;">(enregistré)</span></i></span><br><br>';
+    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-2px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="aa_enable" style="position:relative;top:2px;"'+((readCookie('aa_enable','AA') == 'oui')?'checked':'')+'/> Lancer une Auto-Attaque suite à la génération. <i><span id="save_AA_enable" style="display:none;">(enregistré)</span></i></span><br><br>';
+    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-7px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="time_no_AA" style="position:relative;top:2px;"'+((readCookie('time_no_AA','AA') == 'oui')?'checked':'')+'/> Désactiver l\'Auto-Attaque entre <input type="text" id="time_no_AA_h_start" value="'+((readCookie('time_no_AA_start','AA') == null)?'23':parseInt('0'+get_cool_time(readCookie('time_no_AA_start','AA')/1000).replace('.00','').split('h')[0]))+'" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onchange="if (this.value<0 || this.value>23) { alert(\'La valeur donnée est impossible pour une heure.\');return(false)}; if (! $(\'#time_no_AA\').is(\':checked\')) {$(\'#time_no_AA\').trigger(\'click\');}">h<input type="text" id="time_no_AA_m_start" value="'+((readCookie('time_no_AA_start','AA') == null)?'00':parseInt('0'+get_cool_time(readCookie('time_no_AA_start','AA')/1000).replace('.00','').split('h')[1]))+'" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onchange="if (this.value<0 || this.value>60) { alert(\'La valeur donnée est impossible pour des minutes.\');return(false)};$(\'#time_no_AA\').trigger(\'click\');document.getElementById(\'time_no_AA\').checked = true;"> et <input type="text" id="time_no_AA_h_end" value="'+((readCookie('time_no_AA_end','AA') == null)?'6':parseInt('0'+get_cool_time(readCookie('time_no_AA_end','AA')/1000).replace('.00','').split('h')[0]))+'" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onchange="if (this.value<0 || this.value>23) { alert(\'La valeur donnée est impossible pour une heure.\');return(false)};$(\'#time_no_AA\').trigger(\'click\');document.getElementById(\'time_no_AA\').checked = true;">h<input type="text" id="time_no_AA_m_end" value="'+((readCookie('time_no_AA_end','AA') == null)?'0':parseInt('0'+get_cool_time(readCookie('time_no_AA_end','AA')/1000).replace('.00','').split('h')[1]))+'" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onchange="if (this.value<0 || this.value>60) { alert(\'La valeur donnée est impossible pour des minutes.\');return(false)};$(\'#time_no_AA\').trigger(\'click\');document.getElementById(\'time_no_AA\').checked = true;">  <i><span id="save_time_no_AA" style="display:none;">(enregistré)</span></i></span><br><br>';
+    sephi_frigos_data+='<div style="background:#404040;position:relative;top:-25px;left:7%;margin-top:20px"></div>';
     sephi_frigos_data+='<span style="text-align:left;color:#c0c0c0;position:relative;top:-12px;padding-left:40px;font-weight:normal;">Options spécifiques à cette planète :</span><br><br>';
     sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:60px;font-weight:normal;">• Attaquer seulement les frigos dont le butin dépasse <input type="text" id="butin_AA_RG" value="'+defaut_AA_butin+'" style="text-align:center; width:50px;margin-left:5px;margin-right:5px;height: 15px;"/>  <i><span id="save_AA_butin" style="display:none;">(enregistré)</span></i></span><br><br>';
     sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:60px;font-weight:normal;">• Démarrer aussi une expédition avec <select id="do_exp_AA" style="position:relative;top:-1px;visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;"><option value="non">Aucune flotte</option><option value="perso" '+(with_exped.match(/:/) ? 'selected' : '')+'>Une flotte personalisée</option><option value="50" '+(with_exped == '50' ? 'selected' : '')+'>50 GT (Optimal si le 1er a moins de 100k points)</option><option value="100" '+(with_exped == '100' ? 'selected' : '')+'>100 GT (Optimal si le 1er a moins de 1M points)</option><option value="150" '+(with_exped == '150' ? 'selected' : '')+'>150 GT (Optimal si le 1er a moins de 5M points)</option><option value="200" '+(with_exped == '200' ? 'selected' : '')+'>200 GT (Optimal si le 1er a plus de 5M points)</option><option value="250" '+(with_exped == '250' ? 'selected' : '')+'>250 GT (Mode MadMax pour les warriors)</option></select> <i><span id="save_AA_do_exp" style="display:none;">(enregistré)</span></i></span><br><br>';
@@ -3423,7 +3553,7 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='    <p style="width:470px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Depuis notre site web vous pouvez apprendre à uiliser le script, et nous repporter les bugs que vous trouvez pour nous aider à améliorer sephiOGame. Nous ferons notre possible pour les corriger dans les futures mises à jour du script :<br><br>'
     sephi_frigos_data+='      <span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com\',\'_blank\');">• Accéder au site de SephiOGame</span>';
     sephi_frigos_data+='      <br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Utilisation\',\'_blank\');">• Apprendre à utiliser le scrript</span>';
-    sephi_frigos_data+='      <br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Actualites?curVer='+cur_version+'#Infos\',\'_blank\');">• Vérifier les mises à jour</span>';
+    sephi_frigos_data+='      <br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Actualites?curVer='+cur_version+'#Infos\',\'sephiogame\');">• Vérifier les mises à jour</span>';
     sephi_frigos_data+='      <br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Actualites#reportBug\',\'_blank\');">• Repporter un bug</span>';
     sephi_frigos_data+='    </p><br>';
     sephi_frigos_data+='  </th></tr></table>';
@@ -3534,7 +3664,105 @@ if (gup('sephiScript') == '1') {
     document.getElementById('spy_all').onclick = launch_spy;
     document.getElementById('rap_gene').onclick = launch_spy;
     document.getElementById('auto_attack').onclick = launch_spy;
-    
+
+    document.getElementById('prog_AA').onclick = function () { 
+        //programmé oui démarrage direct, auquel cas : le prog time vaut le repeat time
+        if (document.getElementById('prog_AA').checked) progTime = time() + 60*60*1000*parseInt('0'+document.getElementById('time_AA_h').value) + 60*1000*parseInt('0'+document.getElementById('time_AA_m').value);
+        //else progTime = time() + 3*1000;
+        createCookie('progTime', progTime, 1,'AA');
+        //document.getElementById('auto_attack').style.color='#A52592';
+        //document.getElementById('auto_attack').innerHTML='&#9658; Rapport général <u>'+((readCookie('aa_enable','AA') == 'oui')?'AVEC':'SANS')+'</u> auto-attaque programmé avec succès';
+        $('#save_AA_prog').show(1500,function(){$('#save_AA_prog').hide();});
+        
+        if (readCookie('isProg', 'AA') == 'non') {
+            createCookie('isProg', 'oui', 1,'AA' );
+            window.location.href = window.location.href; 
+        }
+    }
+
+    document.getElementById('repeat_AA').onclick = function () { 
+        if (document.getElementById('repeat_AA').checked) {
+            createCookie('repeat', 'oui', 1,'AA');
+            createCookie('repeatTime', 60*60*1000*parseInt('0'+document.getElementById('repeat_AA_h').value) + 60*1000*parseInt('0'+document.getElementById('repeat_AA_m').value), 1,'AA');
+            $('#AA_repeat').html(get_cool_time(readCookie('repeatTime','AA')/1000).replace('.00',''));
+        } else createCookie('repeat', 'non', 1,'AA');
+        
+        $('#save_AA_repeatTime').show(1500,function(){$('#save_AA_repeatTime').hide();});
+
+        if (readCookie('isProg', 'AA') == 'non') {
+            createCookie('isProg', 'oui', 1,'AA' );
+            window.location.href = window.location.href; 
+        }
+    }
+
+    document.getElementById('aa_enable').onclick = function () { 
+        if (document.getElementById('aa_enable').checked) {
+            createCookie('aa_enable', 'oui', 1,'AA');
+            $('#is_AA_enable').html("avec");
+        } else {
+            createCookie('aa_enable', 'non', 1,'AA');
+            $('#is_AA_enable').html("sans")
+        }
+        $('#save_AA_enable').show(1500,function(){$('#save_AA_enable').hide();});
+
+        if (readCookie('isProg', 'AA') == 'non') {
+            createCookie('isProg', 'oui', 1,'AA' );
+            window.location.href = window.location.href; 
+        }
+    }
+
+    document.getElementById('time_no_AA').onclick = function () { 
+        if (document.getElementById('time_no_AA').checked) {
+            createCookie('time_no_AA', 'oui', 1,'AA');
+            createCookie('time_no_AA_start', 60*60*1000*parseInt('0'+document.getElementById('time_no_AA_h_start').value) + 60*1000*parseInt('0'+document.getElementById('time_no_AA_m_start').value), 1,'AA');
+            createCookie('time_no_AA_end', 60*60*1000*parseInt('0'+document.getElementById('time_no_AA_h_end').value) + 60*1000*parseInt('0'+document.getElementById('time_no_AA_m_end').value), 1,'AA');
+        } else createCookie('time_no_AA', 'non', 1,'AA');
+        
+        $('#save_time_no_AA').show(1500,function(){$('#save_time_no_AA').hide();});
+
+        if (readCookie('isProg', 'AA') == 'non') {
+            createCookie('isProg', 'oui', 1,'AA' );
+            window.location.href = window.location.href; 
+        }
+    }
+
+    function is_AA_launchable(){        
+        var start_time 	= get_cool_time(readCookie('time_no_AA_start','AA')/1000).split("<")[0].split("h");
+        var end_time 	= get_cool_time(readCookie('time_no_AA_end','AA')/1000).split("<")[0].split("h");
+        //We've got the two start times as an array of hours/minutes values.
+        var dateObj 	= new Date(); //I just feel dirty making multiple calls to new Date().etc
+        var now 		= [dateObj.getHours(),dateObj.getMinutes()]; //Gets the current Hours/Minutes 
+
+        if(parseInt(end_time[0]) < parseInt(start_time[0]) && parseInt(now[0]) < parseInt(start_time[0])){
+            start_time[0] -= 24; //This is something I came up with because I do a lot of math.
+        } else if(parseInt(start_time[0]) > parseInt(end_time[0])){
+            end_time[0] += 24;
+        }
+
+        var start_string = to_hms_string(start_time); //the start string converted to a string format. Made comparisons easier.
+        var end_string   = to_hms_string(end_time); //See Above
+        var now_string   = to_hms_string(now); //Above
+        console.log(start_string, now_string, end_string);
+        
+        return (
+            (
+                (readCookie('aa_enable','AA') == 'oui' || readCookie('aa_enable','AA') == null) && 
+                (readCookie('time_no_AA','AA') == 'oui' || readCookie('time_no_AA','AA') == null) &&
+                (! (start_string < now_string && now_string < end_string))
+            )
+        );
+    }
+    //Function to_hms_string stands for "hour-minute-second" string. First name that came up.
+    function to_hms_string(timearr){
+        var minutes = 60+timearr[1];
+        var hours = "";
+        if(Math.abs(timearr[0]) < 10){
+            hours = "0";
+        }
+        hours = (timearr[0]<0) ? "-"+hours+Math.abs(timearr[0]) : hours+timearr[0];
+        return hours+":"+minutes;
+    }
+
     // Modifications sur les frigos
     for (i=0;i<importvars["frigos"].length;i++) {
         document.getElementById('frig_ignore_'+i).onclick = edit_frigo;
@@ -3749,6 +3977,7 @@ document.getElementById('menuTable').innerHTML = '<li style="height:0px;position
 document.getElementById('links').style.overflow = "visible";
 
 // Page actualité
+/*
 lastActu = readCookie('lastActuTime', 'all');
 lastActuSecu = readCookie('lastActuTimeSecu', 'all');
 if (lastActuSecu == null) {
@@ -3761,7 +3990,7 @@ if (lastActu !== null) {
     if (lastActu > 10*60*60*1000 && lastActuSecu>10*60*1000) {
         document.body.onclick = function(){
             createCookie('lastActuTimeSecu', time(), 1, 'all');
-            document.getElementById('menuTable').innerHTML += '<form id="actuSephiOgame" action="http://www.sephiogame.com/Actualites?curVer='+cur_version+'&serv='+univers+'#Infos" style="display:none" target="_blank" method="post"><input type="submit" id="submitpopup"></form>';
+            document.getElementById('menuTable').innerHTML += '<form id="actuSephiOgame" action="http://www.sephiogame.com/Actualites?curVer='+cur_version+'&serv='+univers+'#Infos" style="display:none" target="sephiogame" method="post"><input type="submit" id="submitpopup"></form>';
             
             var evt = document.createEvent("MouseEvents");
             evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, true, false, false, false, 0, null);
@@ -3771,10 +4000,10 @@ if (lastActu !== null) {
             setTimeout(function(){window.focus();},1000);
         }
     }
-} else {
+} else {*/
     createCookie('lastActuTime', time(), 1, 'all');
-}
-
+/*}
+*/
 // Affiche les frigos sur la page galaxie et ajouter un bouton "ajouter aux frigos" //Imp2Toulouse- et ajouter un bouton "Supprimer des frigos"
 last_gal_state="";
 function check_galaxy_frigs() {
@@ -3838,57 +4067,100 @@ if (gup('page') == "galaxy") setInterval(check_galaxy_frigs,100);
 if (enable_quick_pack) {
     document.getElementById('startquickpack').onclick= function() {
         if (!cur_planetIsLune) {
-            dataPack = '';
-            dataPack += 'yes_Ar2_no_Ar2_75_Ar2_30_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';                                          // Centrale Solaire 1
-            dataPack += '\n'+'yes_Ar2_no_Ar2_60_Ar2_15_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                                                   // Mine de métal 1
-            dataPack += '\n'+'yes_Ar2_no_Ar2_90_Ar2_22_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                                                   // Mine de métal 2
-            dataPack += '\n'+'yes_Ar2_no_Ar2_112_Ar2_45_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';                                    // Centrale Solaire 2
-            dataPack += '\n'+'yes_Ar2_no_Ar2_135_Ar2_33_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                                                  // Mine de métal 3
-            dataPack += '\n'+'yes_Ar2_no_Ar2_202_Ar2_50_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                                                  // Mine de métal 4
-            dataPack += '\n'+'yes_Ar2_no_Ar2_168_Ar2_67_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';                                    // Centrale Solaire 3
-            dataPack += '\n'+'yes_Ar2_no_Ar2_48_Ar2_24_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                                                 // Mine de cristal 1
-            dataPack += '\n'+'yes_Ar2_no_Ar2_253_Ar2_101_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';                                   // Centrale Solaire 4
-            dataPack += '\n'+'yes_Ar2_no_Ar2_303_Ar2_75_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                                                  // Mine de métal 5
-            dataPack += '\n'+'yes_Ar2_no_Ar2_76_Ar2_38_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                                                 // Mine de cristal 2
-            dataPack += '\n'+'yes_Ar2_no_Ar2_122_Ar2_61_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                                                // Mine de cristal 3
-            dataPack += '\n'+'yes_Ar2_no_Ar2_379_Ar2_151_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';                                   // Centrale Solaire 5
-            dataPack += '\n'+'yes_Ar2_no_Ar2_225_Ar2_75_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                                      // Synthétiseur de Deut 1
-            dataPack += '\n'+'yes_Ar2_no_Ar2_196_Ar2_98_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                                                // Mine de cristal 4
-            dataPack += '\n'+'yes_Ar2_no_Ar2_569_Ar2_227_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';                                   // Centrale Solaire 6
-            dataPack += '\n'+'yes_Ar2_no_Ar2_455_Ar2_113_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                                                 // Mine de métal 6
-            dataPack += '\n'+'yes_Ar2_no_Ar2_683_Ar2_170_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                                                 // Mine de métal 7
-            dataPack += '\n'+'yes_Ar2_no_Ar2_854_Ar2_341_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';                                   // Centrale Solaire 7
-            dataPack += '\n'+'yes_Ar2_no_Ar2_314_Ar2_157_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                                               // Mine de cristal 5
-            dataPack += '\n'+'yes_Ar2_no_Ar2_337_Ar2_112_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                                     // Synthétiseur de Deut 2
-            dataPack += '\n'+'yes_Ar2_no_Ar2_1281_Ar2_512_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';                                  // Centrale Solaire 8
-            dataPack += '\n'+'yes_Ar2_no_Ar2_506_Ar2_168_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                                     // Synthétiseur de Deut 3
-            dataPack += '\n'+'yes_Ar2_no_Ar2_759_Ar2_253_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                                     // Synthétiseur de Deut 4
-            dataPack += '\n'+'yes_Ar2_no_Ar2_1922_Ar2_768_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';                                  // Centrale Solaire 9
-            dataPack += '\n'+'yes_Ar2_no_Ar2_1139_Ar2_379_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                                    // Synthétiseur de Deut 5
-            dataPack += '\n'+'yes_Ar2_no_Ar2_400_Ar2_120_Ar2_200_Ar2_station_Ar2_1_Ar2_14_Ar2__Ar2__Ar2_Usine_esp_de_esp_robots_Ar2_';                                              // Usine de robots 1
-            dataPack += '\n'+'yes_Ar2_no_Ar2_800_Ar2_240_Ar2_200_Ar2_station_Ar2_1_Ar2_14_Ar2__Ar2__Ar2_Usine_esp_de_esp_robots_Ar2_';                                              // Usine de robots 2
-            if (nb_planet == 1) dataPack += '\n'+'yes_Ar2_no_Ar2_200_Ar2_400_Ar2_200_Ar2_station_Ar2_1_Ar2_31_Ar2__Ar2__Ar2_Laboratoire_esp_de_esp_recherche_Ar2_';                 // Labo 1
-            if (nb_planet == 1) dataPack += '\n'+'yes_Ar2_no_Ar2_0_Ar2_800_Ar2_400_Ar2_research_Ar2_1_Ar2_113_Ar2__Ar2__Ar2_Technologie_esp_énergétique_Ar2_';                      // Techno Energie 1
-            dataPack += '\n'+'yes_Ar2_no_Ar2_503_Ar2_251_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                                               // Mine de cristal 6
-            dataPack += '\n'+'yes_Ar2_no_Ar2_400_Ar2_200_Ar2_100_Ar2_station_Ar2_1_Ar2_21_Ar2__Ar2__Ar2_Chantier_esp_spatial_Ar2_';                                                 // Chantier Spatial 1
-            dataPack += '\n'+'yes_Ar2_no_Ar2_2883_Ar2_1153_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';                                 // Centrale Solaire 10
-            if (nb_planet == 1) dataPack += '\n'+'yes_Ar2_no_Ar2_400_Ar2_0_Ar2_600_Ar2_research_Ar2_1_Ar2_115_Ar2__Ar2__Ar2_Réacteur_esp_à_esp_combustion_Ar2_';                    // Reacteur Combustion 1
-            dataPack += '\n'+'yes_Ar2_no_Ar2_1708_Ar2_569_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                                    // Synthétiseur de Deut 6
-            dataPack += '\n'+'yes_Ar2_no_Ar2_1025_Ar2_256_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                                                // Mine de métal 8
-            if (nb_planet == 1) dataPack += '\n'+'yes_Ar2_no_Ar2_400_Ar2_800_Ar2_200_Ar2_station_Ar2_1_Ar2_31_Ar2__Ar2__Ar2_Laboratoire_esp_de_esp_recherche_Ar2_';                 // Labo 2
-            if (nb_planet == 1) dataPack += '\n'+'yes_Ar2_no_Ar2_400_Ar2_0_Ar2_600_Ar2_research_Ar2_1_Ar2_115_Ar2__Ar2__Ar2_Réacteur_esp_à_esp_combustion_Ar2_';                    // Reacteur Combustion 2
-            dataPack += '\n'+'yes_Ar2_no_Ar2_800_Ar2_400_Ar2_200_Ar2_station_Ar2_1_Ar2_21_Ar2__Ar2__Ar2_Chantier_esp_spatial_Ar2_';                                                 // Chantier Spatial 2
-            dataPack += '\n'+'yes_Ar2_no_Ar2_2000_Ar2_2000_Ar2_0_Ar2_shipyard_Ar2_1_Ar2_202_Ar2_1_Ar2_1_Ar2_Petit_esp_transporteur_Ar2_';                                           // PT
-            dataPack += '\n'+'yes_Ar2_no_Ar2_4324_Ar2_1729_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';                                 // Centrale Solaire 11
-            dataPack += '\n'+'yes_Ar2_no_Ar2_805_Ar2_402_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                                               // Mine de cristal 7
-            dataPack += '\n'+'yes_Ar2_no_Ar2_1537_Ar2_384_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                                                // Mine de métal 9
-            if (nb_planet == 1) dataPack += '\n'+'yes_Ar2_no_Ar2_800_Ar2_1600_Ar2_200_Ar2_station_Ar2_1_Ar2_31_Ar2__Ar2__Ar2_Laboratoire_esp_de_esp_recherche_Ar2_';                // Labo 3
-            dataPack += '\n'+'yes_Ar2_no_Ar2_1600_Ar2_800_Ar2_400_Ar2_station_Ar2_1_Ar2_21_Ar2__Ar2__Ar2_Chantier_esp_spatial_Ar2_';                                                // Chantier Spatial 3
-            if (nb_planet == 1) dataPack += '\n'+'yes_Ar2_no_Ar2_200_Ar2_1000_Ar2_200_Ar2_research_Ar2_1_Ar2_106_Ar2__Ar2__Ar2_Technologie_esp_Espionnage_Ar2_';                    // Techno Espionnage 1
-            if (nb_planet == 1) dataPack += '\n'+'yes_Ar2_no_Ar2_1600_Ar2_0_Ar2_2400_Ar2_research_Ar2_1_Ar2_115_Ar2__Ar2__Ar2_Réacteur_esp_à_esp_combustion_Ar2_';                  // Reacteur Combustion 3
-            if (nb_planet == 1) dataPack += '\n'+'yes_Ar2_no_Ar2_400_Ar2_2000_Ar2_400_Ar2_research_Ar2_1_Ar2_106_Ar2__Ar2__Ar2_Technologie_esp_Espionnage_Ar2_';                    // Techno Espionnage 1
-            dataPack += '\n'+'yes_Ar2_no_Ar2_0_Ar2_1000_Ar2_0_Ar2_shipyard_Ar2_1_Ar2_210_Ar2_1_Ar2_1_Ar2_Sonde_esp_d`espionnage_Ar2_';                                              // Sonde
-            dataPack += '\n';
+            //I2T: Ajout de la différence si premiere planete sur demande utilisateur pour optimiser l'obtention du premier PT(Merci Lucas Geng)
+            if (nb_planet == 1) { //I2T: Si premiere planete
+                dataPack = '';
+                dataPack += 'yes_Ar2_no_Ar2_75_Ar2_30_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';                      // Centrale Solaire 1
+                dataPack += '\n'+'yes_Ar2_no_Ar2_60_Ar2_15_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                               // Mine de métal 1
+                dataPack += '\n'+'yes_Ar2_no_Ar2_90_Ar2_22_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                               // Mine de métal 2
+                dataPack += '\n'+'yes_Ar2_no_Ar2_112_Ar2_45_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';                // Centrale Solaire 2
+                dataPack += '\n'+'yes_Ar2_no_Ar2_135_Ar2_33_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                              // Mine de métal 3
+                dataPack += '\n'+'yes_Ar2_no_Ar2_202_Ar2_50_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                              // Mine de métal 4
+                dataPack += '\n'+'yes_Ar2_no_Ar2_168_Ar2_67_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';                // Centrale Solaire 3
+                dataPack += '\n'+'yes_Ar2_no_Ar2_303_Ar2_75_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                              // Mine de métal 5
+                dataPack += '\n'+'yes_Ar2_no_Ar2_253_Ar2_101_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';               // Centrale Solaire 4
+                dataPack += '\n'+'yes_Ar2_no_Ar2_48_Ar2_24_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                             // Mine de cristal 1
+                dataPack += '\n'+'yes_Ar2_no_Ar2_76_Ar2_38_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                             // Mine de cristal 2
+                dataPack += '\n'+'yes_Ar2_no_Ar2_122_Ar2_61_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                            // Mine de cristal 3
+                dataPack += '\n'+'yes_Ar2_no_Ar2_379_Ar2_151_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';               // Centrale Solaire 5
+                dataPack += '\n'+'yes_Ar2_no_Ar2_455_Ar2_113_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                             // Mine de métal 6
+                dataPack += '\n'+'yes_Ar2_no_Ar2_196_Ar2_98_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                            // Mine de cristal 4
+                dataPack += '\n'+'yes_Ar2_no_Ar2_569_Ar2_227_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';               // Centrale Solaire 6
+                dataPack += '\n'+'yes_Ar2_no_Ar2_225_Ar2_75_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                  // Synthétiseur de Deut 1
+                dataPack += '\n'+'yes_Ar2_no_Ar2_337_Ar2_112_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                 // Synthétiseur de Deut 2
+                dataPack += '\n'+'yes_Ar2_no_Ar2_506_Ar2_168_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                 // Synthétiseur de Deut 3
+                dataPack += '\n'+'yes_Ar2_no_Ar2_854_Ar2_341_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';               // Centrale Solaire 7
+                dataPack += '\n'+'yes_Ar2_no_Ar2_759_Ar2_253_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                 // Synthétiseur de Deut 4
+                dataPack += '\n'+'yes_Ar2_no_Ar2_1139_Ar2_379_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                // Synthétiseur de Deut 5
+                dataPack += '\n'+'yes_Ar2_no_Ar2_1281_Ar2_512_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';              // Centrale Solaire 8
+                dataPack += '\n'+'yes_Ar2_no_Ar2_314_Ar2_157_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                           // Mine de cristal 5
+                dataPack += '\n'+'yes_Ar2_no_Ar2_503_Ar2_251_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                           // Mine de cristal 6
+                dataPack += '\n'+'yes_Ar2_no_Ar2_400_Ar2_120_Ar2_200_Ar2_station_Ar2_1_Ar2_14_Ar2__Ar2__Ar2_Usine_esp_de_esp_robots_Ar2_';                          // Usine de robots 1
+                dataPack += '\n'+'yes_Ar2_no_Ar2_800_Ar2_240_Ar2_200_Ar2_station_Ar2_1_Ar2_14_Ar2__Ar2__Ar2_Usine_esp_de_esp_robots_Ar2_';                          // Usine de robots 2
+                dataPack += '\n'+'yes_Ar2_no_Ar2_200_Ar2_400_Ar2_200_Ar2_station_Ar2_1_Ar2_31_Ar2__Ar2__Ar2_Laboratoire_esp_de_esp_recherche_Ar2_';                 // Labo 1
+                dataPack += '\n'+'yes_Ar2_no_Ar2_0_Ar2_800_Ar2_400_Ar2_research_Ar2_1_Ar2_113_Ar2__Ar2__Ar2_Technologie_esp_énergétique_Ar2_';                      // Techno Energie 1
+                dataPack += '\n'+'yes_Ar2_no_Ar2_400_Ar2_0_Ar2_600_Ar2_research_Ar2_1_Ar2_115_Ar2__Ar2__Ar2_Réacteur_esp_à_esp_combustion_Ar2_';                    // Reacteur Combustion 1
+                dataPack += '\n'+'yes_Ar2_no_Ar2_400_Ar2_0_Ar2_600_Ar2_research_Ar2_1_Ar2_115_Ar2__Ar2__Ar2_Réacteur_esp_à_esp_combustion_Ar2_';                    // Reacteur Combustion 2
+                dataPack += '\n'+'yes_Ar2_no_Ar2_400_Ar2_200_Ar2_100_Ar2_station_Ar2_1_Ar2_21_Ar2__Ar2__Ar2_Chantier_esp_spatial_Ar2_';                             // Chantier Spatial 1
+                dataPack += '\n'+'yes_Ar2_no_Ar2_800_Ar2_400_Ar2_200_Ar2_station_Ar2_1_Ar2_21_Ar2__Ar2__Ar2_Chantier_esp_spatial_Ar2_';                             // Chantier Spatial 2
+                dataPack += '\n'+'yes_Ar2_no_Ar2_2000_Ar2_2000_Ar2_0_Ar2_shipyard_Ar2_1_Ar2_202_Ar2_1_Ar2_1_Ar2_Petit_esp_transporteur_Ar2_';                       // PT
+                dataPack += '\n'+'yes_Ar2_no_Ar2_1922_Ar2_768_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';              // Centrale Solaire 9
+                dataPack += '\n'+'yes_Ar2_no_Ar2_1025_Ar2_256_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                            // Mine de métal 8
+                dataPack += '\n'+'yes_Ar2_no_Ar2_1537_Ar2_384_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                            // Mine de métal 9                
+                dataPack += '\n'+'yes_Ar2_no_Ar2_805_Ar2_402_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                           // Mine de cristal 7
+                dataPack += '\n'+'yes_Ar2_no_Ar2_2883_Ar2_1153_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';             // Centrale Solaire 10
+                dataPack += '\n'+'yes_Ar2_no_Ar2_400_Ar2_800_Ar2_200_Ar2_station_Ar2_1_Ar2_31_Ar2__Ar2__Ar2_Laboratoire_esp_de_esp_recherche_Ar2_';                 // Labo 2
+                dataPack += '\n'+'yes_Ar2_no_Ar2_1600_Ar2_800_Ar2_400_Ar2_station_Ar2_1_Ar2_21_Ar2__Ar2__Ar2_Chantier_esp_spatial_Ar2_';                            // Chantier Spatial 3
+                dataPack += '\n'+'yes_Ar2_no_Ar2_200_Ar2_1000_Ar2_200_Ar2_research_Ar2_1_Ar2_106_Ar2__Ar2__Ar2_Technologie_esp_Espionnage_Ar2_';                    // Techno Espionnage 1
+                dataPack += '\n'+'yes_Ar2_no_Ar2_1600_Ar2_0_Ar2_2400_Ar2_research_Ar2_1_Ar2_115_Ar2__Ar2__Ar2_Réacteur_esp_à_esp_combustion_Ar2_';                  // Reacteur Combustion 3
+                dataPack += '\n'+'yes_Ar2_no_Ar2_400_Ar2_2000_Ar2_400_Ar2_research_Ar2_1_Ar2_106_Ar2__Ar2__Ar2_Technologie_esp_Espionnage_Ar2_';                    // Techno Espionnage 2
+                dataPack += '\n'+'yes_Ar2_no_Ar2_0_Ar2_1000_Ar2_0_Ar2_shipyard_Ar2_1_Ar2_210_Ar2_1_Ar2_1_Ar2_Sonde_esp_d`espionnage_Ar2_';                          // Sonde
+                dataPack += '\n'+'yes_Ar2_no_Ar2_4324_Ar2_1729_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';             // Centrale Solaire 11
+                dataPack += '\n';
+            } else { //I2T: Si plusieurs planetes acquises
+                dataPack = '';
+                dataPack += 'yes_Ar2_no_Ar2_75_Ar2_30_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';                      // Centrale Solaire 1
+                dataPack += '\n'+'yes_Ar2_no_Ar2_60_Ar2_15_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                               // Mine de métal 1
+                dataPack += '\n'+'yes_Ar2_no_Ar2_90_Ar2_22_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                               // Mine de métal 2
+                dataPack += '\n'+'yes_Ar2_no_Ar2_112_Ar2_45_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';                // Centrale Solaire 2
+                dataPack += '\n'+'yes_Ar2_no_Ar2_135_Ar2_33_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                              // Mine de métal 3
+                dataPack += '\n'+'yes_Ar2_no_Ar2_202_Ar2_50_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                              // Mine de métal 4
+                dataPack += '\n'+'yes_Ar2_no_Ar2_168_Ar2_67_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';                // Centrale Solaire 3
+                dataPack += '\n'+'yes_Ar2_no_Ar2_48_Ar2_24_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                             // Mine de cristal 1
+                dataPack += '\n'+'yes_Ar2_no_Ar2_253_Ar2_101_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';               // Centrale Solaire 4
+                dataPack += '\n'+'yes_Ar2_no_Ar2_303_Ar2_75_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                              // Mine de métal 5
+                dataPack += '\n'+'yes_Ar2_no_Ar2_76_Ar2_38_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                             // Mine de cristal 2
+                dataPack += '\n'+'yes_Ar2_no_Ar2_122_Ar2_61_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                            // Mine de cristal 3
+                dataPack += '\n'+'yes_Ar2_no_Ar2_379_Ar2_151_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';               // Centrale Solaire 5
+                dataPack += '\n'+'yes_Ar2_no_Ar2_225_Ar2_75_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                  // Synthétiseur de Deut 1
+                dataPack += '\n'+'yes_Ar2_no_Ar2_196_Ar2_98_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                            // Mine de cristal 4
+                dataPack += '\n'+'yes_Ar2_no_Ar2_569_Ar2_227_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';               // Centrale Solaire 6
+                dataPack += '\n'+'yes_Ar2_no_Ar2_455_Ar2_113_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                             // Mine de métal 6
+                dataPack += '\n'+'yes_Ar2_no_Ar2_683_Ar2_170_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                             // Mine de métal 7
+                dataPack += '\n'+'yes_Ar2_no_Ar2_854_Ar2_341_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';               // Centrale Solaire 7
+                dataPack += '\n'+'yes_Ar2_no_Ar2_314_Ar2_157_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                           // Mine de cristal 5
+                dataPack += '\n'+'yes_Ar2_no_Ar2_337_Ar2_112_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                 // Synthétiseur de Deut 2
+                dataPack += '\n'+'yes_Ar2_no_Ar2_1281_Ar2_512_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';              // Centrale Solaire 8
+                dataPack += '\n'+'yes_Ar2_no_Ar2_506_Ar2_168_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                 // Synthétiseur de Deut 3
+                dataPack += '\n'+'yes_Ar2_no_Ar2_759_Ar2_253_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                 // Synthétiseur de Deut 4
+                dataPack += '\n'+'yes_Ar2_no_Ar2_1922_Ar2_768_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';              // Centrale Solaire 9
+                dataPack += '\n'+'yes_Ar2_no_Ar2_1139_Ar2_379_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                // Synthétiseur de Deut 5
+                dataPack += '\n'+'yes_Ar2_no_Ar2_400_Ar2_120_Ar2_200_Ar2_station_Ar2_1_Ar2_14_Ar2__Ar2__Ar2_Usine_esp_de_esp_robots_Ar2_';                          // Usine de robots 1
+                dataPack += '\n'+'yes_Ar2_no_Ar2_800_Ar2_240_Ar2_200_Ar2_station_Ar2_1_Ar2_14_Ar2__Ar2__Ar2_Usine_esp_de_esp_robots_Ar2_';                          // Usine de robots 2
+                dataPack += '\n'+'yes_Ar2_no_Ar2_503_Ar2_251_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                           // Mine de cristal 6
+                dataPack += '\n'+'yes_Ar2_no_Ar2_400_Ar2_200_Ar2_100_Ar2_station_Ar2_1_Ar2_21_Ar2__Ar2__Ar2_Chantier_esp_spatial_Ar2_';                             // Chantier Spatial 1
+                dataPack += '\n'+'yes_Ar2_no_Ar2_2883_Ar2_1153_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';             // Centrale Solaire 10
+                //dataPack += '\n'+'yes_Ar2_no_Ar2_1708_Ar2_569_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                // Synthétiseur de Deut 6
+                dataPack += '\n'+'yes_Ar2_no_Ar2_1025_Ar2_256_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                            // Mine de métal 8
+                dataPack += '\n'+'yes_Ar2_no_Ar2_800_Ar2_400_Ar2_200_Ar2_station_Ar2_1_Ar2_21_Ar2__Ar2__Ar2_Chantier_esp_spatial_Ar2_';                             // Chantier Spatial 2
+                dataPack += '\n'+'yes_Ar2_no_Ar2_2000_Ar2_2000_Ar2_0_Ar2_shipyard_Ar2_1_Ar2_202_Ar2_1_Ar2_1_Ar2_Petit_esp_transporteur_Ar2_';                       // PT
+                dataPack += '\n'+'yes_Ar2_no_Ar2_4324_Ar2_1729_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';             // Centrale Solaire 11
+                dataPack += '\n'+'yes_Ar2_no_Ar2_805_Ar2_402_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                           // Mine de cristal 7
+                dataPack += '\n'+'yes_Ar2_no_Ar2_1537_Ar2_384_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                            // Mine de métal 9
+                dataPack += '\n'+'yes_Ar2_no_Ar2_1600_Ar2_800_Ar2_400_Ar2_station_Ar2_1_Ar2_21_Ar2__Ar2__Ar2_Chantier_esp_spatial_Ar2_';                            // Chantier Spatial 3
+                dataPack += '\n'+'yes_Ar2_no_Ar2_0_Ar2_1000_Ar2_0_Ar2_shipyard_Ar2_1_Ar2_210_Ar2_1_Ar2_1_Ar2_Sonde_esp_d`espionnage_Ar2_';                          // Sonde
+                dataPack += '\n';
+            }
         } else {
             dataPack = '';
             dataPack += 'yes_Ar2_no_Ar2_20000_Ar2_40000_Ar2_20000_Ar2_station_Ar2_1_Ar2_41_Ar2__Ar2__Ar2_Base_esp_lunaire_Ar2_';                                                     // Base Lunaire 1
@@ -3921,7 +4193,7 @@ if (gup("page") == "preferences" && gup("autoRapComp") == 1) {
 }
 
 
-if (rand(1,150) == 1) blit_message("Pensez à cliquer sur les pubs de sephiogame.com pour nous soutenir :)");
-if (rand(1,150) == 1) blit_message("Partagez notre page facebook à vos amis ;)");
+//if (rand(1,150) == 1) blit_message("Pensez à cliquer sur les pubs de sephiogame.com pour nous soutenir :)");
+//if (rand(1,150) == 1) blit_message("Partagez notre page facebook à vos amis ;)");
 
 clearTimeout(antiBugTimeout);
