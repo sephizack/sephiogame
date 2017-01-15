@@ -59,10 +59,14 @@
 //3.6.4.1: Imp2Toulouse-  *Add functionnalities
 //                          *link with TopRaider on api button in combat and spy report
 //                          *launch specific raid directly by clicking in target button in spy report
+//3.6.4.2: Imp2Toulouse-  *Debug functionnalities / Optimizations
+//                          *Tools bar in messages has been debugged and improved
+//                          *Code optimizations
+
 
 antiBugTimeout = setTimeout(function() {location.href=location.href;}, 5*60*1000);
 
-cur_version = '3.6.4.1';
+cur_version = '3.6.4.2';
 univers = window.location.href.split('/')[2];
 
 // Multi langues
@@ -76,22 +80,22 @@ LANG_noLocalStorage = isFR ? "Votre navigateur ne supporte pas le système de lo
 LANG_nouveaute_update = isFR ? ' -Integration of Ogame version 6.0.5<br>-Review all frigo integration (from messages)<br>-Review all Auto Attack processus<br>-Review the Expedition send<br>-Review Butin calculation'
     : ' -Integration of Ogame version 6.0.5<br>-Review all frigo integration (from messages)<br>-Review all Auto Attack processus<br>-Review the Expedition send<br>-Review Butin calculation';
 
-
 function exit(i){throw new Error('This is not an error. This is just to abort javascript');}
-if (document.getElementById('banner_skyscraper') !== null) document.getElementById('banner_skyscraper').innerHTML = '';
+if ($('#banner_skyscraper')) $('#banner_skyscraper').html('');
 if (localStorage == null) {
     alert("SephiOGame : "+LANG_noLocalStorage);
     exit(0);
 }
 
-d = document.getElementsByClassName('ago_clock');
-if (d.length >= 1) d[0].style.display = 'none';
+d = $('#ago_clock');
+if (d.length >= 1) d.css({ display: "none" });
+
 
 // Fonctions de base
 function time() {mytime=new Date();return mytime.getTime();}
 function checkmail(mailteste){var reg = new RegExp('^[a-z0-9]+([_|\.|-]{1}[a-z0-9]+)*@[a-z0-9]+([_|\.|-]{1}[a-z0-9]+)*[\.]{1}[a-z]{2,6}$', 'i');return(reg.test(mailteste));}
 function escapeHtml(text) {return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");}
-function setOpacity(obj,value) {obj.style.opacity = value;obj.style.filter = 'alpha(opacity=' + value*100 + ')';}
+function setOpacity(obj,value) {obj.css('opacity', value); obj.css('filter', 'alpha(opacity=' + value*100 + ')');}
 function createCookie(name,value,days, pref) {
     if (pref == 'all') name = pref+'_'+name;
     else name = cur_planet+'_'+pref+'_'+name;
@@ -115,7 +119,7 @@ function sleep(milliseconds) {
     }
   }
 }
-function urlencode(str) {return escape(str.replace(/%/g, '%25').replace(/\+/g, '%2B')).replace(/%25/g, '%');}
+function urlencode(str) {return encodeURIComponent(str.replace(/%/g, '%25').replace(/\+/g, '%2B')).replace(/%25/g, '%');}
 function gup( name )
 {
     name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
@@ -136,13 +140,15 @@ function blit_message_time(message, time) {
     fadeBoxObj = document.getElementById('fadeBox');
     
     $("#fadeBox").fadeTo(0,0);
-    document.getElementById('fadeBox').style.display = 'block';
-    document.getElementById('fadeBoxStyle').style.height = '46px';
-    document.getElementById('fadeBoxStyle').style.width = '90px';
-    document.getElementById('fadeBoxStyle').style.margin = '3px 0 0 12px';
-    document.getElementById('fadeBoxContent').style.width = '120px';
-    document.getElementById('fadeBoxStyle').style.backgroundImage = 'url(http://www.sephiogame.com/script/icon_ecchi2.png)';
-    document.getElementById('fadeBoxContent').innerHTML = message;
+    $('#fadeBox').css({display: 'block'});
+    $('#fadeBoxStyle').css({
+        height: "46px",
+        width: "90px",
+        margin: "3px 0 0 12px",
+        backgroundImage: "url(http://www.sephiogame.com/script/icon_ecchi2.png)"
+    });
+    $('#fadeBoxContent').css({width: "120px"});
+    $('#fadeBoxContent').html(message);
     $("#fadeBox").fadeTo(400,0.85);
     setTimeout(function(){$("#fadeBox").fadeTo(400,0);},time);
 }
@@ -155,7 +161,7 @@ if (gup('servResponse') == '1') {
 }
 
 //Autolog (nouvel essai toutes les 5 minutes)
-if (document.getElementById("loginForm") !== null) {
+if ($("#loginForm").length == 1) {
     //Bloc pour paramètrer l'autologin
     data = '<div id="login" style="display: block;position:absolute;top:35px;right:10px;">';
     data += '       <div id="loginForm">';
@@ -187,24 +193,24 @@ if (document.getElementById("loginForm") !== null) {
     data += '            <input type="submit" id="AutoLogSave" value="Enregistrer" style="background: url(https://gf3.geo.gfsrv.net/cdn5c/5f68e42f93bad65d7a1a6ddd130543.gif) no-repeat;color: #FFF;cursor: pointer;display: block;font-size: 16px;font-weight: bold;height: 30px;line-height: 30px;margin: 10px auto;padding: 0;text-align: center;text-shadow: -1px -1px 0 #501313;width: 187px;border: 0;">';
     data += '        </form>';
     data += '        </div>';
-    document.getElementById('content').innerHTML += data;
-    document.getElementById('AutoLogServer').innerHTML += document.getElementById('serverLogin').innerHTML;
+    $('#content').append(data);
+    $('#AutoLogServer').append($('#serverLogin').html());
     
     if (readCookie('autoLogEnabled','all') !== "yes") {
-        document.getElementById('AutoLogServer').value = '';
-        document.getElementById('AutLogUser').value = '';
-        document.getElementById('AutLogPass').value = '';
+        $('#AutoLogServer').val('');
+        $('#AutLogUser').val('');
+        $('#AutLogPass').val('');
     } else {
-        document.getElementById('AutoLogServer').value = readCookie('AutoLogServ','all');
-        document.getElementById('AutLogUser').value = readCookie('AutoLogPseudo','all');
+        $('#AutoLogServer').val(readCookie('AutoLogServ','all'));
+        $('#AutLogUser').val(readCookie('AutoLogPseudo','all'));
         //document.getElementById('AutLogPass').value = readCookie('AutoLogPassword','all');
     }
-    document.getElementById('AutoLogSave').onclick = function () {
-        if (document.getElementById('AutoLogServer').value !== '') {
+    $('#AutoLogSave').click(function () {
+        if ($('#AutoLogServer').val() !== '') {
             createCookie('autoLogEnabled','yes',1,'all');
-            createCookie('AutoLogServ',document.getElementById('AutoLogServer').value,1,'all');
-            createCookie('AutoLogPseudo',document.getElementById('AutLogUser').value,1,'all');
-            createCookie('AutoLogPassword',document.getElementById('AutLogPass').value,1,'all');
+            createCookie('AutoLogServ',$('#AutoLogServer').val(),1,'all');
+            createCookie('AutoLogPseudo',$('#AutLogUser').val(),1,'all');
+            createCookie('AutoLogPassword',$('#AutLogPass').val(),1,'all');
         } else {
             createCookie('autoLogEnabled','',1,'all');
             createCookie('AutoLogServ', '',1,'all');
@@ -214,7 +220,7 @@ if (document.getElementById("loginForm") !== null) {
         if (readCookie('autoLogEnabled','all') == "yes") alert("L'Auto-Login est maintenant ACTIF. Une fois arrivé sur la page d'acceuil, le script attendra 1 à 2 minutes pour se loguer avec les identifiants que vous venez d'indiquer");
         else alert("L'Auto-Login est maintenant INACTIF. Les identifiants que vous avez pu indiquer auparavant ne sont maintenant plus stockés dans les paramètres du script");
         location.href = location.href;
-    };
+    });
     
     if (readCookie('autoLogEnabled','all') == "yes") {
         // Timeout pour que le navigateur remplisse les champs
@@ -226,10 +232,10 @@ if (document.getElementById("loginForm") !== null) {
             } else {
                 setTimeout(function(){
                     createCookie('lastLogTry', time(), 1, 'all');
-                    document.getElementById('serverLogin').value = readCookie('AutoLogServ','all');
-                    document.getElementById('usernameLogin').value = readCookie('AutoLogPseudo','all');
-                    document.getElementById('passwordLogin').value = readCookie('AutoLogPassword','all');
-                    setTimeout(function(){document.getElementById("loginForm").submit();}, 5*1000);
+                    $('#serverLogin').val(readCookie('AutoLogServ','all'));
+                    $('#usernameLogin').val(readCookie('AutoLogPseudo','all'));
+                    $('#passwordLogin').val(readCookie('AutoLogPassword','all'));
+                    setTimeout(function(){$('#loginForm').submit();}, 5*1000);
                 }, rand(4,8)*15*1000);
             }
         }, 3*1000);
@@ -243,7 +249,7 @@ MAX_COMMANDS = 50
 cur_content = "";
 cur_title = "";
 
-if (document.getElementsByClassName('textBeefy').length > 0) username = document.getElementsByClassName('textBeefy')[0].innerHTML.replace(/ /g,'').replace("\n",'');
+if ($('.textBeefy').length > 0) username = $('.textBeefy')[1].innerHTML.replace(/ /g,'').replace("\n",'');
 else username='unloged';
 
 /**
@@ -261,16 +267,18 @@ function checkAuth_NEW(event) {if (is_token_valide()){var temps_restant=get_Time
 function Auth_Load_Save_info(authResult) {
     if (authResult && !authResult.error) {
         createCookie('gapi_auth',time(),1,'all'); createCookie('gapi_token',authResult.access_token,1,'all'); createCookie('gapi_expires_in',authResult.expires_in,1,'all'); createCookie('gapi_clientid',authResult.client_id,1,'all'); createCookie('gapi_scope',authResult.scope,1,'all');
-        if (gup('sephiScript')){document.getElementById('authorize-div').style.display = 'none'; document.getElementById('alertmail-div').style.display = 'inline';
-            appendResults(document.getElementById('output'),(isFR)?'Vous avez autorisé google à envoyer des mails en votre nom. Merci pour votre confiance.':'You have authorized google to send email for you. Thanks to trust us.');
+        if (gup('sephiScript')){
+            $('#authorize-div').css({display: 'none'});
+            $('#alertmail-div').css({display: 'inline'});
+            appendResults($('#output'),(isFR)?'Vous avez autorisé google à envoyer des mails en votre nom. Merci pour votre confiance.':'You have authorized google to send email for you. Thanks to trust us.');
         }
         blit_message((isFR)?'Vous êtes maintenant authentifié auprés de Google gmail!':'You are now authenticated on Google gmail!');
         loadGmailApi();
     } else {
         createCookie('gapi_auth',0,1,'all'); createCookie('gapi_token',0,1,'all'); createCookie('gapi_expires_in',0,1,'all'); createCookie('gapi_clientid',0,1,'all'); createCookie('gapi_scope',0,1,'all');
         if (gup('sephiScript')) {
-            document.getElementById('authorize-div').style.display = 'inline';
-            document.getElementById('alertmail-div').style.display = 'none';
+            $('#authorize-div').css({display: 'inline'});
+            $('#authorize-div').css({display: 'none'});
         }
         blit_message('Perte de l\'authentification Google gmail! Cliquer sur le bouton pour vous authentifier.');
     }
@@ -383,17 +391,14 @@ function make_important_vars_data() {
         cur = importvars[importvars_textID[i]]
         if (Array.isArray(cur)) {
             for (j=0 ; j<cur.length ; j++) {
-                if (Array.isArray(cur[j]) ) {
-                    
+                if (Array.isArray(cur[j]) )
                     for (k=0 ; k<cur[j].length ; k++) dataimp += cur[j][k]+ '_Ar2_';
-                } else {
+                else
                     dataimp += cur[j];
-                }
                 dataimp += '\n';   
             }
-        } else {
+        } else
             dataimp += cur;
-        }
         
         dataimp+='/_/_/';
     }
@@ -403,7 +408,7 @@ function make_important_vars_data() {
 
 function init_vars(){
     save_important_vars('que dalle');
-    blit_message('Vos données de cette planète <span style="float: none;margin: 0;color:#109E18">ont bien été réinitialisées</span>.');
+    blit_message('Vos données de cette planète <span style="float: none; margin: 0; color:#109E18">ont bien été réinitialisées</span>.');
     setTimeout(function(){
         window.location.href = window.location.href;
     },1000);
@@ -444,7 +449,6 @@ function load_important_vars() {
         for (i=0 ; i<importvars["listPrev"].length ; i++) {
             importvars["listPrev"][i]['original_id'] = i;
         }
-        
     }
 }
 
@@ -522,20 +526,21 @@ if (importvars["frigos"] == null || importvars["frigos"] == 'undefinied' || impo
 importvars["frigos"] = importvars["frigos"].sort(function(a,b) { return parseFloat(b[4])- parseFloat(a[4]) } );
 
 // Afficher la version du script
-document.getElementById('helper').innerHTML='<div style="width:0px;height:0px;position:relative;top:10px;left:655px;"><p style="width:400px;height:15px;color:#808080;text-align: right;font-size:10px;position: relative;left: -70px;top:-5px">SephiOGame Version '+cur_version+'</p></div>';
-document.getElementById('helper').innerHTML+='<div style="width:0px;height:0px;position:relative;top:23px;left:952px;"><a href="https://'+univers+'/game/index.php?page=premium&amp;openDetail=12" style="top: 0px;left: 0px;background:none;"><img class="tooltipHTML" title="SephiOGame version '+cur_version+'|Liste de constructions sans limite, sauvegarde des frigos, alerte sonore et envoi de mails lors des missions hostiles, agrandissement des images dans flotte, messages, ect... Et d\'autres améliorations diverses<br><br><u>Nouveautés de la '+cur_version+'</u> :<br>'+LANG_nouveaute_update+'" src="http://www.sephiogame.com/script/icon_ahri2.jpg" style="border:1px solid #000000"/></a></div>';
-document.getElementById('officers').style.paddingRight+='40px';
-document.getElementById('officers').className="one";
+$('#helper').html('<div style="width:0px;height:0px;position:relative;top:10px;left:655px;"><p style="width:400px;height:15px;color:#808080;text-align: right;font-size:10px;position: relative;left: -70px;top:-5px">SephiOGame Version '+cur_version+'</p></div>');
+$('#helper').append('<div style="width:0px;height:0px;position:relative;top:23px;left:952px;"><a href="https://'+univers+'/game/index.php?page=premium&amp;openDetail=12" style="top: 0px;left: 0px;background:none;"><img class="tooltipHTML" title="SephiOGame version '+cur_version+'|Liste de constructions sans limite, sauvegarde des frigos, alerte sonore et envoi de mails lors des missions hostiles, agrandissement des images dans flotte, messages, ect... Et d\'autres améliorations diverses<br><br><u>Nouveautés de la '+cur_version+'</u> :<br>'+LANG_nouveaute_update+'" src="http://www.sephiogame.com/script/icon_ahri2.jpg" style="border:1px solid #000000"/></a></div>');
+$('#officers').css({paddingRight: '40px'});
+$('#officers').addClass("one");
+
 if(gup('page') == 'premium') {
     document.getElementById('button12').innerHTML = '<div class="premium tooltip" title="Plus d\'infos sur : SephiOGame."><div class="buildingimg  allOfficers" style="background:url(http://www.sephiogame.com/script/icon_ahri_mid2.png) 0 0;" ><a tabindex="12" href="javascript:void(0);" title="" ref="12" class="detail_button tooltip js_hideTipOnMobile slideIn active"><span class="ecke"><span class="level"><img src="https://gf3.geo.gfsrv.net/cdn89/b1c7ef5b1164eba44e55b7f6d25d35.gif" width="12" height="11"></span></span></a></div></div>';
     function replace_pack(){
-        con=document.getElementById('detail').innerHTML;
+        con=$('#detail').html();
         if (con.replace('allOfficers','') !== con){
-            document.getElementById('detail').innerHTML = con.replace('<div class="officers200  allOfficers ">','<div class="officers200  allOfficers "><img src="http://www.sephiogame.com/script/icon_ahri_high3.jpg" width="198" height="198" style="border:2px solid #000000;">');
-            document.getElementById('features').innerHTML = 'Ce script fournis par Sephizack vous permettra de préparer des listes de constructions bien plus longues e intelligentes que celles du compte Commandant, même si vous n\'avez pas les ressources, la liste reste !<br>Et surtout, vous pourrez créer une liste de vos frigos favoris sur chacune de vos planètes qui seront espionnées et attaqués automatiquement en fonction des ressources qu\'ils ont.<br><br>Enfin, le script vous offre un système d\'alerte et d\'ejection des vaisseaux lors d\'attaques ennemies, une alarme retentira pour vous reveiller dans la nuit !';
-            document.getElementById('detail').innerHTML = document.getElementById('detail').innerHTML.replace('Commandement','SephiOGame version '+cur_version);
-            document.getElementsByClassName('benefitlist')[0].innerHTML = '<span>Liste de constructions améliorée</span><span>Auto-Attaque intelligente</span><span>Ejection en cas d\'attaque</span><span>Alertes par mail</span>'
-            document.getElementsByClassName('level')[0].innerHTML = '<span class="undermark">Actif à vie</span>'
+            $('#detail').html(con.replace('<div class="officers200  allOfficers ">','<div class="officers200  allOfficers "><img src="http://www.sephiogame.com/script/icon_ahri_high3.jpg" width="198" height="198" style="border:2px solid #000000;">'));
+            $('#features').html('Ce script fournis par Sephizack vous permettra de préparer des listes de constructions bien plus longues e intelligentes que celles du compte Commandant, même si vous n\'avez pas les ressources, la liste reste !<br>Et surtout, vous pourrez créer une liste de vos frigos favoris sur chacune de vos planètes qui seront espionnées et attaqués automatiquement en fonction des ressources qu\'ils ont.<br><br>Enfin, le script vous offre un système d\'alerte et d\'ejection des vaisseaux lors d\'attaques ennemies, une alarme retentira pour vous reveiller dans la nuit !');
+            $('#detail').html($('#detail').html().replace('Commandement','SephiOGame version '+cur_version));
+            $('.benefitlist')[0].html('<span>Liste de constructions améliorée</span><span>Auto-Attaque intelligente</span><span>Ejection en cas d\'attaque</span><span>Alertes par mail</span>');
+            $('.level')[0].html('<span class="undermark">Actif à vie</span>');
         } else setTimeout(replace_pack,100);
     }
     replace_pack();
@@ -710,7 +715,6 @@ function add_programnation_button() {
             
             tmp = cur_content.replace('onclick="sendBuildRequest(null, null,','');
             
-                
             cur_content = cur_content.replace('build-it_premium"','build-it_disabled"');
             cur_content = cur_content.replace('build-it"','build-it_disabled"');
             cur_content = cur_content.replace('build-it_disabled isWorking"','build-it_disabled"');
@@ -719,7 +723,7 @@ function add_programnation_button() {
             
             inside = cur_content.split('<a class="build-it"')[1].split('<span')[1];
             inside = inside.split('</span>')[0];
-            
+
             cur_content = cur_content.replace(inside,' id="button_progSephiText">'+LANG_programm);
             
             inside = cur_content.split('<ul class="production_info')[1].split('<li>')[1];
@@ -754,12 +758,8 @@ function add_programnation_button() {
 }
 
 function add_frigo_button() {
-    // Messages complets
-    //rapports = $('#ui-id-20 .tab_inner .msg');  //document.getElementsByClassName('material spy');
-    //I2T: Ogame change Screen id 
-    //$('#ui-id-20 .tab_inner .msg').each(function(index){
     $('#ui-id-14 .tab_inner .msg').each(function(index){
-        if (! $(this).attr('class').match("dejafais")) {
+        if (!$(this).attr('class').match("dejafais")) {
             // Get coords of the planet
             if ($(this).html().split('</figure>').length > 1) {
                 planame =  $(this).html().split('</figure>')[1].split('<a')[0].split(' [')[0].trim();
@@ -778,17 +778,8 @@ function add_frigo_button() {
                 icon_attack_obj.parent().attr("href",icon_attack_obj.parent().attr("href").replace("mission=1","mission=1&auto=yes&ID=0&GT="+(2+Math.floor(butin/25000))+"&Referer="+(encodeURIComponent($(location).attr('href').replace(/.*\?(.*)/g,"$1")))));
             }
 
-
-            /*var icon_apiKey_obj=$(this).find(".msg_actions .icon_apikey")
-            if ( icon_apiKey_obj.length > 0) {
-                icon_apiKey_obj.parent().attr("href",icon_apiKey_obj.parent().attr("href").replace("ogame-api://sr-","http://topraider.eu/index.php?langue=fr&SR_KEYconv=sr-"));
-                icon_apiKey_obj.parent().attr('target','_blank');
-            }*/
-
             // Recherche d'un frigo avec ces coordonnées
-            //Imp2Toulouse- Factorize with is_frigo fonction
-            infrig=is_frigo(importvars["frigos"], coord)>=0?'yes':'no';
-            ////
+            infrig = is_frigo(importvars["frigos"], coord)>=0?'yes':'no';
             if (infrig == 'no') {
                 var message_res_action='Bienvenue dans les frigos !';
                 var text_action='Ajouter '+coord+' '+planame+' aux frigos de '+cur_planame;
@@ -815,17 +806,6 @@ function add_frigo_button() {
             $(this).addClass("dejafais");
         }
     });
-
-    //I2T: Ogame change Screen id 
-    //$('#ui-id-22 .tab_inner .msg').each(function(index){
-    /*$('#ui-id-16 .tab_inner .msg').each(function(index){
-        if (! $(this).attr('class').match("dejafais") && $(this).find(".msg_actions .icon_apikey").length > 0) {
-            var obj=$(this).find(".msg_actions .icon_apikey").parent();
-            obj.attr("href",obj.attr("href").replace("ogame-api://cr-","http://topraider.eu/index.php?langue=fr&CR_KEY=cr-"));
-            obj.attr('target','_blank');
-            $(this).addClass("dejafais");
-        }
-    });*/
     
     //I2T: Add change in actions on details view
     $('.detail_msg').each(function(index){
@@ -838,19 +818,86 @@ function add_frigo_button() {
                 obj.attr("href",obj.attr("href").replace("mission=1","mission=1&auto=yes&ID=0&GT="+(2+Math.floor(butin/25000))+"&Referer="+(encodeURIComponent($(location).attr('href').replace(/.*\?(.*)/g,"$1")))));
                 var obj = null;
             }
-            /*if ( $(this).find(".msg_actions .icon_apikey").length > 0) {
-                var obj=$(this).find(".msg_actions .icon_apikey").parent();
-                obj.attr("href",obj.attr("href").replace("ogame-api://sr-","http://topraider.eu/index.php?langue=fr&CR_KEY=sr-"));
-                obj.attr('target','_blank');
-            }*/
             //Set to already done
             $(this).addClass("dejafais");
         }
     });
 }
 
-if (gup('page') == 'messages') 
-    setInterval(add_frigo_button,500);
+/***************************************
+***** Change message actions tab
+****************************************
+ * Input: action_tab object
+ * Output: Object changed
+****************************************/
+function change_actions_tab(action_tab){
+    //Change APIKey from <div> to <a> tag
+    action_tab.find("span.icon_apikey").each(function (index) {
+        var parent=$(this).parent();
+        if (! parent.attr("href")) {
+            var api_num = $(this).attr("title").replace(/^.*input value='(.*)' readonly.*$/m, '$1');
+            if (api_num.match(/^sr-.*$/)) api_param="SR_KEYconv=".concat(api_num);
+            if (api_num.match(/^cr-.*$/)) api_param="CR_KEY=".concat(api_num);
+
+            parent.replaceWith(function () {
+                return $('<a/>', {
+                    href: "http://topraider.eu/index.php?langue=fr&".concat(api_param),
+                    target: '_blank',
+                    class: "icon_nf_link fleft",
+                    html: this.innerHTML
+                })
+            });
+        }
+        var parent=null;
+    });
+    // Change attack url allowing to auto attack target
+    action_tab.find("span.icon_attack").each(function (index) {
+        var parent=$(this).parent();
+        if (! parent.attr("href").match("auto=yes")) {
+            //Get information about butin (sum of metal, cristal and deut) * type_multifactor (50%, 75%, 100%, ...)
+            process_espionage_data(parent.parent().parent().find("span.ctn4 .resspan"));
+            var butin = Math.floor(type_multip * (met + cri + deu));
+            url_parent=parent.attr("href");
+            url_pt=url_parent.replace("mission=1", "mission=1&auto=yes&ID=0&PT=" + (1 + Math.floor(butin / 5000)) + "&Referer=" + (encodeURIComponent($(location).attr('href').replace(/.*\?(.*)/g, "$1"))));
+            url_gt=url_parent.replace("mission=1", "mission=1&auto=yes&ID=0&GT=" + (1 + Math.floor(butin / 25000)) + "&Referer=" + (encodeURIComponent($(location).attr('href').replace(/.*\?(.*)/g, "$1"))));
+            title="</span>Butin&nbsp;:"+butin+"<br><a href='"+url_pt+"'>P.Transp&nbsp;:"+ (1 + Math.floor(butin / 5000))+"</a><br><a href='"+url_gt+"'>G.Transp&nbsp;:"+(1 + Math.floor(butin / 25000))+"</a>";
+            $(this).attr("title",title);
+            $(this).addClass("tooltipCustom tooltip-width:400");
+        }
+        var parent = null;
+    });
+
+}
+
+function change_message_actiontab() {
+    add_frigo_button();
+    var subtabs_fleets=$('#ui-id-2 .tab_ctn .js_subtabs_fleets');
+    if (subtabs_fleets.length = 1) { // Message Fleet Tab
+        if (subtabs_fleets.find('#ui-id-14 .tab_inner li.msg').length > 0) { // Tab subtabs-nfFleet20 - Espionnage
+            change_actions_tab(subtabs_fleets.find('#ui-id-14 .tab_inner li.msg div.msg_actions'));
+        }
+        if (subtabs_fleets.find('#ui-id-16 .tab_inner li.msg').length > 0) { // Tab subtabs-nfFleet21 - Rapports de combat
+            change_actions_tab(subtabs_fleets.find('#ui-id-16 .tab_inner li.msg div.msg_actions'));
+        }
+        if (subtabs_fleets.find('#ui-id-18 .tab_inner li.msg').length > 0) { // Tab subtabs-nfFleet22 - Expeditions
+            change_actions_tab(subtabs_fleets.find('#ui-id-18 .tab_inner li.msg div.msg_actions'));
+        }
+        if (subtabs_fleets.find('#ui-id-20 .tab_inner li.msg').length > 0) { // Tab subtabs-nfFleet23 - Groupes/transport
+            change_actions_tab(subtabs_fleets.find('#ui-id-20 .tab_inner li.msg div.msg_actions'));
+        }
+        if (subtabs_fleets.find('#ui-id-22 .tab_inner li.msg').length > 0) { // Tab subtabs-nfFleet24 - Divers
+            change_actions_tab(subtabs_fleets.find('#ui-id-22 .tab_inner li.msg div.msg_actions'));
+        }
+        if (subtabs_fleets.find('#ui-id-24 .tab_inner li.msg').length > 0) { // Tab subtabs-nfFleetTrash - Corbeille
+            change_actions_tab(subtabs_fleets.find('#ui-id-24 .tab_inner li.msg div.msg_actions'));
+        }
+    }
+}
+
+
+if (gup('page') == 'messages') {
+    setInterval(change_message_actiontab,500);
+}
 
 function get_prevID_from_place(place) {
     ID = -1;
@@ -1207,7 +1254,7 @@ spy_all=false;
 GLOB_spy_fail=0;
 GLOB_abandonne_spy = false;
 nb_tries = nb_fail = 0;
-function launch_spy(override_id){
+function launch_spy(self, override_id){
     clearTimeout(backOverview);
     if (GLOB_abandonne_spy) {
         GLOB_abandonne_spy=false;
@@ -1218,7 +1265,6 @@ function launch_spy(override_id){
     
     var caller_id = this.id;
     if (override_id) caller_id = override_id;
-    
     init_spy_id = 0;
     if (caller_id == 'spy_all') {
         GLOB_spy_fail=0;
@@ -2109,7 +2155,7 @@ function fill_case(butin, flotte_perso, idFrigo, curplanet_name) {
     tmp=null;
     document.getElementById('rap_general_butin_'+GLOB_rgID).innerHTML = get_cool_digit(butin);
     attack_data = '<span id="RG_PT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'https://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+'&force=0&flotte_perso='+flotte_perso+'&blockswitchplanet=yes\';setTimeout(function(){document.getElementById(\'RG_PT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Envoyer '+(2+Math.floor(butin/5000))+' PT</span>';
-    attack_data += '<span id="RG_GT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'https://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&GT='+(2+Math.floor(butin/25000))+'&force=0&flotte_perso='+flotte_perso+'&blockswitchplanet=yes\';setTimeout(function(){document.getElementById(\'RG_GT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Ou '+(2+Math.floor(butin/25000))+' GT</span>';
+    attack_data += '<br><span id="RG_GT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'https://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&GT='+(2+Math.floor(butin/25000))+'&force=0&flotte_perso='+flotte_perso+'&blockswitchplanet=yes\';setTimeout(function(){document.getElementById(\'RG_GT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Envoyer '+(2+Math.floor(butin/25000))+' GT</span>';
     attack_data += '<span id="frigoID_'+GLOB_rgID+'" style="display:none">'+idFrigo+'</span>';
     document.getElementById('rap_general_attack_'+GLOB_rgID).innerHTML = attack_data;
     GLOB_rgButins[GLOB_rgID] = new Array();
@@ -2787,7 +2833,7 @@ function calc_ID_flotte () {
 if (gup('page') == "fleet1") {
     e=document.getElementsByClassName('send_none')[0];
     if (document.getElementsByClassName('send_none').length >= 1) {
-        d = '<div style="position: relative;top: -85px;left:39px;px;z-index: 1000;font-size:12px;height:0px;width:0px;"><div style="position:relative;left:75px;top:77px;width:200px;height:30px;">';
+        d = '<div style="position: relative;top: -85px;left:39px;px;z-index: 1000;font-size:12px;height:0px;width:0px;"><div style="position:relative;left:95px;top:75px;width:200px;height:30px;">';
         d += '<input type="text" id="flotte_id" title="Identificateur flotte" style="width:130px;text-align:left;height:25px;margin-left:0px;font-family: inherit;color:#202040;position:relative;left:10px;top:-23px;font-size:11px" value="Identificateur flotte"/>';
         d += '<span class="factorbutton" style="position: relative;top:-23px;left:12px;"><input id="flotte_id_calc" class="btn_blue" style="margin-left:5px;min-width: 30px;" type="button" value="Ok"></span>';
         //d += '<span class="factorbutton" style="position: relative;top:87px;left:222px;"><input id="flotte_id_app" class="btn_blue" style="margin-left:10px" type="button" value="Restaurer"></span>';
@@ -2826,7 +2872,10 @@ if (gup('page') == "fleet3") {
 //   mission=2 - Attaque groupée                 - setSelected(2);updateMission("Attaque group\u00e9e","Des combats honorables peuvent perdre ce statut si de puissants joueurs se joignent au SCA. C`est la somme totale des points militaires des attaquants compar\u00e9e \u00e0 celle des d\u00e9fenseurs qui est prise en compte.","off",2);
 //   mission=1 - Attaquez la flotte / la défense - setSelected(1);updateMission("Attaquer","Attaquez la flotte et la d\u00e9fense de votre adversaire.","off",1);
 //   mission=0 - Undefined
-
+//
+// sendShipsWithPopup(8,3,370,12,2,1);
+// sendShipsWithPopup(<mission>,<galaxie>,<systeme>,<position>,<? type>,<nb vaisseaux>);
+//
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3076,8 +3125,8 @@ if (gup('page') == "fleet1" && gup('auto') == 'yes') {
     if (gup('PT') !== "") nbPT = parseInt(gup('PT'));
     if (gup('GT') !== "") nbGT = parseInt(gup('GT'));
 
-    maxPT= get_info_button("button202")[0];
-    maxGT= get_info_button("button203")[0];
+    maxPT = get_info_button("button202")[0];
+    maxGT = get_info_button("button203")[0];
 
     maxNames = new Array('Chasseur léger','Chasseur lourd','Croiseur','Vaisseau de bataille','Traqueur','Bombardier','Destructeur','Étoile de la mort','Petit transporteur','Grand transporteur','Vaisseau de colonisation','Recycleur','Sonde d`espionnage');
     maxNames_button = new Array('204','205','206','207','215','211','213','214','202','203','208','209','210');
@@ -3087,28 +3136,25 @@ if (gup('page') == "fleet1" && gup('auto') == 'yes') {
     //Check if flotte_perso is ok
     fleets_perso="";
     if (gup('flotte_perso') !== '') {
-        
         nbf = gup('flotte_perso').split(':');
-        for (i=0, supPT = 0, supGT = 0; i<nbf.length ; i++) {
+        var supPT = 0;
+        var supGT = 0
+        for (i=0; i<nbf.length ; i++) {
             if (maxNames_button[i] === undefined) break;
             if (maxNames_button[i] == "202" || maxNames_button[i] == "203"){
-                if (maxNames_button[i] == "202") supPT = parseInt(nbf[i]);
-                if (maxNames_button[i] == "203") supGT = parseInt(nbf[i]);
+                if (maxNames_button[i] == "202" && nbf[i].length > 0) supPT = parseInt(nbf[i]);
+                if (maxNames_button[i] == "203" && nbf[i].length > 0) supGT = parseInt(nbf[i]);
             } else {
                 fleets_perso+= "&am"+maxNames_button[i]+"="+nbf[i];
             }
             if (parseInt(nbf[i]) > parseInt(get_info_button("button"+maxNames_button[i])[0]))    
                 perso_is_ok=false;
         }
-
-        supPT = parseInt(supPT);
-        supGT = parseInt(supGT);
         
         if (perso_is_ok) {
-            nbPT= supPT + nbPT;
-            nbGT= supGT + nbGT;
+            nbPT = supPT + nbPT;
+            nbGT = supGT + nbGT;
         }
-        supPT=null;supGT=null;
     }
 
     var tmp = document.getElementsByClassName('fleft')[0].firstElementChild.innerText.split(' : ')[1].split('/');
@@ -3943,7 +3989,7 @@ if (gup('sephiScript') == '1') {
     };
 
     //Start AA
-    if (gup('startAA') == '1') launch_spy('auto_attack');
+    if (gup('startAA') == '1') launch_spy('', 'auto_attack');
 }
 document.getElementById('menuTable').innerHTML = '<li style="height:0px;position: relative;top: -31px;"><span class="menu_icon"><div class="menuImage shipyard" style="background:url(http://www.sephiogame.com/script/sephi_script_logo.png);background-position-x:0px;'+bonus_style+'"></div></span><a class="menubutton '+bonus_class+'" href="https://'+univers+'/game/index.php?page=shipyard&sephiScript=1" target="_self"><span class="textlabel">SephiOGame</span></a></li>'+document.getElementById('menuTable').innerHTML;
 document.getElementById('links').style.overflow = "visible";
