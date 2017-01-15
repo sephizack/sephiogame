@@ -90,6 +90,7 @@ if (localStorage == null) {
 d = $('#ago_clock');
 if (d.length >= 1) d.css({ display: "none" });
 
+
 // Fonctions de base
 function time() {mytime=new Date();return mytime.getTime();}
 function checkmail(mailteste){var reg = new RegExp('^[a-z0-9]+([_|\.|-]{1}[a-z0-9]+)*@[a-z0-9]+([_|\.|-]{1}[a-z0-9]+)*[\.]{1}[a-z]{2,6}$', 'i');return(reg.test(mailteste));}
@@ -529,6 +530,7 @@ $('#helper').html('<div style="width:0px;height:0px;position:relative;top:10px;l
 $('#helper').append('<div style="width:0px;height:0px;position:relative;top:23px;left:952px;"><a href="https://'+univers+'/game/index.php?page=premium&amp;openDetail=12" style="top: 0px;left: 0px;background:none;"><img class="tooltipHTML" title="SephiOGame version '+cur_version+'|Liste de constructions sans limite, sauvegarde des frigos, alerte sonore et envoi de mails lors des missions hostiles, agrandissement des images dans flotte, messages, ect... Et d\'autres améliorations diverses<br><br><u>Nouveautés de la '+cur_version+'</u> :<br>'+LANG_nouveaute_update+'" src="http://www.sephiogame.com/script/icon_ahri2.jpg" style="border:1px solid #000000"/></a></div>');
 $('#officers').css({paddingRight: '40px'});
 $('#officers').addClass("one");
+
 if(gup('page') == 'premium') {
     document.getElementById('button12').innerHTML = '<div class="premium tooltip" title="Plus d\'infos sur : SephiOGame."><div class="buildingimg  allOfficers" style="background:url(http://www.sephiogame.com/script/icon_ahri_mid2.png) 0 0;" ><a tabindex="12" href="javascript:void(0);" title="" ref="12" class="detail_button tooltip js_hideTipOnMobile slideIn active"><span class="ecke"><span class="level"><img src="https://gf3.geo.gfsrv.net/cdn89/b1c7ef5b1164eba44e55b7f6d25d35.gif" width="12" height="11"></span></span></a></div></div>';
     function replace_pack(){
