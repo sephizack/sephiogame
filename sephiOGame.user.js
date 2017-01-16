@@ -925,7 +925,6 @@ function change_actions_tab(action_tab){
 }
 
 function change_message_actiontab() {
-    add_frigo_button();
     var subtabs_fleets=$('#ui-id-2 .tab_ctn .js_subtabs_fleets');
     var Overlay_Detail=$('.ui-dialog .overlayDiv');
 
@@ -958,10 +957,6 @@ function change_message_actiontab() {
 
 if (gup('page') == 'messages') {
     setInterval(change_message_actiontab,500);
-    var subtabs_fleets=$('#ui-id-2 .tab_ctn .js_subtabs_fleets');
-    subtabs_fleets.bind("DOMSubtreeModified",function(){
-        debugger;
-    });
 }
 
 function get_prevID_from_place(place) {
