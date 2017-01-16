@@ -891,23 +891,79 @@ function change_actions_tab(action_tab){
         var parent=$(this).parent();
         if (! parent.attr("href").match("auto=yes")) {
             //Get information about butin (sum of metal, cristal and deut) * type_multifactor (50%, 75%, 100%, ...)
-            anal_esp_data(parent.parent().parent().find("span.ctn4 .resspan"));
-            var butin = Math.floor(type_multip * (met + cri + deu));
-            url_parent=parent.attr("href");
-            url_pt=url_parent.replace("mission=1", "mission=1&auto=yes&ID=0&PT=" + (1 + Math.floor(butin / 5000)) + "&Referer=" + (encodeURIComponent($(location).attr('href').replace(/.*\?(.*)/g, "$1"))));
-            url_gt=url_parent.replace("mission=1", "mission=1&auto=yes&ID=0&GT=" + (1 + Math.floor(butin / 25000)) + "&Referer=" + (encodeURIComponent($(location).attr('href').replace(/.*\?(.*)/g, "$1"))));
-            title="</span>Butin&nbsp;:"+butin+"<br><a href='"+url_pt+"'>P.Transp&nbsp;:"+ (1 + Math.floor(butin / 5000))+"</a><br><a href='"+url_gt+"'>G.Transp&nbsp;:"+(1 + Math.floor(butin / 25000))+"</a>";
-            $(this).attr("title",title);
-            $(this).addClass("tooltipCustom tooltip-width:400");
+            if (parent.parent().parent().find("span.ctn4 .resspan").length >0) {
+                anal_esp_data(parent.parent().parent().find("span.ctn4 .resspan"));
+                var butin = Math.floor(type_multip * (met + cri + deu));
+                url_parent = parent.attr("href");
+                url_pt = url_parent.replace("mission=1", "mission=1&auto=yes&ID=0&PT=" + (1 + Math.floor(butin / 5000)) + "&Referer=" + (encodeURIComponent($(location).attr('href').replace(/.*\?(.*)/g, "$1"))));
+                url_gt = url_parent.replace("mission=1", "mission=1&auto=yes&ID=0&GT=" + (1 + Math.floor(butin / 25000)) + "&Referer=" + (encodeURIComponent($(location).attr('href').replace(/.*\?(.*)/g, "$1"))));
+                title = "</span>Butin&nbsp;:" + butin + "<br><a href='" + url_pt + "'>P.Transp&nbsp;:" + (1 + Math.floor(butin / 5000)) + "</a><br><a href='" + url_gt + "'>G.Transp&nbsp;:" + (1 + Math.floor(butin / 25000)) + "</a>";
+                $(this).attr("title", title);
+                $(this).addClass("tooltipCustom tooltip-width:400");
+                var url_parent = null;
+                var url_pt = null;
+                var url_gt = null;
+                var title=null;
+            }
         }
         var parent = null;
     });
 
+    if (action_tab.find("span#icon_frigo").length == 0 ) {
+        action_tab.parent().each(function (index) {
+            debugger;
+            // dans message espionnage
+            if ($(this).find('.msg_head .msg_title').html().match(/figure/))
+               [,planame,coord]=$(this).find('.msg_head .msg_title .txt_link').html().match(/<\/figure>(.*) (.*)$/);
+            // dans message Rapport de combat
+            if ($(this).find('.msg_head .msg_title').html().match(/undermark/))
+                [,planame,coord]=$(this).find('.msg_head .msg_title span.undermark').html().match(/Rapport de combat (.*) <a.*>(.*)<\/a>/);
+
+            if (planame && coord) {
+                [,galaxy,system,planet] = coord.match(/\[(.*):(.*):(.*)\]/);
+
+                // Recherche d'un frigo avec ces coordonnées
+                //Imp2Toulouse- Factorize with is_frigo fonction
+                infrig=is_frigo(importvars["frigos"],coord)>=0?'yes':'no';
+                ////
+                if (infrig == 'no') {
+                    var message_res_action='Bienvenue dans les frigos !';
+                    var info='Je ne suis pas encore un de vos frigos !';
+                    var text_action='Ajouter '+coord+' '+planame+' aux frigos de '+cur_planame;
+                    var img='http://www.sephiogame.com/images/frigoOff.png';
+                    var action='localStorage.setItem(\'all_add_racc\', \''+(index+1)+'\');this.onclick=null;$($(this).find(\'#res_action\')).html()=\''+message_res_action+'\';';
+                    var style='cursor:pointer;color:#A52592;padding:5px;text-decoration:none;padding-bottom:15px;';
+                    var style_rep='cursor: "default";color: "#10E010";';
+                } else {
+                    var message_res_action='Retiré des frigos !';
+                    var info='J\'ai l\'honneur d\'être un de vos frigos ! Je le retire?';
+                    var text_action='Retirer '+coord+' '+planame+' aux frigos de '+cur_planame;
+                    var img='http://www.sephiogame.com/images/frigoOn.png';
+                    var action='localStorage.setItem(\'all_del_racc\', \''+(coord)+'\');this.onclick=null;$($(this).find(\'#res_action\')).html()=\''+message_res_action+'\';';
+                    var style='cursor:pointer;color:#A52592;padding:5px;text-decoration:none;padding-bottom:15px;';
+                    var style_rep='cursor: "default";color: "#10E010";';
+                }
+
+                frigData = '<a id="name_sep'+(index+1)+'" href="javascript:void(0)" onclick="'+(action)+'" data-overlay-title="'+(text_action)+'" title="'+(text_action)+'">';
+                frigData +='<span id="icon_frigo"><img src="'+(img)+'" height="26px" width="26px" title="'+text_action+'"/>';
+                frigData +='<input type="hidden" id="raccourcis_name_sep'+(index+1)+'" value="'+planame+'">';
+                frigData +='<input type="hidden" id="galaxy'+(index+1)+'" value="'+(galaxy)+'">';
+                frigData +='<input type="hidden" id="system'+(index+1)+'" value="'+(system)+'">';
+                frigData +='<input type="hidden" id="position'+(index+1)+'" value="'+(planet)+'">';
+                frigData +='</span></a>';
+
+                //Add the object built
+                $($(this).find('.msg_action_link.overlay')).before(frigData);
+            }
+        });
+    }
 }
 
 function change_message_actiontab() {
     var subtabs_fleets=$('#ui-id-2 .tab_ctn .js_subtabs_fleets');
-    if (subtabs_fleets.length = 1) { // Message Fleet Tab
+    var Overlay_Detail=$('.ui-dialog .overlayDiv');
+
+    if (subtabs_fleets.length == 1) { // Message Fleet Tab
         if (subtabs_fleets.find('#ui-id-14 .tab_inner li.msg').length > 0) { // Tab subtabs-nfFleet20 - Espionnage
             change_actions_tab(subtabs_fleets.find('#ui-id-14 .tab_inner li.msg div.msg_actions'));
         }
@@ -927,12 +983,20 @@ function change_message_actiontab() {
             change_actions_tab(subtabs_fleets.find('#ui-id-24 .tab_inner li.msg div.msg_actions'));
         }
     }
+    if (Overlay_Detail.length == 1) { // Message detail overlay
+        debugger
+        change_actions_tab(Overlay_Detail.find('.detail_msg .detail_msg_head .msg_actions'));
+    }
 }
 
 
 if (gup('page') == 'messages') {
     //setInterval(add_frigo_button,500);
     setInterval(change_message_actiontab,500);
+    var subtabs_fleets=$('#ui-id-2 .tab_ctn .js_subtabs_fleets');
+    subtabs_fleets.bind("DOMSubtreeModified",function(){
+        debugger;
+    });
 }
 
 function get_prevID_from_place(place) {
