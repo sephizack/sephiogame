@@ -856,9 +856,8 @@ function change_actions_tab(action_tab){
         var parent=$(this).parent();
         if (! parent.attr("href").match("auto=yes")) {
             //Get information about butin (sum of metal, cristal and deut) * type_multifactor (50%, 75%, 100%, ...)
-<<<<<<< HEAD
             if (parent.parent().parent().find("span.ctn4 .resspan").length >0) {
-                anal_esp_data(parent.parent().parent().find("span.ctn4 .resspan"));
+            	process_espionage_data(parent.parent().parent().find("span.ctn4 .resspan"));
                 var butin = Math.floor(type_multip * (met + cri + deu));
                 url_parent = parent.attr("href");
                 url_pt = url_parent.replace("mission=1", "mission=1&auto=yes&ID=0&PT=" + (1 + Math.floor(butin / 5000)) + "&Referer=" + (encodeURIComponent($(location).attr('href').replace(/.*\?(.*)/g, "$1"))));
@@ -871,16 +870,6 @@ function change_actions_tab(action_tab){
                 var url_gt = null;
                 var title=null;
             }
-=======
-            process_espionage_data(parent.parent().parent().find("span.ctn4 .resspan"));
-            var butin = Math.floor(type_multip * (met + cri + deu));
-            url_parent=parent.attr("href");
-            url_pt=url_parent.replace("mission=1", "mission=1&auto=yes&ID=0&PT=" + (1 + Math.floor(butin / 5000)) + "&Referer=" + (encodeURIComponent($(location).attr('href').replace(/.*\?(.*)/g, "$1"))));
-            url_gt=url_parent.replace("mission=1", "mission=1&auto=yes&ID=0&GT=" + (1 + Math.floor(butin / 25000)) + "&Referer=" + (encodeURIComponent($(location).attr('href').replace(/.*\?(.*)/g, "$1"))));
-            title="</span>Butin&nbsp;:"+butin+"<br><a href='"+url_pt+"'>P.Transp&nbsp;:"+ (1 + Math.floor(butin / 5000))+"</a><br><a href='"+url_gt+"'>G.Transp&nbsp;:"+(1 + Math.floor(butin / 25000))+"</a>";
-            $(this).attr("title",title);
-            $(this).addClass("tooltipCustom tooltip-width:400");
->>>>>>> upstream/master
         }
         var parent = null;
     });
