@@ -684,7 +684,7 @@ setInterval(function() {
     if (document.getElementById("content") == null && cur_title !== '') cur_title = '';
 }, 100);
 function add_programnation_button() {
-    if (gup('page') !== 'premium' && document.getElementById("content") !== null && document.getElementById("content").innerHTML.split("<h2>").length > 1 ) {
+    if (gup('page') !== 'premium' && gup('page') !== 'messages' && document.getElementById("content") !== null && document.getElementById("content").innerHTML.split("<h2>").length > 1 ) {
         title=document.getElementById("content").innerHTML.split("<h2>")[1].split("</h2>")[0];
         if (title !== cur_title) {
             ress_metal = document.body.innerHTML.split('<span id="resources_metal" class="')[1].split('>')[1].split('</span>')[0].match(/\d/g).join("");
@@ -721,7 +721,6 @@ function add_programnation_button() {
             cur_content = cur_content.replace('build-it_disabled isWorking"','build-it_disabled"');
             cur_content = cur_content.replace('onclick="sendBuildRequest(null, null,','onclick="return;sendBuildRequest(null, null,');
             cur_content = cur_content.replace('class="build-it_disabled"','class="build-it" id="button_progSephi" style="background-image:url(http://www.sephiogame.com/script/d99a48dc0f072590fbf110ad2a3ef5.png);" onclick="this.style.backgroundImage=\'url(http://www.sephiogame.com/script/sfdgdfshsdhg.png)\';document.getElementById(\'havetoprev\').innerHTML = \'yes\';document.getElementById(\'prev_ok\').style.display=\'block\';document.getElementById(\'is_ok_prev\').innerHTML = \'no\';document.getElementById(\'button_progSephiText\').innerHTML=\''+LANG_added+'\';"');
-            
             inside = cur_content.split('<a class="build-it"')[1].split('<span')[1];
             inside = inside.split('</span>')[0];
 
