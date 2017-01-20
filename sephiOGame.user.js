@@ -758,73 +758,6 @@ function add_programnation_button() {
     setTimeout(add_programnation_button,600);
 }
 
-function add_frigo_button() {
-    $('#ui-id-14 .tab_inner .msg').each(function(index){
-        if (!$(this).attr('class').match("dejafais")) {
-            // Get coords of the planet
-            if ($(this).html().split('</figure>').length > 1) {
-                planame =  $(this).html().split('</figure>')[1].split('<a')[0].split(' [')[0].trim();
-                coord =  $(this).html().split('</figure>')[1].split('<a')[0].match(/\[[0-9:]+\]/)[0];
-                tmp = coord.replace('[','').replace(']','').split(':');
-                galaxy = tmp[0];
-                system = tmp[1];
-                planet = tmp[2];
-            }
-
-            var icon_attack_obj=$(this).find(".msg_actions .icon_attack_obj");
-            if ( icon_attack_obj.length > 0) {
-                // Get information about butin (sum of metal, cristal and deut) * type_multifactor (50%, 75%, 100%, ...)
-                process_espionage_data($(this).find("span.ctn4 .resspan"));
-                butin=Math.floor(type_multip*(met+cri+deu));
-                icon_attack_obj.parent().attr("href",icon_attack_obj.parent().attr("href").replace("mission=1","mission=1&auto=yes&ID=0&GT="+(2+Math.floor(butin/25000))+"&Referer="+(encodeURIComponent($(location).attr('href').replace(/.*\?(.*)/g,"$1")))));
-            }
-
-            // Recherche d'un frigo avec ces coordonnées
-            infrig = is_frigo(importvars["frigos"], coord)>=0?'yes':'no';
-            if (infrig == 'no') {
-                var message_res_action='Bienvenue dans les frigos !';
-                var text_action='Ajouter '+coord+' '+planame+' aux frigos de '+cur_planame;
-                var img='http://www.sephiogame.com/images/frigoOff.png';
-                var action='localStorage.setItem(\'all_add_racc\', \''+(index+1)+'\');this.onclick=null;$($(this).find(\'#res_action\')).html()=\''+message_res_action+'\';';
-            } else {
-                var message_res_action='Retiré des frigos !';
-                var text_action='Retirer '+coord+' '+planame+' aux frigos de '+cur_planame;
-                var img='http://www.sephiogame.com/images/frigoOn.png';
-                var action='localStorage.setItem(\'all_del_racc\', \''+(coord)+'\');this.onclick=null;$($(this).find(\'#res_action\')).html()=\''+message_res_action+'\';';
-            }
-            
-            frigData = '<a id="name_sep'+(index+1)+'" href="javascript:void(0)" onclick="'+(action)+'" data-overlay-title="'+(text_action)+'" title="'+(text_action)+'"><img src="'+(img)+'" height="26px" width="26px" title="'+text_action+'"/><span id="res_action"></span>';
-            frigData +='<input type="hidden" id="raccourcis_name_sep'+(index+1)+'" value="'+planame+'">';
-            frigData +='<input type="hidden" id="galaxy'+(index+1)+'" value="'+(galaxy)+'">';
-            frigData +='<input type="hidden" id="system'+(index+1)+'" value="'+(system)+'">';
-            frigData +='<input type="hidden" id="position'+(index+1)+'" value="'+(planet)+'">';
-            frigData +='</a>';
-            
-            //Add the object built
-            $($(this).find('.msg_actions .msg_action_link.overlay')).before(frigData);
-
-            //Set to already done
-            $(this).addClass("dejafais");
-        }
-    });
-    
-    //I2T: Add change in actions on details view
-    $('.detail_msg').each(function(index){
-        if (! $(this).attr('class').match("dejafais")) {
-            if ( $(this).find(".msg_actions .icon_attack").length > 0) {
-                //Get information about butin (sum of metal, cristal and deut) * type_multifactor (50%, 75%, 100%, ...)
-                process_espionage_data($(this).find("span.ctn4 .resspan"));
-                butin=Math.floor(type_multip*(met+cri+deu));
-                var obj=$(this).find(".msg_actions .icon_attack").parent();
-                obj.attr("href",obj.attr("href").replace("mission=1","mission=1&auto=yes&ID=0&GT="+(2+Math.floor(butin/25000))+"&Referer="+(encodeURIComponent($(location).attr('href').replace(/.*\?(.*)/g,"$1")))));
-                var obj = null;
-            }
-            //Set to already done
-            $(this).addClass("dejafais");
-        }
-    });
-}
-
 /***************************************
 ***** Change message actions tab
 ****************************************
@@ -876,17 +809,19 @@ function change_actions_tab(action_tab){
 
     if (action_tab.find("span#icon_frigo").length == 0 ) {
         action_tab.parent().each(function (index) {
-            debugger;
             // dans message espionnage
             if ($(this).find('.msg_head .msg_title').html().match(/figure/))
                [,planame,coord]=$(this).find('.msg_head .msg_title .txt_link').html().match(/<\/figure>(.*) (.*)$/);
             // dans message Rapport de combat
-            if ($(this).find('.msg_head .msg_title').html().match(/undermark/))
+            if ($(this).find('.msg_head .msg_title').html().match(/undermark/)) // Successfull fight
                 [,planame,coord]=$(this).find('.msg_head .msg_title span.undermark').html().match(/Rapport de combat (.*) <a.*>(.*)<\/a>/);
+            if ($(this).find('.msg_head .msg_title').html().match(/overmark/))  // Failled fight
+                [,planame,coord]=$(this).find('.msg_head .msg_title span.overmark').html().match(/Rapport de combat (.*) <a.*>(.*)<\/a>/);
 
             if (planame && coord) {
                 [,galaxy,system,planet] = coord.match(/\[(.*):(.*):(.*)\]/);
 
+                // Recherche d'un frigo avec ces coordonnées
                 // Recherche d'un frigo avec ces coordonnées
                 //Imp2Toulouse- Factorize with is_frigo fonction
                 infrig=is_frigo(importvars["frigos"],coord)>=0?'yes':'no';
@@ -949,7 +884,6 @@ function change_message_actiontab() {
         }
     }
     if (Overlay_Detail.length == 1) { // Message detail overlay
-        debugger
         change_actions_tab(Overlay_Detail.find('.detail_msg .detail_msg_head .msg_actions'));
     }
 }
@@ -1143,7 +1077,6 @@ function save_list_in_cookies() {
         }
         //Imp2Toulouse- Ajout de la suppression d'un frigo
         if (readCookie('del_racc','all') != null && readCookie('del_racc','all').match(':')) {
-            
             //all_del_racc contents coord
             var delid=is_frigo(importvars["frigos"],readCookie('del_racc','all'));
             createCookie('del_racc', 0, 1, 'all');
@@ -3758,7 +3691,7 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='  <table><tr>';
     sephi_frigos_data+='    <th><img src="http://www.sephiogame.com/script/eject_button.png" style="width:100px;height:auto;margin-left:30px;" /></th>';
     sephi_frigos_data+='    <th><p style="width:480px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">';
-    sephi_frigos_data+='           Le script vous permet de faire décoller tout vos vaisseaux civils et vos ressources en un instant, vous devez cependant lui spécifier les coordonnées vers lesquelles vous souhaitez décoller pour pouvoir utiliser cette fonction. (Une mission de transport sera lors lancée vers la planète en question)<br><br><i>Vous pouvez également demander au script de faire décoller automatiquement vos vaisseaux avec vos ressources 5 minutes avant de subir une attaque.</i><br><br><br/>';
+    sephi_frigos_data+='           Le script vous permet de faire décoller tout vos vaisseaux civils et vos ressources en un instant, vous devez cependant lui spécifier les coordonnées vers lesquelles vous souhaitez décoller pour pouvoir utiliser cette fonction. (Une mission de transport sera alors lancée vers la planète en question)<br><br><i>Vous pouvez également demander au script de faire décoller automatiquement vos vaisseaux avec vos ressources 5 minutes avant de subir une attaque.</i><br><br><br/>';
     sephi_frigos_data+='           <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Ejecter les vaisseaux civils de cette planète : <select id="auto_eject" style="visibility: visible;"><option value="never" '+(eject_auto == 'never' ? 'selected':'')+'>Jamais</option><option value="5mins" '+(eject_auto == '5mins' ? 'selected':'')+'>5 minutes avant l\'attaque ennemie</option><option value="10mins" '+(eject_auto == '10mins' ? 'selected':'')+'>10 minutes avant l\'attaque ennemie</option><option value="20mins" '+(eject_auto == '20mins' ? 'selected':'')+'>20 minutes avant l\'attaque ennemie</option></select></span><br/>';
     sephi_frigos_data+='           <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Ejecter également les vaisseaux de combat : <input '+(eject_all ? 'checked' : '')+' type="checkbox" id="eject_all" style="position:relative;top:2px;"/></span><br>';    
     sephi_frigos_data+='           <table style="width:507px;color:#6f9fc8;"><tr>';
@@ -4088,53 +4021,50 @@ function check_galaxy_frigs() {
     if (cur_gal_state != last_gal_state) {
         last_gal_state = cur_gal_state;
         if (cur_gal_state == "none")  {
-            gal_data = $('#galaxytable').html().split('<tr class="row');
-            GAL_check_cur_gal = parseInt(document.getElementById('galaxy_input').value);
-            GAL_check_cur_sys = parseInt(document.getElementById('system_input').value);
-            for (i=0;i<importvars["frigos"].length;i++) {
-                if (importvars["frigos"][i][1] == GAL_check_cur_gal && importvars["frigos"][i][2] == GAL_check_cur_sys) {
-                    GAL_check_plapla = parseInt(importvars["frigos"][i][3].match(/\d/g).join(""));
-                    gal_data[GAL_check_plapla] = gal_data[GAL_check_plapla].replace('<td class="planetname', '<td style="color:#A52592;font-weight:bold;" class="planetname');
-                    gal_data[GAL_check_plapla] = gal_data[GAL_check_plapla].replace('<span class="status">(', '<span class="status">(<span style="color:#A52592;font-weight:bold;" title="Ce joueur est un frigo">F</span> ');
-                }
-            }
-            $('#galaxytable').html(gal_data.join('<tr class="row'));
-            for (i=1;i<15;i++) {
-                //Imp2Toulouse- If not my current planet
-                if (planame_list.indexOf(gal_data[i].split(/planetname/)[1].split(/<\/td>/)[0].match(/\w/g).join('')) < 0) {
-                    if (!gal_data[i].match("frigo")) {
-                        b = document.getElementById('planet'+i);
-                        if (b !== null) {
-                            b.getElementsByClassName('ListLinks')[0].innerHTML += "<li><a href=\"javascript:void(0);\" onclick=\"localStorage.setItem('all_add_racc', '"+(i)+"');setTimeout(function() {$('#showbutton').click();},500);this.onclick=null;\" style=\"cursor:pointer;color:#A52592;font-weight:bold\">Ajouter aux frigos</a></li>";
-                            b.getElementsByClassName('ListLinks')[0].innerHTML += '<input type="hidden" id="raccourcis_name_sep'+(i)+'" value="'+b.getElementsByClassName('textNormal')[0].innerHTML+'">';
-                            b.getElementsByClassName('ListLinks')[0].innerHTML += '<input type="hidden" id="galaxy'+(i)+'" value="'+b.getElementsByClassName('ListImage')[0].innerHTML.split('[')[1].split(':')[0]+'">';
-                            b.getElementsByClassName('ListLinks')[0].innerHTML += '<input type="hidden" id="system'+(i)+'" value="'+b.getElementsByClassName('ListImage')[0].innerHTML.split('[')[1].split(':')[1]+'">';
-                            b.getElementsByClassName('ListLinks')[0].innerHTML += '<input type="hidden" id="position'+(i)+'" value="'+b.getElementsByClassName('ListImage')[0].innerHTML.split('[')[1].split(']')[0].split(':')[2]+'">';
+            GAL_check_cur_gal = parseInt($('#galaxy_input').val());
+            GAL_check_cur_sys = parseInt($('#system_input').val());
+            $("#mobileDiv .row").not(".empty_filter").each( function(index){
+                position=$(this).find("td.position").text();
+                if (planame_list.indexOf($(this).find("td.planetname").html().trim()) < 0) {
+                    if(is_frigo(importvars["frigos"],"["+GAL_check_cur_gal+":"+GAL_check_cur_sys+":"+position+"]") <0 ) {
+                        b = $(this).find(('div#planet')+position);
+                        if (b.length > 0) {
+                            ListLinks = '<li><a href="javascript:void(0);" onclick="localStorage.setItem(\'all_add_racc\', \''+position+'\');setTimeout(function() {$(\'#showbutton\').click();},500);this.onclick=null;" style="cursor:pointer;color:#A52592;font-weight:bold">Ajouter aux frigos</a>';
+                            ListLinks += '<input type="hidden" id="raccourcis_name_sep'+position+'" value="'+b.find('.textNormal').html()+'">';
+                            ListLinks += '<input type="hidden" id="galaxy'+position+'" value="'+b.find('.ListImage').html().match(/.*\[(.*):.*:.*\].*/)[1]+'">';
+                            ListLinks += '<input type="hidden" id="system'+position+'" value="'+b.find('.ListImage').html().match(/.*\[.*:(.*):.*\].*/)[1]+'">';
+                            ListLinks += '<input type="hidden" id="position'+position+'" value="'+b.find('.ListImage').html().match(/.*\[.*:.*:(.*)\].*/)[1]+'"></li>';
+                            b.find('ul.ListLinks').append(ListLinks);
                         }
                     } else {
-                        //Imp2Toulouse- Note, insérer la suppression d'un frigo
-                        b = document.getElementById('planet'+i);
-                        if (b !== null) {
-                            b.getElementsByClassName('ListLinks')[0].innerHTML += "<li><a href=\"javascript:void(0);\" onclick=\"localStorage.setItem('all_del_racc', '["+(b.getElementsByClassName('ListImage')[0].innerHTML.split('[')[1].split(']')[0])+"]');setTimeout(function() {$('#showbutton').click();},500);this.onclick=null;\" style=\"cursor:pointer;color:#A52592;font-weight:bold\">Supprimer des frigos</a></li>";
-                            b.getElementsByClassName('ListLinks')[0].innerHTML += '<input type="hidden" id="raccourcis_name_sep'+(i)+'" value="'+b.getElementsByClassName('textNormal')[0].innerHTML+'">';
-                            b.getElementsByClassName('ListLinks')[0].innerHTML += '<input type="hidden" id="galaxy'+(i)+'" value="'+b.getElementsByClassName('ListImage')[0].innerHTML.split('[')[1].split(':')[0]+'">';
-                            b.getElementsByClassName('ListLinks')[0].innerHTML += '<input type="hidden" id="system'+(i)+'" value="'+b.getElementsByClassName('ListImage')[0].innerHTML.split('[')[1].split(':')[1]+'">';
-                            b.getElementsByClassName('ListLinks')[0].innerHTML += '<input type="hidden" id="position'+(i)+'" value="'+b.getElementsByClassName('ListImage')[0].innerHTML.split('[')[1].split(']')[0].split(':')[2]+'">';
+                        if ($(this).find("td.playername .status").html().match(/\(/)){
+                            $(this).find("td.playername .status").html($(this).find("td.playername .status").html().replace("</span>)", "</span>&nbsp;<span class=\"status_abbr_frigo\"><span class=\"status_abbr_frigo tooltipHTML js_hideTipOnMobile\" style=\"color:#A52592;font-weight:bold;\" title=\"Cible frigo|Ce joueur est un frigo, qui sera régulièrement pillé.\">F</span></span>)"));
+                        } else {
+                            $(this).find("td.playername .status").html('(<span class="status_abbr_frigo"><span class="status_abbr_frigo tooltipHTML js_hideTipOnMobile" style="color:#A52592;font-weight:bold;" title="Cible frigo|Ce joueur est un frigo, qui sera régulièrement pillé.">F</span>)</span>');
+                        }
+                        $(this).find("td.planetname").css({'color':'#A52592','font-weight':'bold'});
+
+                        b = $(this).find(('div#planet')+position);
+                        if (b.length > 0) {
+                            ListLinks =  '<li><a href="javascript:void(0);" onclick="localStorage.setItem(\'all_del_racc\', \''+(b.find('ul.ListImage li span#pos-planet').html())+'\');setTimeout(function() {$(\'#showbutton\').click();},500);this.onclick=null;" style="cursor:pointer;color:#A52592;font-weight:bold">Supprimer des frigos</a>';
+                            ListLinks += '<input type="hidden" id="raccourcis_name_sep'+(position)+'" value="'+b.find('.textNormal').html()+'">';
+                            ListLinks += '<input type="hidden" id="galaxy'+(position)+'" value="'+b.find('ul.ListImage li span#pos-planet').html().match(/.*\[(.*):.*:.*\].*/)[1]+'">';
+                            ListLinks += '<input type="hidden" id="system'+(position)+'" value="'+b.find('ul.ListImage li span#pos-planet').html().match(/.*\[.*:(.*):.*\].*/)[1]+'">';
+                            ListLinks += '<input type="hidden" id="position'+(position)+'" value="'+b.find('ul.ListImage li span#pos-planet').html().match(/.*\[.*:.*:(.*)\].*/)[1]+'"></li>';
+                            b.find('ul.ListLinks').append(ListLinks);
                         }
                     }
                 }
-            }
-            for (i=1;i<15;i++) {
-                b = document.getElementById('debris'+i);
-                if (b !== null && b.innerHTML.match("Pour pouvoir utiliser les liens direct")) {
-                    recly_needed = parseInt(b.getElementsByClassName('debris-recyclers')[0].innerHTML.match(/\d/g).join(""));
-                    abalise = b.getElementsByTagName('a')[0];
-                    if(abalise.onclick !== null) {
-                        abalise.href = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+GAL_check_cur_gal+'&system='+GAL_check_cur_sys+'&position='+i+'&type=1&mission=8&setRecy='+recly_needed;
+/*               b = $(this).find(('div#debris')+position);
+                if (b.length > 0 && b.html().match("Champs de débris")) {
+                    recly_needed = parseInt(b.find('ul.ListLinks li.debris-recyclers').html().match(/.*: (.*)/)[1]);
+                    abalise = $('div#debris'+9).find('li a');
+                    if(abalise.attr('onclick') !== null) {
+                        abalise.attr(href,'https://'+univers+'/game/index.php?page=fleet1&galaxy='+GAL_check_cur_gal+'&system='+GAL_check_cur_sys+'&position='+i+'&type=1&mission=8&setRecy='+recly_needed);
                         abalise.onclick=null;
                     }
-                }
-            }
+                }*/
+            });
         }
     }
 }
