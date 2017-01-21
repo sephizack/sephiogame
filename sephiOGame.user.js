@@ -680,9 +680,8 @@ last_page_version=readCookie('last_page_ver','all');
 createCookie('last_page_ver',cur_version,1,'all');
 if (cur_version !== last_page_version) {blit_message('Le script est maintenant en <span style="float: none;margin: 0;color:#109E18">version '+cur_version+'</span>');createCookie('maj_advert', 0, 1, 'all');}
 
-setInterval(function() {
-    if (document.getElementById("content") == null && cur_title !== '') cur_title = '';
-}, 100);
+setInterval(function() { if (document.getElementById("content") == null && cur_title !== '') cur_title = '';}, 100);
+
 function add_programnation_button() {
     if (gup('page') !== 'premium' && $("#content").length >0 && $("#content").children()[0].tagName == 'H2') {
         title=$("#content").children()[0].innerText;
@@ -854,6 +853,7 @@ function change_actions_tab(action_tab){
 
                 //Add the object built
                 $($(this).find('.msg_action_link.overlay')).before(frigData);
+                var frigData = null; var message_res_action = null; var info = null; var text_action = null; var img = null; var action = null; var style = null; var style_rep = null;
             }
         });
     }
@@ -895,8 +895,9 @@ if (gup('page') == 'messages') {
 
 function get_prevID_from_place(place) {
     ID = -1;
+    debugger
     for (tmpi = 0; tmpi<importvars["listPrev"].length+nb_trucs_supprimed ; tmpi++) {
-        if (document.getElementById('prog_cur_place_'+tmpi) !== null && parseInt(document.getElementById('prog_cur_place_'+tmpi).innerHTML) == place) {
+        if ($('#prog_cur_place_'+tmpi).length >0 && parseInt($('#prog_cur_place_'+tmpi).html()) == place) {
             ID = tmpi;
             break;
         }
@@ -916,13 +917,13 @@ function apply_move_prev(fromID, fromPlace, toPlace) {
         if (fromPlace<toPlace) {
             prev_possitions[fromID] = (fromPlace+1+decal_special)*27;
             prev_possitions[toID] = (toPlace-1+decal_special)*27;
-            document.getElementById('prog_cur_place_'+fromID).innerHTML = fromPlace+1;
-            document.getElementById('prog_cur_place_'+toID).innerHTML = toPlace-1;
+            $('#prog_cur_place_'+fromID).html(fromPlace+1);
+            $('#prog_cur_place_'+toID).html(toPlace-1);
         } else {
             prev_possitions[fromID] = (fromPlace-1+decal_special)*27;
             prev_possitions[toID] = (toPlace+1+decal_special)*27;
-            document.getElementById('prog_cur_place_'+fromID).innerHTML = fromPlace-1;
-            document.getElementById('prog_cur_place_'+toID).innerHTML = toPlace+1;
+            $('#prog_cur_place_'+fromID).html(fromPlace-1);
+            $('#prog_cur_place_'+toID).html(toPlace+1);
         }
     } else {
         if (fromPlace<toPlace) {
