@@ -684,8 +684,8 @@ setInterval(function() {
     if (document.getElementById("content") == null && cur_title !== '') cur_title = '';
 }, 100);
 function add_programnation_button() {
-    if (gup('page') !== 'premium' && document.getElementById("content") !== null && document.getElementById("content").innerHTML.split("<h2>").length > 1 ) {
-        title=document.getElementById("content").innerHTML.split("<h2>")[1].split("</h2>")[0];
+    if (gup('page') !== 'premium' && document.getElementById("content") !== null && document.getElementById("content").children[0].tagName == 'H2') {
+        title=document.getElementById("content").children[0].innerText;
         if (title !== cur_title) {
             ress_metal = document.body.innerHTML.split('<span id="resources_metal" class="')[1].split('>')[1].split('</span>')[0].match(/\d/g).join("");
             ress_crystal = document.body.innerHTML.split('<span id="resources_crystal" class="')[1].split('>')[1].split('</span>')[0].match(/\d/g).join("");
