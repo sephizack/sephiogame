@@ -684,8 +684,8 @@ setInterval(function() {
     if (document.getElementById("content") == null && cur_title !== '') cur_title = '';
 }, 100);
 function add_programnation_button() {
-    if (gup('page') !== 'premium' && gup('page') !== 'messages' && $("#content").length >0 && $("#content").html().split("<h2>").length > 1 ) {
-        title=$("#content h2").html();
+    if (gup('page') !== 'premium' && $("#content").length >0 && $("#content").children()[0].tagName == 'H2') {
+        title=$("#content").children()[0].innerText;
         if (title !== cur_title) {
             ress_metal = $("span#resources_metal").html().replace(/\./g,"");
             ress_crystal = $("span#resources_crystal").html().replace(/\./g,"");
