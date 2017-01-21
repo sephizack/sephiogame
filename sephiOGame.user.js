@@ -697,6 +697,8 @@ function add_programnation_button() {
             cost_metal = get_cost(cur_content, "metal");
             cost_crystal = get_cost(cur_content, "crystal");
             cost_deuterium = get_cost(cur_content, "deuterium");
+
+            $("#content").html(cur_content); // Get rid of all OGagem listeners
             
             max_nb = Math.floor(parseInt(ress_metal)/parseInt(cost_metal));
             tmp = Math.floor(parseInt(ress_crystal)/parseInt(cost_crystal));
@@ -714,31 +716,48 @@ function add_programnation_button() {
                 form_number = $('#number').val();
             } else form_number="";
             
-            tmp = cur_content.replace('onclick="sendBuildRequest(null, null,','');
-            
-            cur_content = cur_content.replace('build-it_premium"','build-it_disabled"');
-            cur_content = cur_content.replace('build-it"','build-it_disabled"');
-            cur_content = cur_content.replace('build-it_disabled isWorking"','build-it_disabled"');
-            cur_content = cur_content.replace('onclick="sendBuildRequest(null, null,','onclick="return;sendBuildRequest(null, null,');
-            cur_content = cur_content.replace('class="build-it_disabled"','class="build-it" id="button_progSephi" style="background-image:url(http://www.sephiogame.com/script/d99a48dc0f072590fbf110ad2a3ef5.png);" onclick="this.style.backgroundImage=\'url(http://www.sephiogame.com/script/sfdgdfshsdhg.png)\';document.getElementById(\'havetoprev\').innerHTML = \'yes\';document.getElementById(\'prev_ok\').style.display=\'block\';document.getElementById(\'is_ok_prev\').innerHTML = \'no\';document.getElementById(\'button_progSephiText\').innerHTML=\''+LANG_added+'\';"');
-            inside = cur_content.split('<a class="build-it"')[1].split('<span')[1];
-            inside = inside.split('</span>')[0];
+            // Program button
+            var last_a = $("#content").find('a').last();
+            last_a.attr('class', 'build-it');
+            last_a.attr('href', '#');
+            last_a.css('background-image', 'url(http://www.sephiogame.com/script/d99a48dc0f072590fbf110ad2a3ef5.png)');
+            last_a.children()[0].innerHTML = LANG_programm;
+            last_a.click(function (e) {
+                e.currentTarget.style.backgroundImage='url(http://www.sephiogame.com/script/sfdgdfshsdhg.png)';
+                document.getElementById('havetoprev').innerHTML = 'yes';
+                document.getElementById('prev_ok').style.display='block';
+                document.getElementById('is_ok_prev').innerHTML = 'no';
+                $(e.currentTarget).children()[0].innerHTML = LANG_added;
+                e.stopPropagation();
+                e.preventDefault();
+                return false;
+            });
 
-            cur_content = cur_content.replace(inside,' id="button_progSephiText">'+LANG_programm);
+            // Data
+            var first_li = $("#content").find('ul.production_info').find('li').first();
+            first_li.append(  '<span id="prev_ok" style="display:none;">'
+                            +      '<b>Construction programmée</b><br/>'
+                            +      '<span style="font-size:9px;position:relative;top:-5px;">Ne quittez pas cette page.</span><br/>'
+                            + '</span>'
+                            + '<div style="display:none" id="havetoprev">no</div>'
+                            + '<div style="display:none" id="cur_met_prev">'+cost_metal+'</div>'
+                            + '<div style="display:none" id="cur_crys_prev">'+cost_crystal+'</div>'
+                            + '<div style="display:none" id="cur_deut_prev">'+cost_deuterium+'</div>'
+                            + '<div style="display:none" id="title_prev">'+title+'</div>'
+                            + '<div style="display:none" id="form_type_prev">'+form_type+'</div>'
+                            + '<div style="display:none" id="form_modus_prev">'+form_modus+'</div>'
+                            + '<div style="display:none" id="form_number_prev">'+form_number+'</div>'
+                            + '<div style="display:none" id="is_ok_prev">no</div>')
             
-            inside = cur_content.split('<ul class="production_info')[1].split('<li>')[1];
-            inside = inside.split('</li>')[0];
-            cur_content = cur_content.replace(inside,'<span id="prev_ok" style="display:none;"><b>Construction programmée</b><br/><span style="font-size:9px;position:relative;top:-5px;">Ne quittez pas cette page.</span><br/></span><div style="display:none" id="havetoprev">no</div><div style="display:none" id="cur_met_prev">'+cost_metal+'</div><div style="display:none" id="cur_crys_prev">'+cost_crystal+'</div><div style="display:none" id="cur_deut_prev">'+cost_deuterium+'</div><div style="display:none" id="title_prev">'+title+'</div><div style="display:none" id="form_type_prev">'+form_type+'</div><div style="display:none" id="form_modus_prev">'+form_modus+'</div><div style="display:none" id="form_number_prev">'+form_number+'</div><div style="display:none" id="is_ok_prev">no</div>'+inside);
+            // Max number
+            var p_amount = $("#content").find('p.amount')
+            if (p_amount.length > 0) p_amount.first().append(' <span style="color:#ffffff">'+max_text+'</span>')
             
-            if (cur_content.split('<p class="amount">').length>1){
-                inside = cur_content.split('<p class="amount">')[1].split('</p>')[0].replace(':','');
-                cur_content = cur_content.replace(inside, inside+' <span style="color:#ffffff">'+max_text+'</span>');
-            }
-                        
-            cur_content = cur_content.replace('<a id="close"','<a id="close" onClick="document.getElementById(\'detail\').style.display = \'none\';"');   
+            $("#content").find('a#close').click(function () {
+                document.getElementById('detail').style.display = 'none';
+            });
             
             $('div#detail').css({display: 'block'});
-            $("#content").html(cur_content);
             $("#planet [name='form']")[0].id = 'form_finished';
             $('#form_finished').onsubmit = function () {
                 dontAddToCookies = true;
@@ -754,7 +773,7 @@ function add_programnation_button() {
             }
         }
     }
-    setTimeout(add_programnation_button,600);
+    setTimeout(add_programnation_button, 500);
 }
 
 /***************************************
@@ -2520,7 +2539,7 @@ if ((gup('page') == "resources" && !cur_planetIsLune) || (gup('page') == "statio
 
 
 /* Affiche les constructions en attente */
-if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page') !== 'resourceSettings' && gup('page') !== 'galaxy' && gup('page') !== 'highscore' && gup('sephiScript') != '1' && gup('page') !== 'fleet1' && gup('page') !== 'fleet2' && gup('page') !== 'fleet3') {
+if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page')!=='buddies' && gup('page') !== 'resourceSettings' && gup('page') !== 'galaxy' && gup('page') !== 'highscore' && gup('sephiScript') != '1' && gup('page') !== 'fleet1' && gup('page') !== 'fleet2' && gup('page') !== 'fleet3') {
     ////////////////
     //Imp2Toulouse- FIRST IMPACT 6.0.5
     ////////////////
