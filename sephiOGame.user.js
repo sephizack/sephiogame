@@ -895,7 +895,6 @@ if (gup('page') == 'messages') {
 
 function get_prevID_from_place(place) {
     ID = -1;
-    debugger
     for (tmpi = 0; tmpi<importvars["listPrev"].length+nb_trucs_supprimed ; tmpi++) {
         if ($('#prog_cur_place_'+tmpi).length >0 && parseInt($('#prog_cur_place_'+tmpi).html()) == place) {
             ID = tmpi;
@@ -926,15 +925,14 @@ function apply_move_prev(fromID, fromPlace, toPlace) {
             $('#prog_cur_place_'+toID).html(toPlace+1);
         }
     } else {
-        if (fromPlace<toPlace) {
-            apply_move_prev(fromID,fromPlace, fromPlace+1);
-            toID = apply_move_prev(fromID, fromPlace+1, toPlace);
+        if (fromPlace < toPlace) {
+            apply_move_prev(fromID, fromPlace, fromPlace + 1);
+            toID = apply_move_prev(fromID, fromPlace + 1, toPlace);
         } else {
-            apply_move_prev(fromID, fromPlace, fromPlace-1);
-            toID = apply_move_prev(fromID, fromPlace-1, toPlace);
+            apply_move_prev(fromID, fromPlace, fromPlace - 1);
+            toID = apply_move_prev(fromID, fromPlace - 1, toPlace);
         }
     }
-    
     return toID;
 }
 createCookie("move_id", -1, 1, "all");
@@ -947,41 +945,42 @@ haveDel = false;
 //Imp2Toulouse- Wording: change 'have_to_cahnge' by 'have_to_change'
 have_to_change_dropid = true;
 function save_list_in_cookies() {
-    if (!dontAddToCookies && document.getElementById('is_ok_prev') !== null && document.getElementById('is_ok_prev').innerHTML == "no" && document.getElementById('havetoprev') !== null && document.getElementById('havetoprev').innerHTML == "yes") {
+    if (!dontAddToCookies && $('#is_ok_prev').length >0 && $('#is_ok_prev').html() == "no" && $('#havetoprev').length >0 && $('#havetoprev').html() == "yes") {
         
         good_id=importvars["listPrev"].length;
         
         form_number = '';
-        if (document.getElementById('number') !== null) {
-            form_number = document.getElementById('number').value;
+        if ($('#number').length >0) {
+            form_number = $('#number').val();
         }
         
         
         page = gup("page");
-        if (document.getElementById('title_prev').innerHTML.match('Satellite')) page = 'shipyard';
+        if ($('#title_prev').html().match('Satellite')) page = 'shipyard';
         
         importvars["listPrev"][good_id] = new Array();
         set_prev_data("havetoprev", good_id, "yes");
         set_prev_data("donned", good_id, "no");
-        set_prev_data("cur_met_prev", good_id, document.getElementById('cur_met_prev').innerHTML);
-        set_prev_data("cur_crys_prev", good_id, document.getElementById('cur_crys_prev').innerHTML);
-        set_prev_data("cur_deut_prev", good_id, document.getElementById('cur_deut_prev').innerHTML);
+        set_prev_data("cur_met_prev", good_id, $('#cur_met_prev').html());
+        set_prev_data("cur_crys_prev", good_id, $('#cur_crys_prev').html());
+        set_prev_data("cur_deut_prev", good_id, $('#cur_deut_prev').html());
         set_prev_data("page", good_id, page);
-        set_prev_data("form_modus", good_id, document.getElementById('form_modus_prev').innerHTML);
-        set_prev_data("form_type", good_id, document.getElementById('form_type_prev').innerHTML);
+        set_prev_data("form_modus", good_id, $('#form_modus_prev').html());
+        set_prev_data("form_type", good_id, $('#form_type_prev').html());
         set_prev_data("form_number", good_id, form_number);
         set_prev_data("form_initial_number", good_id, form_number);
-        set_prev_data("title", good_id, document.getElementById('title_prev').innerHTML);
+        set_prev_data("title", good_id, $('#title_prev').html());
         importvars["listPrev"][good_id]["original_id"] = good_id;
         prev_possitions[good_id] = (good_id+decal_special)*27;
-        document.getElementById('is_ok_prev').innerHTML = 'yes';
+        $('#is_ok_prev').html('yes');
         
         multip = '';factor=1;
         if (get_prev_data("form_number", good_id) !== null && get_prev_data("form_number", good_id) !== "") {multip = " (x"+get_prev_data("form_number", good_id)+")";factor=parseInt(get_prev_data("form_number", good_id));}
         
         count_progs++;
-        document.getElementById('info_prog').innerHTML += get_data_entry(good_id, ' ', titles_cat[categories.indexOf(gup('page'))], get_prev_data("title", good_id).replace(/_esp_/g, ' ')+multip, "#6f9fc8", parseInt(get_prev_data("cur_met_prev", good_id))*factor,parseInt(get_prev_data("cur_crys_prev", good_id))*factor,parseInt(get_prev_data("cur_deut_prev", good_id))*factor,ress_metal,ress_crystal,ress_deuterium,count_progs);
-        document.getElementById(id_prev).style.height = (document.getElementById("planet").offsetHeight+27) + "px";
+        debugger
+        $('#info_prog').html( $('#info_prog').html() + get_data_entry(good_id, ' ', titles_cat[categories.indexOf(gup('page'))], get_prev_data("title", good_id).replace(/_esp_/g, ' ')+multip, "#6f9fc8", parseInt(get_prev_data("cur_met_prev", good_id))*factor,parseInt(get_prev_data("cur_crys_prev", good_id))*factor,parseInt(get_prev_data("cur_deut_prev", good_id))*factor,ress_metal,ress_crystal,ress_deuterium,count_progs));
+        $('#'+id_prev).css('height', $("#planet").height()+27+ "px");
         
         save_important_vars();
         verif=setTimeout(gestion_cook,2000);
@@ -992,7 +991,7 @@ function save_list_in_cookies() {
         haveMoved = true;
         fromBlockID=parseInt(readCookie("move_id", 'all'));
 
-        fromPlace = parseInt(document.getElementById('prog_cur_place_'+fromBlockID).innerHTML);
+        fromPlace = parseInt($('#prog_cur_place_'+fromBlockID).html());
         toPlace = fromPlace;
         
         if (readCookie("move", 'all') == "up") {
@@ -1013,12 +1012,12 @@ function save_list_in_cookies() {
         save_important_vars();
         verif = setTimeout(gestion_cook, 2000);
     }
-    
+
     // Delete Prevs
     if (readCookie("delete_id", 'all') !== null && readCookie("delete_id", 'all') !== "-1") {
         haveDel = true;
         blockID = readCookie("delete_id", 'all');
-        delid = parseInt( document.getElementById('prog_cur_place_'+readCookie("delete_id", 'all')).innerHTML);
+        delid = parseInt( $('#prog_cur_place_'+readCookie("delete_id", 'all')).html());
         
         importvars["listPrev"].splice(delid, 1);
         nb_trucs_supprimed++;
@@ -1028,23 +1027,23 @@ function save_list_in_cookies() {
         // Animation
         $('#block_prog_'+blockID).fadeOut(500);
         setTimeout(function() {
-            document.getElementById('block_prog_'+blockID).style.display = 'none';
-            document.getElementById('block_prog_'+blockID).innerHTML = '';
+            $('#block_prog_'+blockID).css({display: 'none'});
+            $('#block_prog_'+blockID).html('');
         }, 500);
 
         for (u_u = delid ; u_u<importvars["listPrev"].length ; u_u++) {
             id = importvars["listPrev"][u_u]["original_id"];
             prev_possitions[id] = prev_possitions[id] - 27;
-            if (document.getElementById('prog_cur_place_'+id) !== null) {
-                document.getElementById('prog_cur_place_'+id).innerHTML = u_u;
-                $( '#block_prog_'+id ).animate({ top: prev_possitions[id] + "px" }, {duration: 200,queue: false} );
+            if ($('#prog_cur_place_'+id).length >0) {
+                $('#prog_cur_place_'+id).html(u_u);
+                $('#block_prog_'+id ).animate({ top: prev_possitions[id] + "px" }, {duration: 200,queue: false} );
             }
         }
         
         setTimeout(function() {
-            document.getElementById("support_prev_block").style.height = (parseInt(document.getElementById("support_prev_block").style.height.replace('px',''))-27) + "px";
-            document.getElementById(id_prev).style.height = (parseInt(document.getElementById(id_prev).style.height.replace('px',''))-27) + "px";
-            if (gup('page') == "overview") {document.getElementById("overviewBottom").style.marginTop = (parseInt(document.getElementById("overviewBottom").style.marginTop.replace('px',''))-27) + "px";}
+            $("#support_prev_block").height(parseInt($("#support_prev_block").height()-27) + "px");
+            $('#'+id_prev).height(parseInt($('#'+id_prev).height()-27) + "px");
+            if (gup('page') == "overview") {$("#overviewBottom").css({margin-top: ((parseInt($("#overviewBottom").css('margin-top').replace('px',''))-27) + "px")});}:
         }, 500);
         
         verif = setTimeout(gestion_cook, 2000);
@@ -1056,7 +1055,7 @@ function save_list_in_cookies() {
         if (readCookie('add_racc','all') != null && parseInt(readCookie('add_racc','all')) > 0) {
             messageID = parseInt(readCookie('add_racc','all'));
             createCookie('add_racc', 0, 1, 'all');
-            document.getElementById('raccourcis_name_sep'+messageID).focus();
+            $('#raccourcis_name_sep'+messageID).focus();
             //$('#raccourcis_name_sep'+messageID).focusin();
             
             cur_nb=importvars["frigos"].length;
