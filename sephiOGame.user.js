@@ -23,24 +23,24 @@
 // ==/UserScript==
 
 //History Version
-//3.6.0: Sephizack- Initial version [PROD]
-//3.6.1: Imp2Toulouse- Add capability to set the leave slot
-//       Imp2Toulouse- Bugs/malwritten correction
-//3.6.2: Imp2Toulouse- *Optimization code in check frigo
-//                     *Optimization code for the pack detection (factorize via a get_button_information function)
+//3.6.0: Sephizack-      Initial version [PROD]
+//3.6.1: Imp2Toulouse-   *Add capability to set the leave slot
+//       Imp2Toulouse-   *Bugs/malwritten correction
+//3.6.2: Imp2Toulouse-   *Optimization code in check frigo
+//                       *Optimization code for the pack detection (factorize via a get_button_information function)
 //                           [En cours] Dans le cas d'une lune avec le pack, sur la page d'installation j'ai 2 erreurs: 
 //                           - Uncaught TypeError: events[i].getElementsByClassName is not a function 
 //                           xhr.onreadystatechange @ VM219314:1462 
 //                           - Cannot read property 'join' of null(anonymous function) 
 //                           TypeError: Cannot read property 'join' of null @ VM219314:2288 
-//                     *Antigame compatibility: Detect evolution of ressources or station (moon or planet)
-//                     *Correction ejection by using existant functions and compatibility with antigame
-//                     *Add last_start in storage in case of first generated rapport using own message results
-//                     *Active "Boite de Réception" and "Corbeille" tabs
-//3.6.3: Imp2Toulouse- *Google API integration and restricted usage of send mail feature.
-//                     *Add email configuration in sephiOGame page
-//                     *Correction about detection of destFleet on ejection
-//                     *Add the direct retirement of a frigo in Galaxy and message menu
+//                       *Antigame compatibility: Detect evolution of ressources or station (moon or planet)
+//                       *Correction ejection by using existant functions and compatibility with antigame
+//                       *Add last_start in storage in case of first generated rapport using own message results
+//                       *Active "Boite de Réception" and "Corbeille" tabs
+//3.6.3: Imp2Toulouse-   *Google API integration and restricted usage of send mail feature.
+//                       *Add email configuration in sephiOGame page
+//                       *Correction about detection of destFleet on ejection
+//                       *Add the direct retirement of a frigo in Galaxy and message menu
 //3.6.3.1: Imp2Toulouse- *Compatibility correction
 //3.6.3.2: Imp2Toulouse- *Integration of Ogame version 6.0.5
 //                       *Review all frigo integration (from messages)
@@ -54,15 +54,16 @@
 //                       *Bug correction when a disconnection happens during a spy launch.
 //                       *NEW- Integration of a link to a fight report convertisseur on API button in messages' "Rapport de Combat" Tab
 //
-//3.6.4: Imp2Toulouse- *Official version integrating all beta changes
+//3.6.4: Imp2Toulouse-   *Official version integrating all beta changes
 //
-//3.6.4.1: Imp2Toulouse-  *Add functionnalities
-//                          *link with TopRaider on api button in combat and spy report
-//                          *launch specific raid directly by clicking in target button in spy report
-//3.6.4.2: Imp2Toulouse-  *Debug functionnalities / Optimizations
-//                          *Tools bar in messages has been debugged and improved
-//                          *Code optimizations
-//3.6.4.3:             * Fixes + prevent auto attack during period
+//3.6.4.1: Imp2Toulouse- *Add functionnalities
+//                         *link with TopRaider on api button in combat and spy report
+//                         *launch specific raid directly by clicking in target button in spy report
+//3.6.4.2: Imp2Toulouse- *Debug functionnalities / Optimizations
+//                         *Tools bar in messages has been debugged and improved
+//                         *Code optimizations
+//3.6.4.3:               * Fixes + prevent auto attack during period
+//         Imp2Toulouse- * Fixes / Optimizations
 
 
 antiBugTimeout = setTimeout(function() {location.href=location.href;}, 5*60*1000);
@@ -244,13 +245,13 @@ if ($("#loginForm").length == 1) {
     exit(0);
 }
 createCookie('lastLogTry', 0, 1, 'all');
-if (document.body.innerHTML.split('miniFleetToken="').length>1) miniFleetToken = document.body.innerHTML.split('miniFleetToken="')[1].split('"')[0];
+if ($(document.body).html().split('miniFleetToken="').length>1) miniFleetToken = $(document.body).html().split('miniFleetToken="')[1].split('"')[0];
 
 MAX_COMMANDS = 50
 cur_content = "";
 cur_title = "";
 
-if ($('.textBeefy').length > 0) username = $('.textBeefy')[1].innerHTML.replace(/ /g,'').replace("\n",'');
+if ($('span.textBeefy a.overlay.textBeefy').length > 0) username = $('span.textBeefy a.overlay.textBeefy').html().replace(/ /g,'').replace("\n",'');
 else username='unloged';
 
 /**
@@ -313,9 +314,8 @@ dont_boudge = false;
 want_a_RG=false;
 want_a_AA=false;
 cur_token = '';
-tmp=document.body.innerHTML.split('token" value="');
-if(tmp.length > 1){
-    cur_token = tmp[1].split('"')[0];
+if($(document.body).html().split('token" value="').length > 1){
+    cur_token = $(document.body).html().split('token" value="')[1].split('"')[0];
 }
 
 cur_planet='default';
@@ -568,8 +568,8 @@ if (data !== null && data.split(":").length > 2) {
     //Imp2Toulouse- Preset the type of mission if the moon is used
     eject_url = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+eject_gal+'&system='+eject_sys+'&position='+eject_pla
     eject_url+= '&type='+((eject_onLune)?3:1)+'&mission=3&cp='+(planet_list[planame_list.indexOf(cur_planame)])+'&eject=yes';
-    
-    document.getElementById('helper').innerHTML+='<div style="width:0px;height:0px;position:relative;top:-79px;left:566px;"><a style="background:none;text-decoration:none;font-size:9px;font-family:inherit;width:55px;text-align:center;" title="Faire décoller tout les vaisseaux civils et les ressources vers les coordonnées ci-dessous." href="'+eject_url+'"><img id="eject_button" src="http://www.sephiogame.com/images/eject_button_grey.png" /><br><span style="color:#C02020">['+eject_gal+':'+eject_sys+':'+eject_pla+']</span></a></div>';
+
+    $('#helper').append('<div style="width:0px;height:0px;position:relative;top:-79px;left:566px;"><a style="background:none;text-decoration:none;font-size:9px;font-family:inherit;width:55px;text-align:center;" title="Faire décoller tout les vaisseaux civils et les ressources vers les coordonnées ci-dessous." href="'+eject_url+'"><img id="eject_button" src="http://www.sephiogame.com/images/eject_button_grey.png" /><br><span style="color:#C02020">['+eject_gal+':'+eject_sys+':'+eject_pla+']</span></a></div>');
     importvars["eject"] = data;
     save_important_vars();
     
@@ -607,7 +607,7 @@ text_racc = importvars["frigos"].length+1;
 if (importvars["frigos"].length+1<10) text_racc = '0'+(importvars["frigos"].length+1);
 
 function bruit_alert(url) {
-    document.getElementById('div_for_sound').innerHTML = '<audio controls autoplay="true"><source src="'+url+'" type="audio/mpeg" volume="0.5"></audio>';
+    $('#div_for_sound').html('<audio controls autoplay="true"><source src="'+url+'" type="audio/mpeg" volume="0.5"></audio>');
 }
 
 
@@ -661,7 +661,7 @@ function get_data_entry(i, textSupp, textSupp2, infotitle, color,cost_met,cost_c
     //data += "\n"+'<div style="height:0px;position:relative;left:575px;top:-20px;"><img style="cursor:pointer;width:10px;height:auto;" src="http://www.sephiogame.com/script/down.png" title="Faire descendre" onclick="localStorage.setItem(\'all_move_id\', \''+i+'\');localStorage.setItem(\'all_move\', \'down\');"/></div>';
     data += "\n"+'<div id="dragdrop_prev_'+i+'" style="height:0px;position:relative;left:585px;top:-21px;"><img style="cursor:move;width:18px;height:auto;-moz-user-select: none;" draggable="false"  src="http://www.sephiogame.com/script/dragdrop.png" title="Déplacer"/></div>';
     data+= '</div>'
-        return data;
+    return data;
 }
 
 function get_cost(data, type) {
@@ -684,16 +684,16 @@ setInterval(function() {
     if (document.getElementById("content") == null && cur_title !== '') cur_title = '';
 }, 100);
 function add_programnation_button() {
-    if (gup('page') !== 'premium' && document.getElementById("content") !== null && document.getElementById("content").children[0].tagName == 'H2') {
-        title=document.getElementById("content").children[0].innerText;
+    if (gup('page') !== 'premium' && $("#content").length >0 && $("#content").children()[0].tagName == 'H2') {
+        title=$("#content").children()[0].innerText;
         if (title !== cur_title) {
-            ress_metal = document.body.innerHTML.split('<span id="resources_metal" class="')[1].split('>')[1].split('</span>')[0].match(/\d/g).join("");
-            ress_crystal = document.body.innerHTML.split('<span id="resources_crystal" class="')[1].split('>')[1].split('</span>')[0].match(/\d/g).join("");
-            ress_deuterium = document.body.innerHTML.split('<span id="resources_deuterium" class="')[1].split('>')[1].split('</span>')[0].match(/\d/g).join("");
+            ress_metal = $("span#resources_metal").html().replace(/\./g,"");
+            ress_crystal = $("span#resources_crystal").html().replace(/\./g,"");
+            ress_deuterium = $("span#resources_deuterium").html().replace(/\./g,"");
             
             cur_title = title;
             title=title.replace(/ /g,'_esp_');
-            cur_content = document.getElementById("content").innerHTML;
+            cur_content = $("#content").html();
 
             cost_metal = get_cost(cur_content, "metal");
             cost_crystal = get_cost(cur_content, "crystal");
@@ -707,11 +707,12 @@ function add_programnation_button() {
             max_text = '';
             if (max_nb > 0) max_text = '[max. '+max_nb+']';
             
-            det = document.getElementById("detail").innerHTML;
-            form_modus = det.split('name="modus" value="')[1].split('"')[0];
-            form_type = det.split('name="type" value="')[1].split('"')[0];
-            if (document.getElementById('number') !== null) {
-                form_number = document.getElementById('number').value;
+            det = $("div#detail").html();
+            form_modus = $('div#detail input[name="modus"]').val();
+            form_type = $('div#detail input[name="type"]').val();
+
+            if ($('#number').length > 0) {
+                form_number = $('#number').val();
             } else form_number="";
             
             tmp = cur_content.replace('onclick="sendBuildRequest(null, null,','');
@@ -721,7 +722,6 @@ function add_programnation_button() {
             cur_content = cur_content.replace('build-it_disabled isWorking"','build-it_disabled"');
             cur_content = cur_content.replace('onclick="sendBuildRequest(null, null,','onclick="return;sendBuildRequest(null, null,');
             cur_content = cur_content.replace('class="build-it_disabled"','class="build-it" id="button_progSephi" style="background-image:url(http://www.sephiogame.com/script/d99a48dc0f072590fbf110ad2a3ef5.png);" onclick="this.style.backgroundImage=\'url(http://www.sephiogame.com/script/sfdgdfshsdhg.png)\';document.getElementById(\'havetoprev\').innerHTML = \'yes\';document.getElementById(\'prev_ok\').style.display=\'block\';document.getElementById(\'is_ok_prev\').innerHTML = \'no\';document.getElementById(\'button_progSephiText\').innerHTML=\''+LANG_added+'\';"');
-            
             inside = cur_content.split('<a class="build-it"')[1].split('<span')[1];
             inside = inside.split('</span>')[0];
 
@@ -738,20 +738,20 @@ function add_programnation_button() {
                         
             cur_content = cur_content.replace('<a id="close"','<a id="close" onClick="document.getElementById(\'detail\').style.display = \'none\';"');   
             
-            document.getElementById('detail').style.display = 'block';
-            document.getElementById("content").innerHTML = cur_content;
-            document.getElementById("planet").getElementsByTagName("form")[0].id = 'form_finished';
-            document.getElementById('form_finished').onsubmit = function () {
+            $('div#detail').css({display: 'block'});
+            $("#content").html(cur_content);
+            $("#planet [name='form']")[0].id = 'form_finished';
+            $('#form_finished').onsubmit = function () {
                 dontAddToCookies = true;
                 return true;
             };
-            document.getElementById('form_finished').onkeyup = null;
-            if (document.getElementById('number') !== null) {
-                document.getElementById('number').onkeyup = null;
-                document.getElementById('number').onkeydown = null;
-                document.getElementById('number').onkeypress = null;
+            $('#form_finished').onkeyup = null;
+            if ($('#number').length > 0) {
+                $('#number').onkeyup = null;
+                $('#number').onkeydown = null;
+                $('#number').onkeypress = null;
                 //Imp2Toulouse- Force the focus on number input to improve ergonomy
-                document.getElementById('number').focus();
+                $('#number').focus();
             }
         }
     }
