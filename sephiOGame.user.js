@@ -540,8 +540,8 @@ if(gup('page') == 'premium') {
             $('#detail').html(con.replace('<div class="officers200  allOfficers ">','<div class="officers200  allOfficers "><img src="http://www.sephiogame.com/script/icon_ahri_high3.jpg" width="198" height="198" style="border:2px solid #000000;">'));
             $('#features').html('Ce script fournis par Sephizack vous permettra de préparer des listes de constructions bien plus longues e intelligentes que celles du compte Commandant, même si vous n\'avez pas les ressources, la liste reste !<br>Et surtout, vous pourrez créer une liste de vos frigos favoris sur chacune de vos planètes qui seront espionnées et attaqués automatiquement en fonction des ressources qu\'ils ont.<br><br>Enfin, le script vous offre un système d\'alerte et d\'ejection des vaisseaux lors d\'attaques ennemies, une alarme retentira pour vous reveiller dans la nuit !');
             $('#detail').html($('#detail').html().replace('Commandement','SephiOGame version '+cur_version));
-            $('.benefitlist')[0].html('<span>Liste de constructions améliorée</span><span>Auto-Attaque intelligente</span><span>Ejection en cas d\'attaque</span><span>Alertes par mail</span>');
-            $('.level')[0].html('<span class="undermark">Actif à vie</span>');
+            $(".benefitlist")[0].html('<span>Liste de constructions améliorée</span><span>Auto-Attaque intelligente</span><span>Ejection en cas d\'attaque</span><span>Alertes par mail</span>');
+            $(".level")[0].html('<span class="undermark">Actif à vie</span>');
         } else setTimeout(replace_pack,100);
     }
     replace_pack();
@@ -978,9 +978,8 @@ function save_list_in_cookies() {
         if (get_prev_data("form_number", good_id) !== null && get_prev_data("form_number", good_id) !== "") {multip = " (x"+get_prev_data("form_number", good_id)+")";factor=parseInt(get_prev_data("form_number", good_id));}
         
         count_progs++;
-        debugger
         $('#info_prog').html( $('#info_prog').html() + get_data_entry(good_id, ' ', titles_cat[categories.indexOf(gup('page'))], get_prev_data("title", good_id).replace(/_esp_/g, ' ')+multip, "#6f9fc8", parseInt(get_prev_data("cur_met_prev", good_id))*factor,parseInt(get_prev_data("cur_crys_prev", good_id))*factor,parseInt(get_prev_data("cur_deut_prev", good_id))*factor,ress_metal,ress_crystal,ress_deuterium,count_progs));
-        $('#'+id_prev).css('height', $("#planet").height()+27+ "px");
+        $('#'+id_prev).height($("#planet").height()+27+ "px");
         
         save_important_vars();
         verif=setTimeout(gestion_cook,2000);
@@ -1043,7 +1042,7 @@ function save_list_in_cookies() {
         setTimeout(function() {
             $("#support_prev_block").height(parseInt($("#support_prev_block").height()-27) + "px");
             $('#'+id_prev).height(parseInt($('#'+id_prev).height()-27) + "px");
-            if (gup('page') == "overview") {$("#overviewBottom").css({margin-top: ((parseInt($("#overviewBottom").css('margin-top').replace('px',''))-27) + "px")});}:
+            if (gup('page') == "overview") {$("#overviewBottom").css({'margin-top': ((parseInt($("#overviewBottom").css('margin-top').replace('px',''))-27) + "px")});};
         }, 500);
         
         verif = setTimeout(gestion_cook, 2000);
