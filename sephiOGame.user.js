@@ -2521,7 +2521,7 @@ if ((gup('page') == "resources" && !cur_planetIsLune) || (gup('page') == "statio
 
 
 /* Affiche les constructions en attente */
-if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page') !== 'resourceSettings' && gup('page') !== 'galaxy' && gup('page') !== 'highscore' && gup('sephiScript') != '1' && gup('page') !== 'fleet1' && gup('page') !== 'fleet2' && gup('page') !== 'fleet3') {
+if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page')!=='buddies' && gup('page') !== 'resourceSettings' && gup('page') !== 'galaxy' && gup('page') !== 'highscore' && gup('sephiScript') != '1' && gup('page') !== 'fleet1' && gup('page') !== 'fleet2' && gup('page') !== 'fleet3') {
     ////////////////
     //Imp2Toulouse- FIRST IMPACT 6.0.5
     ////////////////
