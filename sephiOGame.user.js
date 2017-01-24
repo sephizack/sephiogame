@@ -693,8 +693,6 @@ function add_programnation_button() {
             cost_metal = get_cost(cur_content, "metal");
             cost_crystal = get_cost(cur_content, "crystal");
             cost_deuterium = get_cost(cur_content, "deuterium");
-
-            $("#content").html(cur_content); // Get rid of all OGagem listeners
             
             max_nb = Math.floor(parseInt(ress_metal)/parseInt(cost_metal));
             tmp = Math.floor(parseInt(ress_crystal)/parseInt(cost_crystal));
@@ -713,21 +711,26 @@ function add_programnation_button() {
             } else form_number="";
             
             // Program button
-            var last_a = $("#content").find('a').last();
-            last_a.attr('class', 'build-it');
-            last_a.attr('href', '#');
-            last_a.css('background-image', 'url(http://www.sephiogame.com/script/d99a48dc0f072590fbf110ad2a3ef5.png)');
-            last_a.children()[0].innerHTML = LANG_programm;
-            last_a.click(function (e) {
-                $(e.currentTarget).css({'backgroundImage': 'url(http://www.sephiogame.com/script/sfdgdfshsdhg.png)'});
+            var ori_build_button = $("#content").find('a').last();
+            ori_build_button.css('position', 'relative');
+            ori_build_button.css('top', '-16px')
+            var build_button = ori_build_button.clone();
+            build_button.attr('class', 'build-it');
+            build_button.attr('href', '#');
+            build_button.css('background-image', 'url(http://www.sephiogame.com/script/d99a48dc0f072590fbf110ad2a3ef5.png)');
+            build_button.children()[0].innerHTML = LANG_programm;
+            build_button.click(function (e) {
+                e.currentTarget.css('backgroundImage', 'url(http://www.sephiogame.com/script/sfdgdfshsdhg.png)');
                 $('#havetoprev').html('yes');
-                $('#prev_ok').css({display: 'block'});
+                $('#prev_ok').css('display', 'block');
                 $('#is_ok_prev').html('no');
+
                 $(e.currentTarget).children()[0].innerHTML = LANG_added;
                 e.stopPropagation();
                 e.preventDefault();
                 return false;
             });
+            ori_build_button.parent().prepend(build_button);
 
             // Data
             var first_li = $("#content").find('ul.production_info').find('li').first();
@@ -1508,7 +1511,8 @@ function get_start_after_less(info){ return ((info == "never")?0:parseInt(info.m
 
 //start_after_less = 5*60;
 start_after_less = get_start_after_less(eject_auto);
-retour_time = start_after_less*1000 / 2;
+if (start_after_less == 0) retour_time = 5*60*1000; // When no auto eject, set back after 5min
+else retour_time = start_after_less*1000 / 2;
 function check_attack() {
     if (have_played_alert == false && document.body.innerHTML.match('<div id="attack_alert" class="tooltip eventToggle')){
         have_played_alert = true;
@@ -3015,7 +3019,8 @@ function SendFleet(response){
 function SendFleetSuccess(params){
     console.log("Attack success (params=" +JSON.stringify(params)+ ").");
     if (params.sephi_opt.match('eject=yes')) {
-        createCookie('retour_auto', 'oui', 1, 'eject'); createCookie('ejection_time', time(), 1, 'eject');
+        createCookie('retour_auto', 'oui', 1, 'eject');
+        createCookie('ejection_time', time(), 1, 'eject');
         document.getElementById('eject_button').src=document.getElementById('eject_button').src.replace("grey","green");
         blit_message("<b>Ejection</b> correctement effectuée depuis "+cur_planame+".");
         setTimeout(function(){window.location.href = "https://"+univers+"/game/index.php?page=overview&cp="+(readCookie('eject_selectPlanet', 'all'));}, 4000);
