@@ -720,11 +720,10 @@ function add_programnation_button() {
             build_button.css('background-image', 'url(http://www.sephiogame.com/script/d99a48dc0f072590fbf110ad2a3ef5.png)');
             build_button.children()[0].innerHTML = LANG_programm;
             build_button.click(function (e) {
-                e.currentTarget.css('backgroundImage', 'url(http://www.sephiogame.com/script/sfdgdfshsdhg.png)');
+                $(e.currentTarget).css('backgroundImage', 'url(http://www.sephiogame.com/script/sfdgdfshsdhg.png)');
                 $('#havetoprev').html('yes');
                 $('#prev_ok').css('display', 'block');
                 $('#is_ok_prev').html('no');
-
                 $(e.currentTarget).children()[0].innerHTML = LANG_added;
                 e.stopPropagation();
                 e.preventDefault();
