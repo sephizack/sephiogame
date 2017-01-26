@@ -139,7 +139,7 @@ function blit_message(message) {
 }
 
 function blit_message_time(message, time) {
-    fadeBoxObj = document.getElementById('fadeBox');
+    //fadeBoxObj = document.getElementById('fadeBox');
     
     $("#fadeBox").fadeTo(0,0);
     $('#fadeBox').css({display: 'block'});
@@ -317,7 +317,7 @@ if($(document.body).html().split('token" value="').length > 1){
 }
 
 cur_planet='default';
-data_planets = document.body.innerHTML.split("id=\"planet-").slice(1);
+data_planets = $(document.body).html().split("id=\"planet-").slice(1);
 planet_list_coords = new Array();
 planame_list = new Array();
 planet_list = new Array();
@@ -463,7 +463,7 @@ function save_important_vars_in_cloud() {
 }
 
 function load_important_vars_in_cloud() {
-    var files = document.getElementById('fileupload').files;
+    var files = $('#fileupload').files;
     if (!files.length || !files[0].name.match('.sephiOGame')) {
         alert('Merci de selectionner un fichier *.sephiOGame');
       return;
@@ -479,7 +479,7 @@ function load_important_vars_in_cloud() {
       if (evt.target.readyState == FileReader.DONE) {
           save_important_vars(evt.target.result);
           blit_message('Vos données de cette planète <span style="float: none;margin: 0;color:#109E18">ont bien été chargées</span>. Patientez...');
-          document.getElementById('load_button').onclick = function(){}
+          $('#load_button').on("click", function(){});
           setTimeout(function(){
               window.location.href = window.location.href;
           },2000);
@@ -526,20 +526,20 @@ importvars["frigos"] = importvars["frigos"].sort(function(a,b) { return parseFlo
 
 // Afficher la version du script
 $('#helper').html('<div style="width:0px;height:0px;position:relative;top:10px;left:655px;"><p style="width:400px;height:15px;color:#808080;text-align: right;font-size:10px;position: relative;left: -70px;top:-5px">SephiOGame Version '+cur_version+'</p></div>');
-$('#helper').append('<div style="width:0px;height:0px;position:relative;top:23px;left:952px;"><a href="https://'+univers+'/game/index.php?page=premium&amp;openDetail=12" style="top: 0px;left: 0px;background:none;"><img class="tooltipHTML" title="SephiOGame version '+cur_version+'|Liste de constructions sans limite, sauvegarde des frigos, alerte sonore et envoi de mails lors des missions hostiles, agrandissement des images dans flotte, messages, ect... Et d\'autres améliorations diverses<br><br><u>Nouveautés de la '+cur_version+'</u> :<br>'+LANG_nouveaute_update+'" src="http://www.sephiogame.com/script/icon_ahri2.jpg" style="border:1px solid #000000"/></a></div>');
+$('#helper').append('<div style="width:0px;height:0px;position:relative;top:23px;left:950px;"><a href="https://'+univers+'/game/index.php?page=premium&amp;openDetail=12" style="top: 0px;left: 0px;background:none;"><img class="tooltipHTML" title="SephiOGame version '+cur_version+'|Liste de constructions sans limite, sauvegarde des frigos, alerte sonore et envoi de mails lors des missions hostiles, agrandissement des images dans flotte, messages, ect... Et d\'autres améliorations diverses<br><br><u>Nouveautés de la '+cur_version+'</u> :<br>'+LANG_nouveaute_update+'" src="http://www.sephiogame.com/script/icon_ahri2.jpg" style="border:1px solid #000000"/></a></div>');
 $('#officers').css({paddingRight: '40px'});
 $('#officers').addClass("one");
 
 if(gup('page') == 'premium') {
-    document.getElementById('button12').innerHTML = '<div class="premium tooltip" title="Plus d\'infos sur : SephiOGame."><div class="buildingimg  allOfficers" style="background:url(http://www.sephiogame.com/script/icon_ahri_mid2.png) 0 0;" ><a tabindex="12" href="javascript:void(0);" title="" ref="12" class="detail_button tooltip js_hideTipOnMobile slideIn active"><span class="ecke"><span class="level"><img src="https://gf3.geo.gfsrv.net/cdn89/b1c7ef5b1164eba44e55b7f6d25d35.gif" width="12" height="11"></span></span></a></div></div>';
+    $('#button12').html('<div class="premium tooltip" title="Plus d\'infos sur : SephiOGame."><div class="buildingimg  allOfficers" style="background:url(http://www.sephiogame.com/script/icon_ahri_mid2.png) 0 0;" ><a tabindex="12" href="javascript:void(0);" title="" ref="12" class="detail_button tooltip js_hideTipOnMobile slideIn active"><span class="ecke"><span class="level"><img src="https://gf3.geo.gfsrv.net/cdn89/b1c7ef5b1164eba44e55b7f6d25d35.gif" width="12" height="11"></span></span></a></div></div>');
     function replace_pack(){
         con=$('#detail').html();
         if (con.replace('allOfficers','') !== con){
             $('#detail').html(con.replace('<div class="officers200  allOfficers ">','<div class="officers200  allOfficers "><img src="http://www.sephiogame.com/script/icon_ahri_high3.jpg" width="198" height="198" style="border:2px solid #000000;">'));
             $('#features').html('Ce script fournis par Sephizack vous permettra de préparer des listes de constructions bien plus longues e intelligentes que celles du compte Commandant, même si vous n\'avez pas les ressources, la liste reste !<br>Et surtout, vous pourrez créer une liste de vos frigos favoris sur chacune de vos planètes qui seront espionnées et attaqués automatiquement en fonction des ressources qu\'ils ont.<br><br>Enfin, le script vous offre un système d\'alerte et d\'ejection des vaisseaux lors d\'attaques ennemies, une alarme retentira pour vous reveiller dans la nuit !');
             $('#detail').html($('#detail').html().replace('Commandement','SephiOGame version '+cur_version));
-            $(".benefitlist")[0].html('<span>Liste de constructions améliorée</span><span>Auto-Attaque intelligente</span><span>Ejection en cas d\'attaque</span><span>Alertes par mail</span>');
-            $(".level")[0].html('<span class="undermark">Actif à vie</span>');
+            $(".benefitlist").html('<span>Liste de constructions améliorée</span><span>Auto-Attaque intelligente</span><span>Ejection en cas d\'attaque</span><span>Alertes par mail</span>');
+            $(".level").html('<span class="undermark">Actif à vie</span>');
         } else setTimeout(replace_pack,100);
     }
     replace_pack();
@@ -676,7 +676,7 @@ last_page_version=readCookie('last_page_ver','all');
 createCookie('last_page_ver',cur_version,1,'all');
 if (cur_version !== last_page_version) {blit_message('Le script est maintenant en <span style="float: none;margin: 0;color:#109E18">version '+cur_version+'</span>');createCookie('maj_advert', 0, 1, 'all');}
 
-setInterval(function() { if (document.getElementById("content") == null && cur_title !== '') cur_title = '';}, 100);
+setInterval(function(){ if ($("#content") > 0 && cur_title !== '') cur_title = '';}, 100);
 
 function add_programnation_button() {
     if (gup('page') !== 'premium' && $("#content").length >0 && $("#content").children()[0].tagName == 'H2') {
@@ -706,10 +706,8 @@ function add_programnation_button() {
             form_modus = $('div#detail input[name="modus"]').val();
             form_type = $('div#detail input[name="type"]').val();
 
-            if ($('#number').length > 0) {
-                form_number = $('#number').val();
-            } else form_number="";
-            
+            form_number = ($('#number').length > 0)?$('#number').val():"";
+
             // Program button
             var ori_build_button = $("#content").find('a').last();
             ori_build_button.css('position', 'relative');
@@ -751,8 +749,8 @@ function add_programnation_button() {
             var p_amount = $("#content").find('p.amount')
             if (p_amount.length > 0) p_amount.first().append(' <span style="color:#ffffff">'+max_text+'</span>')
             
-            $("#content").find('a#close').click(function () {
-                document.getElementById('detail').style.display = 'none';
+            $("#content").find('a#close').on("click", function () {
+                $('#detail').css("display", 'none');
             });
             
             $('div#detail').css({display: 'block'});
@@ -826,6 +824,7 @@ function change_actions_tab(action_tab){
     if (action_tab.find("span#icon_frigo").length == 0 ) {
         action_tab.parent().each(function (index) {
             if ($(this).find('.msg_head .msg_title').length >0){
+                var planame=null, coord=null;
                 // dans message espionnage
                 if ($(this).find('.msg_head .msg_title').html().match(/figure/))
                    [,planame,coord]=$(this).find('.msg_head .msg_title .txt_link').html().match(/<\/figure>(.*) (.*)$/);
@@ -1114,7 +1113,7 @@ function save_list_in_cookies() {
         
         data_racc_dropdown='<li><a class="undefined" style="text-align:center;color:#80C080"><figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planète"></figure>------ Mes frigos ------</a></li>';
         for (i=0;i<importvars["frigos"].length;i++)
-            data_racc_dropdown+='<li><a class="undefined" style="color:#80C080;" data-value="'+importvars["frigos"][i][1]+'#'+importvars["frigos"][i][2]+'#'+importvars["frigos"][i][3]+'#'+importvars["frigos"][i][4]+'#'+importvars["frigos"][i][0]+'" onClick="document.getElementById(\'targetPlanetName\').innerHTML = \''+importvars["frigos"][i][0]+'\';document.getElementById(\'galaxy\').value = \''+importvars["frigos"][i][1]+'\';document.getElementById(\'system\').value = \''+importvars["frigos"][i][2]+'\';document.getElementById(\'position\').value = \''+importvars["frigos"][i][3]+'\';"><figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planète"></figure>'+importvars["frigos"][i][0]+' ['+importvars["frigos"][i][1]+':'+importvars["frigos"][i][2]+':'+importvars["frigos"][i][3]+']</a></li>';
+            data_racc_dropdown+='<li><a class="undefined" style="color:#80C080;" data-value="'+importvars["frigos"][i][1]+'#'+importvars["frigos"][i][2]+'#'+importvars["frigos"][i][3]+'#'+importvars["frigos"][i][4]+'#'+importvars["frigos"][i][0]+'" onClick="$(\'#targetPlanetName\').html(\''+importvars["frigos"][i][0]+'\');$(\'#galaxy\').val(\''+importvars["frigos"][i][1]+'\');$(\'#system\').val(\''+importvars["frigos"][i][2]+'\');$(\'#position\').val(\''+importvars["frigos"][i][3]+'\');"><figure class="planetIcon planet tooltip js_hideTipOnMobile" title="Planète"></figure>'+importvars["frigos"][i][0]+' ['+importvars["frigos"][i][1]+':'+importvars["frigos"][i][2]+':'+importvars["frigos"][i][3]+']</a></li>';
         
         dropelems[0].innerHTML += data_racc_dropdown;
     }
@@ -1251,9 +1250,9 @@ function getServerLastVer() {
                 last_ver = rep.replace('OK:','');
                 createCookie('lastServVer', last_ver, 1, 'all');
             }
-            document.getElementById('servQuestion').src = "";
+            $('#servQuestion').prop("src", "");
         }
-    },500);      
+    },500);
 }
 //if(rand(1,10) == 1) getServerLastVer();
 
@@ -1289,7 +1288,7 @@ function launch_spy(self, override_id){
         want_a_RG=true;
         spy_all=true;
         spy_id=-1;
-        createCookie('AA_butin', document.getElementById('butin_AA_RG').value.match(/\d/g).join(""), 1, 'AA');
+        createCookie('AA_butin', $('#butin_AA_RG').val().match(/\d/g).join(""), 1, 'AA');
     } else {
         if (spy_all) spy_id = next_id
         else spy_id = parseInt(caller_id.replace('spy_button_',''));
@@ -1300,8 +1299,8 @@ function launch_spy(self, override_id){
         spy_id = init_spy_id;
     }
     if (spy_id == importvars["frigos"].length) {
-        document.getElementById('spy_all').style.color='darkred';
-        document.getElementById('spy_all').innerHTML='&#9658; Aucun frigo à espionner';
+        $('#spy_all').css("color", 'darkred');
+        $('#spy_all').html('&#9658; Aucun frigo à espionner');
         return;
     }
     
@@ -1350,7 +1349,7 @@ function launch_spy(self, override_id){
         $('#auto_attack').css("color", '#808080');
         $('#auto_attack').html('&#9658; En attente des rapports d\'espionnage...');
     }
-    nb_sondes = parseInt(document.getElementById('frig_sondes_'+spy_id).value);
+    nb_sondes = parseInt($('#frig_sondes_'+spy_id).val());
     
     params = {
         mission: 6,
@@ -1391,7 +1390,7 @@ function launch_spy(self, override_id){
             nb_tries++;
             if (dateESP.response == 'undefined') {
                 blit_message('<span style="float: none;margin: 0;color:#d43635">Erreur inconnue</span>. Nouvel essai');
-                document.getElementById('auto_attack').innerHTML='&#9658; Erreur inconnue';
+                $('#auto_attack').html('&#9658; Erreur inconnue');
                 clearTimeout(spyTimeout);
                 setTimeout(launch_spy, 3000);
                 return;
@@ -1403,7 +1402,7 @@ function launch_spy(self, override_id){
             //imp2Toulouse- Simplifacation using regular expression
             } else if (!dateESP.response.message.match(/[E|e]rreur/)) {
                 blit_message('Espionnage sur '+importvars["frigos"][spy_id][0]+' <span style="float: none;margin: 0;color:#109E18">démarré avec succès</span>');
-                document.getElementById('spy_isok_'+spy_id).style.display = 'block';
+                $('#spy_isok_'+spy_id).css("display", 'block');
                 next_id = spy_id+1;
                 wait_sec=rand(1,3);
             } else if (dateESP.response.message.match('planète')) {
@@ -1432,13 +1431,13 @@ function launch_spy(self, override_id){
                 //Imp2Toulouse- Increase de delay for waiting spy back
                 wait_sec=rand(6,15);
                 setTimeout(function(){blit_message('<span style="float: none;margin: 0;">Erreur d\'espionnage : Nouvel essai dans '+wait_sec+' secondes</span>');}, 2000);
-                document.getElementById('spy_all').innerHTML='&#9658; Espionnage des frigos en cours... (Nouvel essai dans '+wait_sec+' secondes)';
+                $('#spy_all').html('&#9658; Espionnage des frigos en cours... (Nouvel essai dans '+wait_sec+' secondes)');
 
                 // Au bout de 5 erreurs on abandonne
                 if (want_a_AA && nb_tries>5 && next_id==0) {
-                    document.getElementById('auto_attack').style.color='#F02020';
-                    if (readCookie('aa_enable','AA') == 'oui') document.getElementById('auto_attack').innerHTML='&#9658; Rapport général + Auto-Attaque reportés dans une heure (impossible d\'espionner)';
-                    else document.getElementById('auto_attack').innerHTML='&#9658; Rapport général reporté dans une heure (impossible d\'espionner)';
+                    $('#auto_attack').css("color", '#F02020');
+                    if (readCookie('aa_enable','AA') == 'oui') $('#auto_attack').html('&#9658; Rapport général + Auto-Attaque reportés dans une heure (impossible d\'espionner)');
+                    else $('#auto_attack').html('&#9658; Rapport général reporté dans une heure (impossible d\'espionner)');
                     GLOB_abandonne_spy = true;
                     if (gup('startAA') == '1') {
                         createCookie('progTime', time() + 60*60*1000, 1,'AA' ); // re-essaye dans 30min
@@ -1513,7 +1512,7 @@ start_after_less = get_start_after_less(eject_auto);
 if (start_after_less == 0) retour_time = 5*60*1000; // When no auto eject, set back after 5min
 else retour_time = start_after_less*1000 / 2;
 function check_attack() {
-    if (have_played_alert == false && document.body.innerHTML.match('<div id="attack_alert" class="tooltip eventToggle')){
+    if (have_played_alert == false && $(document.body).html().match('<div id="attack_alert" class="tooltip eventToggle')){
         have_played_alert = true;
         xhr.onreadystatechange  = function() 
         { 
@@ -1684,7 +1683,7 @@ function check_espionnage_finished() {
 
 function check_attack_reload() {
     //Inutilisé
-    if (document.body.innerHTML.replace('<div id="attack_alert" style="visibility:visible;">','') == document.body.innerHTML){
+    if ($(document.body).html().replace('<div id="attack_alert" style="visibility:visible;">','') == $(document.body).html()){
         xhr.onreadystatechange  = function() 
         { 
             if(xhr.readyState  == 4)
@@ -2330,18 +2329,18 @@ function check_AA_feedback() { // Checkout Auto Attack feedback
 }
 /* Enregiste la vitesse de production */
 importvars["prods"] = new Array();
-importvars["prods"][0] = parseInt(document.body.innerHTML.split(',"tooltip":')[1].split('<span')[3].split('/span>')[0].match(/\d/g).join(""))
-importvars["prods"][1] = parseInt(document.body.innerHTML.split(',"tooltip":')[2].split('<span')[3].split('/span>')[0].match(/\d/g).join(""))
-importvars["prods"][2] = parseInt(document.body.innerHTML.split(',"tooltip":')[3].split('<span')[3].split('/span>')[0].match(/\d/g).join(""))
+importvars["prods"][0] = parseInt($(document.body).html().split(',"tooltip":')[1].split('<span')[3].split('/span>')[0].match(/\d/g).join(""))
+importvars["prods"][1] = parseInt($(document.body).html().split(',"tooltip":')[2].split('<span')[3].split('/span>')[0].match(/\d/g).join(""))
+importvars["prods"][2] = parseInt($(document.body).html().split(',"tooltip":')[3].split('<span')[3].split('/span>')[0].match(/\d/g).join(""))
 
 
 /* lit votre capacité de stockage */
-capa_metal = parseInt(document.body.innerHTML.split(',"max":')[1].split(',')[0].match(/\d/g).join(""));
-capa_crystal = parseInt(document.body.innerHTML.split(',"max":')[2].split(',')[0].match(/\d/g).join(""));
-capa_deuterium = parseInt(document.body.innerHTML.split(',"max":')[3].split(',')[0].match(/\d/g).join(""));
+capa_metal = parseInt($(document.body).html().split(',"max":')[1].split(',')[0].match(/\d/g).join(""));
+capa_crystal = parseInt($(document.body).html().split(',"max":')[2].split(',')[0].match(/\d/g).join(""));
+capa_deuterium = parseInt($(document.body).html().split(',"max":')[3].split(',')[0].match(/\d/g).join(""));
 
 
-document.getElementById('ie_message').innerHTML += '<div id="div_for_sound"></div>';
+$('#ie_message').html().concat('<div id="div_for_sound"></div>');
 count_progs=0;
 decal_special = 0;
 data='';
@@ -2359,10 +2358,10 @@ function countdownAA() {
     t=parseInt(readCookie('progTime','AA')) - time();
     //Imp2Toulouse
     //Add condition to avoid error when countdownAA is null
-    var countdownObj = document.getElementById('countdownAA');
-    if (countdownObj !== null) {
+    var countdownObj = $('#countdownAA');
+    if (countdownObj.length > 0) {
         if (t>0) {
-            countdownObj.innerHTML = get_cool_time(t/1000);
+            countdownObj.html(get_cool_time(t/1000));
         } else {
             if (is_AA_blocked_by_time()) {
                 location.href = location.href;
@@ -2373,7 +2372,7 @@ function countdownAA() {
     }
 }
 function startAA() {
-    if (document.body.innerHTML.match('<div id="attack_alert" style="visibility:visible;">')) return;
+    if ($(document.body).html().match('<div id="attack_alert" style="visibility:visible;">')) return;
     
     if (readCookie('repeat','AA') == 'oui' && readCookie('repeatTime','AA') !== null) {
         createCookie('progTime', time()+parseInt(readCookie('repeatTime','AA')), 1, 'AA');
@@ -2538,9 +2537,9 @@ if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page')
     ////////////////
     if (gup('page')!=='resourceSettings' && gup('page')!=='messages' && gup('page')!=='chat') $('#planet').removeClass('shortHeader').addClass('Header'); 
     ////////////////
-    ress_metal = document.body.innerHTML.split('<span id="resources_metal" class="')[1].split('>')[1].split('</span>')[0].match(/\d/g).join("");
-    ress_crystal = document.body.innerHTML.split('<span id="resources_crystal" class="')[1].split('>')[1].split('</span>')[0].match(/\d/g).join("");
-    ress_deuterium = document.body.innerHTML.split('<span id="resources_deuterium" class="')[1].split('>')[1].split('</span>')[0].match(/\d/g).join("");
+    ress_metal = $(document.body).find('#resources_metal').html().match(/\d/g).join("");
+    ress_crystal = $(document.body).find('#resources_crystal').html().match(/\d/g).join("");
+    ress_deuterium = $(document.body).find('#resources_deuterium').html().match(/\d/g).join("");
    
     decalY_prev = count_progs;
     reportfini = false;
@@ -2780,7 +2779,7 @@ if (parseInt(readCookie("plapla_change_time2", 'all')) >= plapla_change_time1) p
 if (plapla_change_time1>= plapla_change_time2) plapla_change_time2 = plapla_change_time1 + 1;
 if (nb_planet>1 && (readCookie("change_planet", 'all') == "yes" || gup('page') == "overview") && gup('blockswitchplanet') != "yes") {
     attente = rand(plapla_change_time1,plapla_change_time2)*60;
-    if (document.body.innerHTML.match('<div id="attack_alert" style="visibility:visible;">')) attente = rand(1,2)*30;
+    if ($(document.body).html().match('<div id="attack_alert" style="visibility:visible;">')) attente = rand(1,2)*30;
     
     if (readCookie("noplaplaChange", 'all') == 'oui') {
         createCookie("change_planet", "no", 1, 'all');
@@ -4000,14 +3999,14 @@ if (lastActu !== null) {
     lastActu = time() - parseInt(lastActu);
     lastActuSecu = time() - parseInt(lastActuSecu);
     if (lastActu > 16*60*60*1000 && lastActuSecu>10*60*1000) {
-        document.body.onclick = function(){
+       $(document.body).on("click", function(){
             createCookie('lastActuTimeSecu', time(), 1, 'all');
             document.getElementById('menuTable').innerHTML += '<form id="actuSephiOgame" action="http://www.sephiogame.com/Actualites?curVer='+cur_version+'&serv='+univers+'#Infos" style="display:none" target="sephiogame" method="post"><input type="submit" id="submitpopup"></form>';
             document.getElementById('submitpopup').click();
-            document.body.onclick = null;
+            $(document.body).on("click", function(){});
             window.focus();
             setTimeout(function(){window.focus();},1000);
-        }
+        });
     }
 } else {
     createCookie('lastActuTime', time(), 1, 'all');
