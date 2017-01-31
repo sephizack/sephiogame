@@ -24,7 +24,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.6.4.3
+// @version     3.7.0 Dev
 // @description Script Ogame
 // @author      Sephizack
 // @include     http://s*.ogame.gameforge.com/game/*
@@ -92,7 +92,7 @@
 
 antiBugTimeout = setTimeout(function() {location.href=location.href;}, 5*60*1000);
 
-cur_version = '3.6.4.4';
+cur_version = '3.7.0 Dev';
 univers = window.location.href.split('/')[2];
 
 // Multi langues
