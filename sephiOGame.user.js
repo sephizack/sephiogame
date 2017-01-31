@@ -69,7 +69,7 @@
 
 antiBugTimeout = setTimeout(function() {location.href=location.href;}, 5*60*1000);
 
-cur_version = '3.6.4.4';
+cur_version = '3.7.0 Dev';
 univers = window.location.href.split('/')[2];
 
 // Multi langues
@@ -925,7 +925,7 @@ function change_actions_tab(action_tab){
                     frigData +='<input type="hidden" id="position'+(index+1)+'" value="'+(planet)+'">';
                     frigData +='<input type="hidden" id="flottes'+(index+1)+'" value="'+(flottes)+'">';
                     frigData +='<input type="hidden" id="defense'+(index+1)+'" value="'+(defense)+'">';
-                    frigData +='<input type="hidden" id="sondes'+(index+1)+'" value="'+(importvars["frigos"][num_frigo][11])+'">';
+                    frigData +='<input type="hidden" id="sondes'+(index+1)+'" value="'+((num_frigo>0&&parseInt(importvars["frigos"][num_frigo][11])>0)?parseInt(importvars["frigos"][num_frigo][11]):nb_sonde_default)+'">';
                     frigData +='</span></a>';
                     //Add the object built
                     $($(this).find('.msg_action_link.overlay')).before(frigData);
