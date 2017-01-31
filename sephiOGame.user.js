@@ -1,29 +1,6 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.6.4.4
-// @description Script Ogame
-// @author      Sephizack
-// @include     http://s*.ogame.gameforge.com/game/*
-// @include     https://s*.ogame.gameforge.com/game/*
-// @include     http://fr.ogame.gameforge.com/
-// @include     https://fr.ogame.gameforge.com/
-// @exclude     http://s*.ogame.gameforge.com/feed/*
-// @exclude     https://s*.ogame.gameforge.com/feed/*
-// @exclude     https://*.ogame.gameforge.com/board*
-// @exclude     http://www.*
-// @exclude     https://www.*
-// @exclude     http://*ajax=1*
-// @exclude     https://*ajax=1*
-// @copyright   2012+, You
-// @updateURL   http://www.sephiogame.com/script/sephiOGame.user.js
-// @require     http://code.jquery.com/jquery-1.9.1.min.js
-// @require     http://www.sephiogame.com/script/FileSaver.js
-// @require     http://www.sephiogame.com/script/googleMailAPI.js
-// ==/UserScript==
-// ==UserScript==
-// @name        SephiOGame
-// @namespace   http://www.sephiogame.com
 // @version     3.7.0 Dev
 // @description Script Ogame
 // @author      Sephizack
