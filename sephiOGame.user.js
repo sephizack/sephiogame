@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.6.4.3
+// @version     3.6.4.4
 // @description Script Ogame
 // @author      Sephizack
 // @include     http://s*.ogame.gameforge.com/game/*
@@ -64,11 +64,12 @@
 //                         *Code optimizations
 //3.6.4.3:               * Fixes + prevent auto attack during period
 //         Imp2Toulouse- * Fixes / Optimizations
+//3.6.4.4:               * Many fixes
 
 
 antiBugTimeout = setTimeout(function() {location.href=location.href;}, 5*60*1000);
 
-cur_version = '3.6.4.3';
+cur_version = '3.6.4.4';
 univers = window.location.href.split('/')[2];
 
 // Multi langues
