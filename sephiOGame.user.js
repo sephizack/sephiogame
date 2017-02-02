@@ -1163,9 +1163,10 @@ function save_list_in_cookies() {
             importvars["frigos"][cur_nb][4] = '1';
             importvars["frigos"][cur_nb][5] = '';
             importvars["frigos"][cur_nb][6] = '0';
-            importvars["frigos"][cur_nb][7] = $('#flottes'+messageID).val().replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
-            importvars["frigos"][cur_nb][8] = $('#defense'+messageID).val().replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
-
+            if (gup('page') == 'messages') {
+                ($('#flottes' + messageID).length > 0) ? importvars["frigos"][cur_nb][7] = $('#flottes' + messageID).val().replace(/__/g, '').replace(/'/g, '').replace(/"/g, '') : null;
+                ($('#defenses' + messageID).length > 0) ? importvars["frigos"][cur_nb][8] = $('#defense' + messageID).val().replace(/__/g, '').replace(/'/g, '').replace(/"/g, ''): null;
+            }
             save_important_vars();
             blit_message(importvars["frigos"][cur_nb][0]+' a été <span style="float: none;margin: 0;color:#109E18">ajouté à vos frigos</span> !');
             
@@ -3053,6 +3054,7 @@ function SendFleet(response){
                 params.page=params.page.replace(page,"fleet2"); // Replace for next fleet2 page
                 createCookie('data',JSON.stringify(params), 1, 'form'); // Save params
                 PostXMLHttpRequest(params.url+"?"+params.page,params.to +"&"+ params.type_mission +"&"+ params.fleets,SendFleet);
+//                console.log("Request step1:"+params.url+"?"+params.page+", option="+params.to +"&"+ params.type_mission +"&"+ params.fleets);
             } else {
                 if (params.step ==4) SendFleetSuccess(params); 
                 else SendFleetFailed(params);
@@ -3076,6 +3078,7 @@ function SendFleet(response){
                 }
                 
                 PostXMLHttpRequest(params.url+"?"+params.page,params.type_mission +"&"+ params.fleets +"&"+ params.to +"&"+ params.token+token,SendFleet);
+//                console.log("Request step1:"+params.url+"?"+params.page+", option="+params.type_mission +"&"+ params.fleets +"&"+ params.to +"&"+ params.token+token);
             } else {
                 SendFleetFailed(params);
             }
@@ -3096,6 +3099,7 @@ function SendFleet(response){
                 createCookie('data',JSON.stringify(params), 1, 'form');
                 
                 PostXMLHttpRequest(params.url+"?"+ params.page,params.fleets_opts +"&"+ params.to +"&"+ params.type_mission +"&"+ params.fleets +"&"+ params.ressources +"&"+ params.token+token,SendFleet);
+ //               console.log("Request step1:"+params.url+"?"+params.page+", option="+params.fleets_opts +"&"+ params.to +"&"+ params.type_mission +"&"+ params.fleets +"&"+ params.ressources +"&"+ params.token+token);
             } else {
                 SendFleetFailed(params);
             }
@@ -3180,6 +3184,7 @@ if (gup('page') == "fleet1" && gup('eject') == 'yes') {
     params=JSON.parse('{ "url": "'+"https://"+univers+"/game/index.php"+'", "page": "page=fleet1", "from": "'+"cp="+planet_list[planame_list.indexOf(cur_planame)]+'", "to": "'+"galaxy="+(importvars['eject'].split(':')[0])+"&system="+(importvars['eject'].split(':')[1])+"&position="+(importvars['eject'].split(':')[2])+'", "type_mission": "'+"type="+((eject_onLune)?"3":"1")+"&mission=4"+'", "fleets": "'+"speed=1&am204=99999&am205=99999&am206=99999&am207=99999&am215=99999&am211=99999&am213=99999&am214=99999"+((eject_all)?"&am202=99999&am203=99999&am208=99999&am209=99999&am210=99999":"")+'", "ressources": "'+"metal=999999999&crystal=999999999&deuterium=999999999&prioMetal=1&prioCrystal=2&prioDeuterium=3"+'", "fleets_opts": "'+"union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0"+'", "token": "'+"token="+'", "step": "'+1+'", "sephi_opt":"'+sephi_opt+'"}');
     createCookie('data',JSON.stringify(params), 1, 'form');
     PostXMLHttpRequest(params.url+"?"+params.page+"&"+params.from,"",SendFleet);
+//    console.log("Request:"+params.url+"?"+params.page+"&"+params.from);
     params=null;
 }
 
