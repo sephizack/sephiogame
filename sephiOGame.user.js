@@ -1,30 +1,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.6.4.3
-// @description Script Ogame
-// @author      Sephizack
-// @include     http://s*.ogame.gameforge.com/game/*
-// @include     https://s*.ogame.gameforge.com/game/*
-// @include     http://fr.ogame.gameforge.com/
-// @include     https://fr.ogame.gameforge.com/
-// @exclude     http://s*.ogame.gameforge.com/feed/*
-// @exclude     https://s*.ogame.gameforge.com/feed/*
-// @exclude     https://*.ogame.gameforge.com/board*
-// @exclude     http://www.*
-// @exclude     https://www.*
-// @exclude     http://*ajax=1*
-// @exclude     https://*ajax=1*
-// @copyright   2012+, You
-// @updateURL   http://www.sephiogame.com/script/sephiOGame.user.js
-// @require     http://code.jquery.com/jquery-1.9.1.min.js
-// @require     http://www.sephiogame.com/script/FileSaver.js
-// @require     http://www.sephiogame.com/script/googleMailAPI.js
-// ==/UserScript==
-// ==UserScript==
-// @name        SephiOGame
-// @namespace   http://www.sephiogame.com
-// @version     3.6.4.3
+// @version     3.6.4.4
 // @description Script Ogame
 // @author      Sephizack
 // @include     http://s*.ogame.gameforge.com/game/*
@@ -87,11 +64,12 @@
 //                         *Code optimizations
 //3.6.4.3:               * Fixes + prevent auto attack during period
 //         Imp2Toulouse- * Fixes / Optimizations
+//3.6.4.4:               * Many fixes
 
 
 antiBugTimeout = setTimeout(function() {location.href=location.href;}, 5*60*1000);
 
-cur_version = '3.6.4.3';
+cur_version = '3.7.0 Dev';
 univers = window.location.href.split('/')[2];
 
 // Multi langues
