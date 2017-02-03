@@ -864,7 +864,7 @@ function change_actions_tab(action_tab){
                     var nb_sonde_default=parseInt(readCookie("nb_sondes","options"));
                     (nb_sonde_default==0 || nb_sonde_default == "undefined")?nb_sonde_default=1:null;
 
-                    var frigo_status="";
+                    var frigo_status="", img_surcharge="";
                     frigo_status=(flottesDetected == "undefined" || !(flottesDetected && flottesActive))?"":" avec une flotte active";
                     frigo_status=frigo_status+((frigo_status !=="")?" et ":"")+((defenseDetected == "undefined" || !(defenseDetected && defenseActive))?"":" avec une defense active");
 
@@ -879,8 +879,9 @@ function change_actions_tab(action_tab){
                         // dans message espionnage
                         if ($(this).find('.msg_head .msg_title').html().match(/figure/)) {
                             var message_res_action=((flottesDetected && !flottesActive) || (defenseDetected && !defenseActive))?'Bienvenue dans les frigos !':'Bienvenue dans les frigos ! <b>Attention</b>, il faudra prévoir une flotte personnalisée adaptée.';
-                            var text_action="</span><u>Integration de \'"+coord+" "+planame+"\' dans "+cur_planame+"?</u><hr/><u>Status:</u> Frigo libre"+(frigo_status)+"<br><u>Actions:</u> <a href=\'javascript:void(0)\' onclick=\'"+(action)+"\'>Ajouter ce frigos</a>";
-                            var img=((flottesDetected && !flottesActive) && (defenseDetected && !defenseActive))?'http://www.sephiogame.com/images/frigoOff_withData.png':'http://www.sephiogame.com/images/frigoOff.png';
+                            var text_action="</span>Integration de \'"+coord+" "+planame+"\' dans "+cur_planame+"?<hr/><u>Status:</u> Frigo libre"+(frigo_status)+"<br><u>Actions:</u> <a href=\'javascript:void(0)\' onclick=\'"+(action)+"\'>Ajouter ce frigos</a>";
+                            var img_addon=((flottesDetected && !flottesActive) && (defenseDetected && !defenseActive))?'http://www.sephiogame.com/images/data-ok.png':'http://www.sephiogame.com/images/no-data.png';
+                            var img_surcharge=(img_addon != null)?'<img src="'+(img_addon)+'" style="height:10px;width:10px;position:relative;top:-3px;left: -17px" />':'';
                         }
                     } else {
                         //Get DEF/FLOTTE from frigo information
@@ -900,25 +901,21 @@ function change_actions_tab(action_tab){
                             if (flottesDetected) importvars["frigos"][num_frigo][9] = flottes;
                             //if frigo_flotte null or undefined
                             if ((frigo_flotte == null || frigo_flotte == "undefined" || frigo_flotte == "") && flottes !== null) importvars["frigos"][num_frigo][7] = flottes;
-                            if (!flottesDetected || (flottesDetected && flottesActive && parseInt(frigo_flotte) < flottes)) {
-                                img = 'http://www.sephiogame.com/images/frigoOn_warning.png';
-                            }
                             //if defense detected ==> update frigo with current defense
                             if (defenseDetected) importvars["frigos"][num_frigo][10] = defense;
                             //if frigo_defense null or undefined or defense_saved > defense
                             if ((frigo_defense == null || frigo_defense == "undefined" || frigo_defense == "" || parseInt(frigo_defense) > defense) && defense !== null) importvars["frigos"][num_frigo][8] = defense;
 
-                            if (!defenseDetected || (defenseDetected && defenseActive && parseInt(frigo_defense) < defense)) {
-                                img = 'http://www.sephiogame.com/images/frigoOn_warning.png';
-                            }
-                            //
+                            img_addon = ((!flottesDetected || (flottesDetected && flottesActive && parseInt(frigo_flotte) < flottes)) || (!defenseDetected || (defenseDetected && defenseActive && parseInt(frigo_defense) < defense)))?'http://www.sephiogame.com/images/warning.png':null;
+                            var img_surcharge=(img_addon != null)?'<img src="'+(img_addon)+'" style="height:10px;width:10px;position:relative;top:-3px;left: -17px" />':'';
+
                             save_important_vars();
                             var text_action="</span>Frigo \'"+coord+" "+planame+"\' de "+cur_planame+"<hr/><u>Status:</u> Frigo actif"+(frigo_status)+"<br><u>Actions:</u> <a href=\'javascript:void(0)\' onclick=\'"+(action)+"\'>Retirer ce frigos</a><br><u>Options:</u> Utiliser <input style=\'width:10px;height:10px;\' type=\'text\' value=\'"+((parseInt(importvars["frigos"][num_frigo][11])>0)?parseInt(importvars["frigos"][num_frigo][11]):nb_sonde_default)+"\' onchange=\'$(&quot;#sondes"+(index+1)+"&quot;).val(this.value);localStorage.setItem(&quot;all_updt_racc&quot;, &quot;"+(index+1)+","+num_frigo+"&quot;);\'> sondes sur ce frigo.";
                         }
                     }
 
                     frigData = '<a id="name_sep'+(index+1)+'" href="javascript:void(0)" >';
-                    frigData +='<span id="icon_frigo" class="js_hideTipOnMobile tooltipCustom tooltip-width:400" title="'+text_action+'"><img src="'+(img)+'" height="26px" width="26px" />';
+                    frigData +='<span id="icon_frigo" class="js_hideTipOnMobile tooltipCustom tooltip-width:400" title="'+text_action+'"><img id="img'+(index+1)+'" src="'+(img)+'" height="26px" width="26px" />'+(img_surcharge);
                     frigData +='<input type="hidden" id="raccourcis_name_sep'+(index+1)+'" value="'+planame+'">';
                     frigData +='<input type="hidden" id="galaxy'+(index+1)+'" value="'+(galaxy)+'">';
                     frigData +='<input type="hidden" id="system'+(index+1)+'" value="'+(system)+'">';
@@ -3691,9 +3688,9 @@ if (gup('sephiScript') == '1') {
         sephi_frigos_data+='<th style="text-align:right;width:12px;"><input type="text" style="width:12px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" id="frig_sondes_'+i+'" title="Importance du frigo" value="'+importvars["frigos"][i][4]+'" /></th>';
         sephi_frigos_data+='<th style="text-align:left;width:30px;"><span style="font-size:x-small;position:relative;margin-left:5px;left:0px;">&nbsp;</span></th>';
         sephi_frigos_data+='<th style="text-align:right;width:70px;"><input type="text" style="width:70px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" id="frig_flotte_perso_'+i+'" title="Flotte personalisée" placeholder="Flottes militaire" value="'+importvars["frigos"][i][5]+'" /></th>';
-        sephi_frigos_data+='<th style="text-align:right;width:37px;"><input type="text" style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" id="frig_flotte_'+i+'" title="Volume de la flotte ennemie" value="'+importvars["frigos"][i][7]+'" /></th>';
+        sephi_frigos_data+='<th style="text-align:right;width:37px;"><input type="text" style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;'+((importvars["frigos"][i][7] < importvars["frigos"][i][9])?"background-color: crimson;":"")+'" id="frig_flotte_'+i+'" title="Volume de la flotte ennemie" value="'+importvars["frigos"][i][7]+'" /></th>';
         sephi_frigos_data+='<th style="text-align:right;width:37px;"><input type="text" style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" disabled title="Volume actuel de la flotte ennemie" value="'+importvars["frigos"][i][9]+'"></input></th>';
-        sephi_frigos_data+='<th style="text-align:right;width:37px;"><input type="text" style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" id="frig_defense_'+i+'" title="Volume de la defense ennemie" value="'+importvars["frigos"][i][8]+'" /></th>';
+        sephi_frigos_data+='<th style="text-align:right;width:37px;"><input type="text" style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;'+((importvars["frigos"][i][8] < importvars["frigos"][i][10])?"background-color: crimson;":"")+'" id="frig_defense_'+i+'" title="Volume de la defense ennemie" value="'+importvars["frigos"][i][8]+'" /></th>';
         sephi_frigos_data+='<th style="text-align:right;width:37px;"><input type="text" style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" disabled title="Volume actuel de la defense ennemie" value="'+importvars["frigos"][i][10]+'"></input></th>';
         sephi_frigos_data+='</tr></table>';
         sephi_frigos_data+= "\n"+'<div id="del_button_'+i+'" style="height:0px;position:relative;left:-5px;top:-22px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/newsletter-close-button.png" title="Supprimer le frigo"/></div>';
