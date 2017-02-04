@@ -80,8 +80,8 @@ LANG_started = isFR ? "Lancé" : "Started";
 LANG_done = isFR ? "Terminé" : "Done";
 LANG_noLocalStorage = isFR ? "Votre navigateur ne supporte pas le système de localStorage, mettez le à jour ou désinstallez le script." 
     : "Your browser does not support localStorage feature, please update to latest Chrome version or unistall SephiOGame.";
-LANG_nouveaute_update = isFR ? ' -Integration of Ogame version 6.0.5<br>-Review all frigo integration (from messages)<br>-Review all Auto Attack processus<br>-Review the Expedition send<br>-Review Butin calculation'
-    : ' -Integration of Ogame version 6.0.5<br>-Review all frigo integration (from messages)<br>-Review all Auto Attack processus<br>-Review the Expedition send<br>-Review Butin calculation';
+LANG_nouveaute_update = isFR ? ' -Integration de la version 6.0.5<br>-Revue de l\'integration de l\'ensemble des frigos (depuis les messages)<br>-Revue de l\'ensemble du processus d\'auto attaque (créneau de non attaque configurable)<br>-Revue de l\'envoi des expeditions<br>-Revue du calcul du butin<br>-Ajout de contrôles dans la gestion des frigos<br>-Ajout de controles basés sur la flotte/defense de l\'ennemie<br>-Modification de la barre d\'outil des messages (possibilité d\'activer le nombre de sonde par frigo)'
+    : ' -Integration of Ogame version 6.0.5<br>-Review all frigo integration (from messages)<br>-Review all Auto Attack processus(non-attack timescale configurable)<br>-Review the Expedition send<br>-Review Butin calculation<br>-Add frigo control management<br>-Add autoAttack control based on opponant fleets/defenses<br>-Change of messages tools bar (capacity to set number of sonde by frigo)';
 
 function exit(i){throw new Error('This is not an error. This is just to abort javascript');}
 if ($('#banner_skyscraper')) $('#banner_skyscraper').html('');
@@ -2935,9 +2935,9 @@ function calc_ID_flotte () {
 if (gup('page') == "fleet1") {
     e=document.getElementsByClassName('send_none')[0];
     if (document.getElementsByClassName('send_none').length >= 1) {
-        d = '<div style="position: relative;top: -85px;left:39px;px;z-index: 1000;font-size:12px;height:0px;width:0px;"><div style="position:relative;left:95px;top:75px;width:200px;height:30px;">';
-        d += '<input type="text" id="flotte_id" title="Identificateur flotte" style="width:130px;text-align:left;height:25px;margin-left:0px;font-family: inherit;color:#202040;position:relative;left:10px;top:-23px;font-size:11px" value="Identificateur flotte"/>';
-        d += '<span class="factorbutton" style="position: relative;top:-23px;left:12px;"><input id="flotte_id_calc" class="btn_blue" style="margin-left:5px;min-width: 30px;" type="button" value="Ok"></span>';
+        d = '<div style="position: relative;top: -57px;left:128px;px;z-index: 1000;font-size:12px;height:0px;width:0px;"><div style="position:relative;left:95px;top:75px;width:200px;height:20px;">';
+        d += '<input type="text" id="flotte_id" title="Identificateur flotte" style="width:130px;text-align:left;height:20px;margin-left:0px;font-family: inherit;color:#202040;position:relative;left:10px;top:-23px;font-size:11px" value="Identificateur flotte"/>';
+        d += '<span class="factorbutton" style="position: relative;top:-22px;left:12px;"><input id="flotte_id_calc" class="btn_blue" style="margin-left:5px;min-width: 30px;height:25px;" type="button" value="Ok"></span>';
         //d += '<span class="factorbutton" style="position: relative;top:87px;left:222px;"><input id="flotte_id_app" class="btn_blue" style="margin-left:10px" type="button" value="Restaurer"></span>';
         d += '</div></div>';
         e.innerHTML = e.innerHTML+d;
