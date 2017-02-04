@@ -805,7 +805,7 @@ function change_actions_tab(action_tab){
         if (! parent.attr("href").match("auto=yes")) {
             //Get information about butin (sum of metal, cristal and deut) * type_multifactor (50%, 75%, 100%, ...)
             if (parent.parent().parent().find("span.ctn4 .resspan").length >0) {
-            	process_espionage_data(parent.parent().parent().find("span.ctn4 .resspan"));
+            	process_espionnage_data(parent.parent().parent().find("span.ctn4 .resspan"));
                 var butin = Math.floor(type_multip * (met + cri + deu));
                 url_parent = parent.attr("href");
                 url_pt = url_parent.replace("mission=1", "mission=1&auto=yes&ID=0&PT=" + (1 + Math.floor(butin / 5000)) + "&Referer=" + (encodeURIComponent($(location).attr('href').replace(/.*\?(.*)/g, "$1"))));
@@ -842,11 +842,15 @@ function change_actions_tab(action_tab){
                     if ($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').length > 0) {
                         flottesDetected = true;
                         flottes = parseInt($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').html().match(/\d/g).join(""));
+                        if ($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').html().match('M')) flottes*=1000000;
+                        if ($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').html().match(',')) flottes/=100;
                         (flottes > 0) ? flottesActive = true : flottesActive = false;
                     }
                     if ($(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').length > 0) {
                         defenseDetected = true;
                         defense = parseInt($(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').html().match(/\d/g).join(""));
+                        if ($(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').html().match('M')) defense*=1000000;
+                        if ($(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').html().match(',')) defense/=100;
                         (defense > 0) ? defenseActive = true : defenseActive = false;
                     }
                     //END DETECTION
@@ -864,7 +868,7 @@ function change_actions_tab(action_tab){
                     var nb_sonde_default=parseInt(readCookie("nb_sondes","options"));
                     (nb_sonde_default==0 || nb_sonde_default == "undefined")?nb_sonde_default=1:null;
 
-                    var frigo_status="";
+                    var frigo_status="", img_surcharge="";
                     frigo_status=(flottesDetected == "undefined" || !(flottesDetected && flottesActive))?"":" avec une flotte active";
                     frigo_status=frigo_status+((frigo_status !=="")?" et ":"")+((defenseDetected == "undefined" || !(defenseDetected && defenseActive))?"":" avec une defense active");
 
@@ -879,8 +883,9 @@ function change_actions_tab(action_tab){
                         // dans message espionnage
                         if ($(this).find('.msg_head .msg_title').html().match(/figure/)) {
                             var message_res_action=((flottesDetected && !flottesActive) || (defenseDetected && !defenseActive))?'Bienvenue dans les frigos !':'Bienvenue dans les frigos ! <b>Attention</b>, il faudra prévoir une flotte personnalisée adaptée.';
-                            var text_action="</span><u>Integration de \'"+coord+" "+planame+"\' dans "+cur_planame+"?</u><hr/><u>Status:</u> Frigo libre"+(frigo_status)+"<br><u>Actions:</u> <a href=\'javascript:void(0)\' onclick=\'"+(action)+"\'>Ajouter ce frigos</a>";
-                            var img=((flottesDetected && !flottesActive) && (defenseDetected && !defenseActive))?'http://www.sephiogame.com/images/frigoOff_withData.png':'http://www.sephiogame.com/images/frigoOff.png';
+                            var text_action="</span>Integration de \'"+coord+" "+planame+"\' dans "+cur_planame+"?<hr/><u>Status:</u> Frigo libre"+(frigo_status)+"<br><u>Actions:</u> <a href=\'javascript:void(0)\' onclick=\'"+(action)+"\'>Ajouter ce frigos</a>";
+                            var img_addon=((flottesDetected && !flottesActive) && (defenseDetected && !defenseActive))?'http://www.sephiogame.com/images/data-ok.png':'http://www.sephiogame.com/images/no-data.png';
+                            var img_surcharge=(img_addon != null)?'<img src="'+(img_addon)+'" style="height:10px;width:10px;position:relative;top:-3px;left: -17px" />':'';
                         }
                     } else {
                         //Get DEF/FLOTTE from frigo information
@@ -900,25 +905,21 @@ function change_actions_tab(action_tab){
                             if (flottesDetected) importvars["frigos"][num_frigo][9] = flottes;
                             //if frigo_flotte null or undefined
                             if ((frigo_flotte == null || frigo_flotte == "undefined" || frigo_flotte == "") && flottes !== null) importvars["frigos"][num_frigo][7] = flottes;
-                            if (!flottesDetected || (flottesDetected && flottesActive && parseInt(frigo_flotte) < flottes)) {
-                                img = 'http://www.sephiogame.com/images/frigoOn_warning.png';
-                            }
                             //if defense detected ==> update frigo with current defense
                             if (defenseDetected) importvars["frigos"][num_frigo][10] = defense;
                             //if frigo_defense null or undefined or defense_saved > defense
                             if ((frigo_defense == null || frigo_defense == "undefined" || frigo_defense == "" || parseInt(frigo_defense) > defense) && defense !== null) importvars["frigos"][num_frigo][8] = defense;
 
-                            if (!defenseDetected || (defenseDetected && defenseActive && parseInt(frigo_defense) < defense)) {
-                                img = 'http://www.sephiogame.com/images/frigoOn_warning.png';
-                            }
-                            //
+                            img_addon = ((!flottesDetected || (flottesDetected && flottesActive && parseInt(frigo_flotte) < flottes)) || (!defenseDetected || (defenseDetected && defenseActive && parseInt(frigo_defense) < defense)))?'http://www.sephiogame.com/images/warning.png':null;
+                            var img_surcharge=(img_addon != null)?'<img src="'+(img_addon)+'" style="height:10px;width:10px;position:relative;top:-3px;left: -17px" />':'';
+
                             save_important_vars();
                             var text_action="</span>Frigo \'"+coord+" "+planame+"\' de "+cur_planame+"<hr/><u>Status:</u> Frigo actif"+(frigo_status)+"<br><u>Actions:</u> <a href=\'javascript:void(0)\' onclick=\'"+(action)+"\'>Retirer ce frigos</a><br><u>Options:</u> Utiliser <input style=\'width:10px;height:10px;\' type=\'text\' value=\'"+((parseInt(importvars["frigos"][num_frigo][11])>0)?parseInt(importvars["frigos"][num_frigo][11]):nb_sonde_default)+"\' onchange=\'$(&quot;#sondes"+(index+1)+"&quot;).val(this.value);localStorage.setItem(&quot;all_updt_racc&quot;, &quot;"+(index+1)+","+num_frigo+"&quot;);\'> sondes sur ce frigo.";
                         }
                     }
 
                     frigData = '<a id="name_sep'+(index+1)+'" href="javascript:void(0)" >';
-                    frigData +='<span id="icon_frigo" class="js_hideTipOnMobile tooltipCustom tooltip-width:400" title="'+text_action+'"><img src="'+(img)+'" height="26px" width="26px" />';
+                    frigData +='<span id="icon_frigo" class="js_hideTipOnMobile tooltipCustom tooltip-width:400" title="'+text_action+'"><img id="img'+(index+1)+'" src="'+(img)+'" height="26px" width="26px" />'+(img_surcharge);
                     frigData +='<input type="hidden" id="raccourcis_name_sep'+(index+1)+'" value="'+planame+'">';
                     frigData +='<input type="hidden" id="galaxy'+(index+1)+'" value="'+(galaxy)+'">';
                     frigData +='<input type="hidden" id="system'+(index+1)+'" value="'+(system)+'">';
@@ -1141,9 +1142,10 @@ function save_list_in_cookies() {
             importvars["frigos"][cur_nb][4] = '1';
             importvars["frigos"][cur_nb][5] = '';
             importvars["frigos"][cur_nb][6] = '0';
-            importvars["frigos"][cur_nb][7] = $('#flottes'+messageID).val().replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
-            importvars["frigos"][cur_nb][8] = $('#defense'+messageID).val().replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
-
+            if (gup('page') == 'messages') {
+                ($('#flottes' + messageID).length > 0) ? importvars["frigos"][cur_nb][7] = $('#flottes' + messageID).val().replace(/__/g, '').replace(/'/g, '').replace(/"/g, '') : null;
+                ($('#defenses' + messageID).length > 0) ? importvars["frigos"][cur_nb][8] = $('#defense' + messageID).val().replace(/__/g, '').replace(/'/g, '').replace(/"/g, ''): null;
+            }
             save_important_vars();
             blit_message(importvars["frigos"][cur_nb][0]+' a été <span style="float: none;margin: 0;color:#109E18">ajouté à vos frigos</span> !');
             
@@ -1520,7 +1522,7 @@ function launch_spy(self, override_id){
                     else $('#auto_attack').html('&#9658; Rapport général reporté dans une heure (impossible d\'espionner)');
                     GLOB_abandonne_spy = true;
                     if (gup('startAA') == '1') {
-                        createCookie('progTime', time() + 60*60*1000, 1,'AA' ); // re-essaye dans 30min
+                        createCookie('progTime', time() + 60*60*1000, 1,'AA' ); // re-essaye dans 60min
                         createCookie('isProg', 'oui', 1,'AA' );
                         setTimeout(function(){window.location.href = 'https://'+univers+'/game/index.php?page=overview';}, 10000);
                     }
@@ -2080,25 +2082,38 @@ function read_rapports_and_create_table() {
                 if (document.getElementById('with_readed_RG').checked && count_esp>=nb_limit*2) return;
                 
                 if ($(this).find("span.msg_title").text().match("Rapport d`espionnage de")) {
+debugger
                     no_more_new_esp = false;
-                    tmp=$(this).find("span.msg_title a").text().trim().match(/(.*) \[(\d+):(\d+):(\d+)\]/);
-                    planame=tmp[1];
-                    coord = '['+tmp[2]+":"+tmp[3]+":"+tmp[4]+']';
-                    galaxy = tmp[2];
-                    system = tmp[3];
-                    planet = tmp[4];
+                    [,planame,galaxy,system,planet]=$(this).find("span.msg_title a").text().trim().match(/(.*) \[(\d+):(\d+):(\d+)\]/);
+                    coord = '['+galaxy+":"+system+":"+planet+']';
                     //Imp2Toulouse: Replace by function
                     idFrig=is_frigo(importvars["frigos"],coord);
                     if (idFrig>=0 || gup('RG') !== 'OUI') {
                         count_esp++;
                         url = '';
-                        process_espionage_data($(this).find("span.ctn4 .resspan"));
+                        process_espionnage_data($(this).find("span.ctn4 .resspan"));
                         url = "puredata:"+Math.floor(type_multip*(met+cri+deu)); 
                         color='';
                         if ($(this).html().match('status_abbr_honorableTarget')) color='color:#FFFF66;';
                         if ($(this).html().match('status_abbr_active')) color='color:#fff;';
                         if ($(this).html().match('status_abbr_inactive')) color='color:#6E6E6E;';
                         if ($(this).html().match('status_abbr_longinactive')) color='color:#4F4F4F;';
+
+                        var flottes = null, defense = null;
+                        if ($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').length > 0) {
+                            flottes = parseInt($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').html().match(/\d/g).join(""));
+                            if ($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').html().match('M')) flottes*=1000000;
+                            if ($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').html().match(',')) flottes/=100;
+                            importvars['frigos'][idFrig][9]=flottes;
+                        }
+                        if ($(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').length > 0) {
+                            defense = parseInt($(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').html().match(/\d/g).join(""));
+                            if ($(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').html().match('M')) defense*=1000000;
+                            if ($(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').html().match(',')) defense/=100;
+                            importvars['frigos'][idFrig][10]=defense;
+                        }
+
+                        if ($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').length > 0 || $(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').length > 0) save_important_vars();
 
                         data += '<tr id="rap_general_line_'+count_esp+'"><td id="rap_general_coord_'+count_esp+'" style="border: 1px solid #303030;padding: 5px 8px;text-align:center;height: 28px;">'+coord+'</td>';
                         data += '<td style="border: 1px solid #303030;padding: 5px 8px;"><a target=_blank style="text-decoration:none;'+color+'" href="https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1" onclick="this.style.textDecoration=\'line-through\'"><span id="rap_general_planet_name_'+count_esp+'">'+planame+'</span></a><span id="url_rap_esp_'+count_esp+'" style="display:none;">'+url+'</span></td>';
@@ -2195,7 +2210,7 @@ function start_rapport_general() {
 
 
 //Imp2Toulouse- Change function for using jquery and adapt to the new version 6.0.5
-function process_espionage_data(data) {
+function process_espionnage_data(data) {
     type_multip = 0.5;
     if ($(data).text().match('status_abbr_honorableTarget')) type_multip = 0.75;
     $(data).each(function(){
@@ -2233,13 +2248,13 @@ function process_espionage_data(data) {
     });
 }
 
-function fill_case(butin, flotte_perso, idFrigo, curplanet_name) {
+function fill_case(butin, flotte_perso, idFrigo, curplanet_name, check_perso_is_needed) {
     var tmp=$('#rap_general_planet_name_'+GLOB_rgID).parent().attr('href')+'&am202='+(2+Math.floor(butin/5000))+'&am203='+(2+Math.floor(butin/25000));
     $('#rap_general_planet_name_'+GLOB_rgID).parent().attr("href",tmp);
     tmp=null;
     document.getElementById('rap_general_butin_'+GLOB_rgID).innerHTML = get_cool_digit(butin);
-    attack_data = '<span id="RG_PT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'https://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+'&force=0&flotte_perso='+flotte_perso+'&blockswitchplanet=yes\';setTimeout(function(){document.getElementById(\'RG_PT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Envoyer '+(2+Math.floor(butin/5000))+' PT</span>';
-    attack_data += '<br><span id="RG_GT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'https://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&GT='+(2+Math.floor(butin/25000))+'&force=0&flotte_perso='+flotte_perso+'&blockswitchplanet=yes\';setTimeout(function(){document.getElementById(\'RG_GT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Envoyer '+(2+Math.floor(butin/25000))+' GT</span>';
+    attack_data = '<span id="RG_PT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'https://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+'&force=0&flotte_perso='+flotte_perso+'&blockswitchplanet=yes&check_perso_is_needed='+check_perso_is_needed+'\';setTimeout(function(){document.getElementById(\'RG_PT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Envoyer '+(2+Math.floor(butin/5000))+' PT</span>';
+    attack_data += '<br><span id="RG_GT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'https://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&GT='+(2+Math.floor(butin/25000))+'&force=0&flotte_perso='+flotte_perso+'&blockswitchplanet=yes&check_perso_is_needed='+check_perso_is_needed+'\';setTimeout(function(){document.getElementById(\'RG_GT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Envoyer '+(2+Math.floor(butin/25000))+' GT</span>';
     attack_data += '<span id="frigoID_'+GLOB_rgID+'" style="display:none">'+idFrigo+'</span>';
     document.getElementById('rap_general_attack_'+GLOB_rgID).innerHTML = attack_data;
     GLOB_rgButins[GLOB_rgID] = new Array();
@@ -2247,8 +2262,8 @@ function fill_case(butin, flotte_perso, idFrigo, curplanet_name) {
     GLOB_rgButins[GLOB_rgID][1] = GLOB_rgID;
     forceparam = '';
     if(readCookie('force','AA') == 'oui') forceparam = '&force=1';
-    GLOB_rgButins[GLOB_rgID][2] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+forceparam+'&flotte_perso='+flotte_perso+'&blockswitchplanet=yes';
-    GLOB_rgButins[GLOB_rgID][3] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&GT='+(2+Math.floor(butin/25000))+forceparam+'&flotte_perso='+flotte_perso+'&blockswitchplanet=yes';
+    GLOB_rgButins[GLOB_rgID][2] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+forceparam+'&flotte_perso='+flotte_perso+'&blockswitchplanet=yes&check_perso_is_needed='+check_perso_is_needed;
+    GLOB_rgButins[GLOB_rgID][3] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&GT='+(2+Math.floor(butin/25000))+forceparam+'&flotte_perso='+flotte_perso+'&blockswitchplanet=yes&check_perso_is_needed='+check_perso_is_needed;
     GLOB_rgID++;
 }
 
@@ -2276,7 +2291,12 @@ function fill_rapport_general() {
         mail_url = document.getElementById('url_rap_esp_'+GLOB_rgID).innerHTML.replace(/&amp;/g,'&');
         //Imperator2Toulouse- If second attack, middle butin is set
         butin = (mail_url !== "second") ? parseInt(mail_url.replace('puredata:','')) : parseInt(parseInt(document.getElementById('url_rap_esp_'+(GLOB_rgID-1)).innerHTML.replace('puredata:','')) /2);
-        fill_case(butin, flotte_perso, idFrig,curplanet_name);
+
+        //Check if flotte perso need to be improved because of opponant flotte and def has changed or if flotte or def exist and flotteperso is empty
+        check_perso_is_needed='';
+        check_perso_is_needed=( ((parseInt(importvars["frigos"][idFrig][7]) >0 || parseInt(importvars["frigos"][idFrig][7])>0) && importvars["frigos"][idFrig][5] == '') || (parseInt(importvars["frigos"][idFrig][7])<parseInt(importvars["frigos"][idFrig][9])) || (parseInt(importvars["frigos"][idFrig][8])<parseInt(importvars["frigos"][idFrig][10])))?"1":"0";
+
+        fill_case(butin, flotte_perso, idFrig, curplanet_name, check_perso_is_needed);
         fill_rapport_general(); 
 
     } else {
@@ -2384,6 +2404,7 @@ function check_AA_feedback() { // Checkout Auto Attack feedback
         fail_bec_GT = false;
         if (readCookie('AA_feed','all').match('DEUT')) {e.innerHTML = '<span title="Vous n\'avez plus assez de deuterium pour envoyer cette flotte">? [Deut]</span> ' + clean_name(e.innerHTML); e.style.color='#d43635';flotte_succes = false;}
         if (readCookie('AA_feed','all').match('FLOTTE')) {e.innerHTML = '<span title="Vous n\'avez plus de slots de flotte disponible">? [Flotte]</span> ' + clean_name(e.innerHTML); e.style.color='#d43635';flotte_succes = false;}
+        if (readCookie('AA_feed','all').match('DEForFLOTTE_HasCHANGED')) {e.innerHTML = '<span title="La flotte ou la defense de votre adversaire a changé, votre flotte perso n\'est peut-être plus adpatée, controler et cliquez sur \'\'forcer\'\' pour envoyer quand même.">? [CheckFlotte]</span> ' + clean_name(e.innerHTML); e.style.color='#d43635';flotte_succes = false;}
         if (readCookie('AA_feed','all').match('NO_PERSO')) {e.innerHTML = '<span title="Votre flotte personnalisée est irréalisable">? [Perso]</span> ' + clean_name(e.innerHTML); e.style.color='#d43635';flotte_succes = false;}
         if (readCookie('AA_feed','all').match('NO_PT')) {fail_bec_PT = true;e.innerHTML = '<span title="Vous manquez de petits transporteurs, cliquez sur \'\'forcer\'\' pour envoyer tout ceux que vous avez">? [PT]</span> ' + clean_name(e.innerHTML); e.style.color='#d43635';flotte_succes = false;}
         if (readCookie('AA_feed','all').match('NO_GT')) {fail_bec_GT = true;e.innerHTML = '<span title="Vous manquez de grands transporteurs, cliquez sur \'\'forcer\'\' pour envoyer tout ceux que vous avez">? [GT]</span> ' + clean_name(e.innerHTML); e.style.color='#d43635';flotte_succes = false;}
@@ -3031,6 +3052,7 @@ function SendFleet(response){
                 params.page=params.page.replace(page,"fleet2"); // Replace for next fleet2 page
                 createCookie('data',JSON.stringify(params), 1, 'form'); // Save params
                 PostXMLHttpRequest(params.url+"?"+params.page,params.to +"&"+ params.type_mission +"&"+ params.fleets,SendFleet);
+//                console.log("Request step1:"+params.url+"?"+params.page+", option="+params.to +"&"+ params.type_mission +"&"+ params.fleets);
             } else {
                 if (params.step ==4) SendFleetSuccess(params); 
                 else SendFleetFailed(params);
@@ -3054,6 +3076,7 @@ function SendFleet(response){
                 }
                 
                 PostXMLHttpRequest(params.url+"?"+params.page,params.type_mission +"&"+ params.fleets +"&"+ params.to +"&"+ params.token+token,SendFleet);
+//                console.log("Request step1:"+params.url+"?"+params.page+", option="+params.type_mission +"&"+ params.fleets +"&"+ params.to +"&"+ params.token+token);
             } else {
                 SendFleetFailed(params);
             }
@@ -3074,6 +3097,7 @@ function SendFleet(response){
                 createCookie('data',JSON.stringify(params), 1, 'form');
                 
                 PostXMLHttpRequest(params.url+"?"+ params.page,params.fleets_opts +"&"+ params.to +"&"+ params.type_mission +"&"+ params.fleets +"&"+ params.ressources +"&"+ params.token+token,SendFleet);
+ //               console.log("Request step1:"+params.url+"?"+params.page+", option="+params.fleets_opts +"&"+ params.to +"&"+ params.type_mission +"&"+ params.fleets +"&"+ params.ressources +"&"+ params.token+token);
             } else {
                 SendFleetFailed(params);
             }
@@ -3158,6 +3182,7 @@ if (gup('page') == "fleet1" && gup('eject') == 'yes') {
     params=JSON.parse('{ "url": "'+"https://"+univers+"/game/index.php"+'", "page": "page=fleet1", "from": "'+"cp="+planet_list[planame_list.indexOf(cur_planame)]+'", "to": "'+"galaxy="+(importvars['eject'].split(':')[0])+"&system="+(importvars['eject'].split(':')[1])+"&position="+(importvars['eject'].split(':')[2])+'", "type_mission": "'+"type="+((eject_onLune)?"3":"1")+"&mission=4"+'", "fleets": "'+"speed=1&am204=99999&am205=99999&am206=99999&am207=99999&am215=99999&am211=99999&am213=99999&am214=99999"+((eject_all)?"&am202=99999&am203=99999&am208=99999&am209=99999&am210=99999":"")+'", "ressources": "'+"metal=999999999&crystal=999999999&deuterium=999999999&prioMetal=1&prioCrystal=2&prioDeuterium=3"+'", "fleets_opts": "'+"union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0"+'", "token": "'+"token="+'", "step": "'+1+'", "sephi_opt":"'+sephi_opt+'"}');
     createCookie('data',JSON.stringify(params), 1, 'form');
     PostXMLHttpRequest(params.url+"?"+params.page+"&"+params.from,"",SendFleet);
+//    console.log("Request:"+params.url+"?"+params.page+"&"+params.from);
     params=null;
 }
 
@@ -3211,11 +3236,12 @@ if (gup('page') == "fleet1" && gup('auto') == 'yes') {
     maxPT = get_info_button("button202")[0];
     maxGT = get_info_button("button203")[0];
 
+    //Check if Flotte/Def of opponant has changed
+    check_perso_is_needed=(gup('check_perso_is_needed') === "1");
+
     maxNames = new Array('Chasseur léger','Chasseur lourd','Croiseur','Vaisseau de bataille','Traqueur','Bombardier','Destructeur','Étoile de la mort','Petit transporteur','Grand transporteur','Vaisseau de colonisation','Recycleur','Sonde d`espionnage');
     maxNames_button = new Array('204','205','206','207','215','211','213','214','202','203','208','209','210');
-
     perso_is_ok = true;
-
     //Check if flotte_perso is ok
     fleets_perso="";
     if (gup('flotte_perso') !== '') {
@@ -3268,7 +3294,9 @@ if (gup('page') == "fleet1" && gup('auto') == 'yes') {
         } else {
             createCookie(idcook, gup('ID')+'_FLOTTE', 1, 'all');
         }
-    } else if (!perso_is_ok) {document.title = 'Flotte Perso impossible'; createCookie(idcook, gup('ID')+'_NO_PERSO', 1, 'all');}
+    }
+    else if (check_perso_is_needed && gup('force') !== '1') {document.title = 'Alerte sur volume de Flotte/Defense ennemie'; createCookie(idcook, gup('ID')+'_DEForFLOTTE_HasCHANGED', 1, 'all');}
+    else if (!perso_is_ok) {document.title = 'Flotte Perso impossible'; createCookie(idcook, gup('ID')+'_NO_PERSO', 1, 'all');}
     else if (nbPT > maxPT && (gup('force') !== '1' || maxPT==0)) {document.title = 'Manque de Petits transporteurs'; createCookie(idcook, gup('ID')+'_NO_PT', 1, 'all');}
     else if (nbGT > maxGT && (gup('force') !== '1' || maxGT==0)) {document.title = 'Manque de Grands transporteurs'; createCookie(idcook, gup('ID')+'_NO_GT', 1, 'all');}
     else {
@@ -3577,6 +3605,10 @@ if (gup('page') == 'messages') {
             if (idFrig>=0 && importvars["frigos"][idFrig].length > 5) flotte_perso=importvars["frigos"][idFrig][5];
             ////
 
+            // Set if flotte perso need to be check in case of opponant flotte or def has changed
+            check_perso_is_needed='';
+            check_perso_is_needed=(((parseInt(importvars["frigos"][idFrig][7]) >0 || parseInt(importvars["frigos"][idFrig][7])>0) && importvars["frigos"][idFrig][5] == '') || (parseInt(importvars["frigos"][idFrig][7])<parseInt(importvars["frigos"][idFrig][9])) || (parseInt(importvars["frigos"][idFrig][8])<parseInt(importvars["frigos"][idFrig][10])))?"1":"0";
+
             document.getElementById('rap_general_planet_name_'+GLOB_rgID).innerHTML = clean_name(document.getElementById('rap_general_planet_name_'+GLOB_rgID).innerHTML);
             document.getElementById('rap_general_planet_name_'+GLOB_rgID).style.color = '';
             GLOB_rgButins[GLOB_rgID] = new Array();
@@ -3584,8 +3616,8 @@ if (gup('page') == 'messages') {
             GLOB_rgButins[GLOB_rgID][1] = GLOB_rgID;
             forceparam = '';
             if(readCookie('force','AA') == 'oui') forceparam = '&force=1';
-            GLOB_rgButins[GLOB_rgID][2] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+(GLOB_rgID)+'&PT='+(2+Math.floor(butin/5000))+forceparam+'&flotte_perso='+flotte_perso+'';
-            GLOB_rgButins[GLOB_rgID][3] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+(GLOB_rgID)+'&GT='+(2+Math.floor(butin/25000))+forceparam+'&flotte_perso='+flotte_perso+'';
+            GLOB_rgButins[GLOB_rgID][2] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+(GLOB_rgID)+'&PT='+(2+Math.floor(butin/5000))+forceparam+'&flotte_perso='+flotte_perso+'&check_perso_is_needed='+check_perso_is_needed+'';
+            GLOB_rgButins[GLOB_rgID][3] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+(GLOB_rgID)+'&GT='+(2+Math.floor(butin/25000))+forceparam+'&flotte_perso='+flotte_perso+'&check_perso_is_needed='+check_perso_is_needed+'';
             GLOB_rgID++;
         }
 
@@ -3669,9 +3701,9 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='<th style="border-right: #09d0ff dashed 0px;text-align:center;width:35px;"><span style="width:20px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;">#Pil-</span><br><span>lage</span></th>';
     sephi_frigos_data+='<th style="border-right: #09d0ff dashed 0px;text-align:center;width:30px;"><span style="font-size:x-small;position:relative;margin-left:5px;left:0px;">Status</span><br><span>&nbsp;</span></th>';
     sephi_frigos_data+='<th style="border-right: #09d0ff dashed 0px;text-align:center;width:80px;"><span style="width:70px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;">Flotte</span><br><span style="cursor:help;position:relative;" title="Rendez vous sur la page Flotte pour créer un tag de flotte personalisé.">perso. (?)</span></th>';
-    sephi_frigos_data+='<th style="border-right: #09d0ff dashed 0px;text-align:center;width:40px;"><span style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;">Flotte</span><br><span>ennemie</span></th>';
+    sephi_frigos_data+='<th style="border-right: #09d0ff dashed 0px;text-align:center;width:40px;"><span style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;">Flotte</span><br><span>ennemie</span></th><th style="width:5px;height:5px;">&nbsp;</th>';
     sephi_frigos_data+='<th style="border-right: #09d0ff dashed 0px;text-align:center;width:40px;"><span style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" disabled title="Volume actuel de la flotte ennemie" >Flotte</span><br><span>courante</span></th>';
-    sephi_frigos_data+='<th style="border-right: #09d0ff dashed 0px;text-align:center;width:40px;"><span style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" title="Volume de la defense ennemie">Defense</span><br><span>ennemie</span></th>';
+    sephi_frigos_data+='<th style="border-right: #09d0ff dashed 0px;text-align:center;width:40px;"><span style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" title="Volume de la defense ennemie">Defense</span><br><span>ennemie</span></th><th style="width:5px;height:5px;">&nbsp;</th>';
     sephi_frigos_data+='<th style="border-right: #09d0ff dashed 0px;text-align:center;width:40px;"><span style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" disabled title="Volume actuel de la defense ennemie">Defense</span><br><span>courante</span></th>';
     sephi_frigos_data+='</tr></table>';
 
@@ -3686,13 +3718,13 @@ if (gup('sephiScript') == '1') {
         sephi_frigos_data+='<th style="text-align:right;width:12px;"><input type="text" style="width:12px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" id="frig_sondes_'+i+'" title="Importance du frigo" value="'+importvars["frigos"][i][4]+'" /></th>';
         sephi_frigos_data+='<th style="text-align:left;width:30px;"><span style="font-size:x-small;position:relative;margin-left:5px;left:0px;">&nbsp;</span></th>';
         sephi_frigos_data+='<th style="text-align:right;width:70px;"><input type="text" style="width:70px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" id="frig_flotte_perso_'+i+'" title="Flotte personalisée" placeholder="Flottes militaire" value="'+importvars["frigos"][i][5]+'" /></th>';
-        sephi_frigos_data+='<th style="text-align:right;width:37px;"><input type="text" style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" id="frig_flotte_'+i+'" title="Volume de la flotte ennemie" value="'+importvars["frigos"][i][7]+'" /></th>';
-        sephi_frigos_data+='<th style="text-align:right;width:37px;"><input type="text" style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" disabled title="Volume actuel de la flotte ennemie" value="'+importvars["frigos"][i][9]+'"></input></th>';
-        sephi_frigos_data+='<th style="text-align:right;width:37px;"><input type="text" style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" id="frig_defense_'+i+'" title="Volume de la defense ennemie" value="'+importvars["frigos"][i][8]+'" /></th>';
-        sephi_frigos_data+='<th style="text-align:right;width:37px;"><input type="text" style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" disabled title="Volume actuel de la defense ennemie" value="'+importvars["frigos"][i][10]+'"></input></th>';
+        sephi_frigos_data+='<th style="text-align:right;width:37px;"><input type="text" style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;'+((importvars["frigos"][i][7] < importvars["frigos"][i][9])?"background-color: crimson;":"")+'" id="frig_flotte_'+i+'" title="Volume de la flotte ennemie" value="'+importvars["frigos"][i][7]+'" /></th><th style="width:5px;heigth:5px;"><a style="width:5px;height:5px;position:relative;top:-4px;right:-4px;cursor: hand;" title="Aligner" href="javascript:void(0);" onclick="$(&quot;#frig_flotte_'+i+'&quot;).val($(&quot;#frig_cur_flotte_'+i+'&quot;).val());$(&quot;#frig_flotte_'+i+'&quot;).css(&quot;background-color&quot;,&quot;white&quot);$(&quot;#frig_flotte_'+i+'&quot;).change();">&lt;</a></th>';
+        sephi_frigos_data+='<th style="text-align:right;width:37px;"><input type="text" style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" disabled id="frig_cur_flotte_'+i+'" title="Volume actuel de la flotte ennemie" value="'+importvars["frigos"][i][9]+'"></input></th>';
+        sephi_frigos_data+='<th style="text-align:right;width:37px;"><input type="text" style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;'+((importvars["frigos"][i][8] < importvars["frigos"][i][10])?"background-color: crimson;":"")+'" id="frig_defense_'+i+'" title="Volume de la defense ennemie" value="'+importvars["frigos"][i][8]+'" /></th><th style="width:5px;heigth:5px;"><a style="width:5px;height:5px;position:relative;top:-4px;right:-4px;cursor: hand;" title="Aligner" href="javascript:void(0);" onclick="$(&quot;#frig_defense_'+i+'&quot;).val($(&quot;#frig_cur_defense_'+i+'&quot;).val());$(&quot;#frig_defense_'+i+'&quot;).css(&quot;background-color&quot;,&quot;white&quot);$(&quot;#frig_defense_'+i+'&quot;).change();">&lt;</a></th>';
+        sephi_frigos_data+='<th style="text-align:right;width:37px;"><input type="text" style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" disabled id="frig_cur_defense_'+i+'" title="Volume actuel de la defense ennemie" value="'+importvars["frigos"][i][10]+'"></input></th>';
         sephi_frigos_data+='</tr></table>';
         sephi_frigos_data+= "\n"+'<div id="del_button_'+i+'" style="height:0px;position:relative;left:-5px;top:-22px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/newsletter-close-button.png" title="Supprimer le frigo"/></div>';
-        sephi_frigos_data+='<div style="width:0px;height:0px;position:relative;top: -29px;left: 240px;"><img src="http://www.sephiogame.com/script/icon_spy.png" style="width:30px;height:auto;cursor:pointer;" title="Espionner" id="spy_button_'+i+'"/><img src="http://www.sephiogame.com/script/icon-tick.png" style="position:relative;left:18px;top:-17px;display:none;" id="spy_isok_'+i+'"/></div>';
+        sephi_frigos_data+='<div style="width:0px;height:0px;position:relative;top:-29px;left:230px;"><img src="http://www.sephiogame.com/script/icon_spy.png" style="width:30px;height:auto;cursor:pointer;" title="Espionner" id="spy_button_'+i+'"/><img src="http://www.sephiogame.com/script/icon-tick.png" style="position:relative;left:18px;top:-17px;display:none;" id="spy_isok_'+i+'"/></div>';
 
         sephi_frigos_data+='<div style="background:#202020;height:1px;width:80%;margin:auto;margin-top:14px;"></div><br>';
         cur_check_all_state = cur_check_all_state || importvars["frigos"][i][6] == '0';
