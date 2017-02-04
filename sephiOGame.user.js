@@ -841,7 +841,6 @@ function change_actions_tab(action_tab){
                     var flottes = null, flottesActive = false, defense = null, defenseActive = false, flottesDetected = false, defenseDetected = false;
                     if ($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').length > 0) {
                         flottesDetected = true;
-                        debugger
                         flottes = parseInt($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').html().match(/\d/g).join(""));
                         if ($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').html().match('M')) flottes*=1000000;
                         if ($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').html().match(',')) flottes/=100;
@@ -849,7 +848,6 @@ function change_actions_tab(action_tab){
                     }
                     if ($(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').length > 0) {
                         defenseDetected = true;
-                        debugger
                         defense = parseInt($(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').html().match(/\d/g).join(""));
                         if ($(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').html().match('M')) defense*=1000000;
                         if ($(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').html().match(',')) defense/=100;
@@ -2282,10 +2280,9 @@ function fill_rapport_general() {
         //Imperator2Toulouse- If second attack, middle butin is set
         butin = (mail_url !== "second") ? parseInt(mail_url.replace('puredata:','')) : parseInt(parseInt(document.getElementById('url_rap_esp_'+(GLOB_rgID-1)).innerHTML.replace('puredata:','')) /2);
 
-        //Check if flotte perso need to be improved because of opponant flotte and def has changed
-        debugger
+        //Check if flotte perso need to be improved because of opponant flotte and def has changed or if flotte or def exist and flotteperso is empty
         check_perso_is_needed='';
-        check_perso_is_needed=((parseInt(importvars["frigos"][idFrig][7])<parseInt(importvars["frigos"][idFrig][9])) || (parseInt(importvars["frigos"][idFrig][8])<parseInt(importvars["frigos"][idFrig][10])))?"1":"0";
+        check_perso_is_needed=( ((parseInt(importvars["frigos"][idFrig][7]) >0 || parseInt(importvars["frigos"][idFrig][7])>0) && importvars["frigos"][idFrig][5] == '') || (parseInt(importvars["frigos"][idFrig][7])<parseInt(importvars["frigos"][idFrig][9])) || (parseInt(importvars["frigos"][idFrig][8])<parseInt(importvars["frigos"][idFrig][10])))?"1":"0";
 
         fill_case(butin, flotte_perso, idFrig, curplanet_name, check_perso_is_needed);
         fill_rapport_general(); 
@@ -3227,9 +3224,8 @@ if (gup('page') == "fleet1" && gup('auto') == 'yes') {
     maxPT = get_info_button("button202")[0];
     maxGT = get_info_button("button203")[0];
 
-    debugger
-    check_perso_is_needed=(gup('check_perso_is_needed') === "1");
     //Check if Flotte/Def of opponant has changed
+    check_perso_is_needed=(gup('check_perso_is_needed') === "1");
 
     maxNames = new Array('Chasseur léger','Chasseur lourd','Croiseur','Vaisseau de bataille','Traqueur','Bombardier','Destructeur','Étoile de la mort','Petit transporteur','Grand transporteur','Vaisseau de colonisation','Recycleur','Sonde d`espionnage');
     maxNames_button = new Array('204','205','206','207','215','211','213','214','202','203','208','209','210');
@@ -3286,10 +3282,11 @@ if (gup('page') == "fleet1" && gup('auto') == 'yes') {
         } else {
             createCookie(idcook, gup('ID')+'_FLOTTE', 1, 'all');
         }
-    } else if (!perso_is_ok) {document.title = 'Flotte Perso impossible'; createCookie(idcook, gup('ID')+'_NO_PERSO', 1, 'all');}
+    }
+    else if (check_perso_is_needed && gup('force') !== '1') {document.title = 'Alerte sur volume de Flotte/Defense ennemie'; createCookie(idcook, gup('ID')+'_DEForFLOTTE_HasCHANGED', 1, 'all');}
+    else if (!perso_is_ok) {document.title = 'Flotte Perso impossible'; createCookie(idcook, gup('ID')+'_NO_PERSO', 1, 'all');}
     else if (nbPT > maxPT && (gup('force') !== '1' || maxPT==0)) {document.title = 'Manque de Petits transporteurs'; createCookie(idcook, gup('ID')+'_NO_PT', 1, 'all');}
     else if (nbGT > maxGT && (gup('force') !== '1' || maxGT==0)) {document.title = 'Manque de Grands transporteurs'; createCookie(idcook, gup('ID')+'_NO_GT', 1, 'all');}
-    else if (check_perso_is_needed && gup('force') !== '1') {document.title = 'Alerte sur volume de Flotte/Defense ennemie'; createCookie(idcook, gup('ID')+'_DEForFLOTTE_HasCHANGED', 1, 'all');}
     else {
         ////////////////////////////
         //// USE NEW SendFleet
@@ -3597,9 +3594,8 @@ if (gup('page') == 'messages') {
             ////
 
             // Set if flotte perso need to be check in case of opponant flotte or def has changed
-            debugger
             check_perso_is_needed='';
-            check_perso_is_needed=((parseInt(importvars["frigos"][idFrig][7])<parseInt(importvars["frigos"][idFrig][9])) || (parseInt(importvars["frigos"][idFrig][8])<parseInt(importvars["frigos"][idFrig][10])))?"1":"0";
+            check_perso_is_needed=(((parseInt(importvars["frigos"][idFrig][7]) >0 || parseInt(importvars["frigos"][idFrig][7])>0) && importvars["frigos"][idFrig][5] == '') || (parseInt(importvars["frigos"][idFrig][7])<parseInt(importvars["frigos"][idFrig][9])) || (parseInt(importvars["frigos"][idFrig][8])<parseInt(importvars["frigos"][idFrig][10])))?"1":"0";
 
             document.getElementById('rap_general_planet_name_'+GLOB_rgID).innerHTML = clean_name(document.getElementById('rap_general_planet_name_'+GLOB_rgID).innerHTML);
             document.getElementById('rap_general_planet_name_'+GLOB_rgID).style.color = '';
