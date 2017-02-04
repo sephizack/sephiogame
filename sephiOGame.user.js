@@ -841,12 +841,18 @@ function change_actions_tab(action_tab){
                     var flottes = null, flottesActive = false, defense = null, defenseActive = false, flottesDetected = false, defenseDetected = false;
                     if ($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').length > 0) {
                         flottesDetected = true;
+                        debugger
                         flottes = parseInt($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').html().match(/\d/g).join(""));
+                        if ($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').html().match('M')) flottes*=1000000;
+                        if ($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').html().match(',')) flottes/=100;
                         (flottes > 0) ? flottesActive = true : flottesActive = false;
                     }
                     if ($(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').length > 0) {
                         defenseDetected = true;
+                        debugger
                         defense = parseInt($(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').html().match(/\d/g).join(""));
+                        if ($(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').html().match('M')) defense*=1000000;
+                        if ($(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').html().match(',')) defense/=100;
                         (defense > 0) ? defenseActive = true : defenseActive = false;
                     }
                     //END DETECTION
@@ -1340,6 +1346,7 @@ GLOB_spy_fail=0;
 GLOB_abandonne_spy = false;
 nb_tries = nb_fail = 0;
 function launch_spy(self, override_id){
+    debugger
     clearTimeout(backOverview);
     if (GLOB_abandonne_spy) {
         GLOB_abandonne_spy=false;
@@ -1518,7 +1525,7 @@ function launch_spy(self, override_id){
                     else $('#auto_attack').html('&#9658; Rapport général reporté dans une heure (impossible d\'espionner)');
                     GLOB_abandonne_spy = true;
                     if (gup('startAA') == '1') {
-                        createCookie('progTime', time() + 60*60*1000, 1,'AA' ); // re-essaye dans 30min
+                        createCookie('progTime', time() + 60*60*1000, 1,'AA' ); // re-essaye dans 60min
                         createCookie('isProg', 'oui', 1,'AA' );
                         setTimeout(function(){window.location.href = 'https://'+univers+'/game/index.php?page=overview';}, 10000);
                     }
@@ -2231,13 +2238,13 @@ function process_espionage_data(data) {
     });
 }
 
-function fill_case(butin, flotte_perso, idFrigo, curplanet_name) {
+function fill_case(butin, flotte_perso, idFrigo, curplanet_name, check_perso_is_needed) {
     var tmp=$('#rap_general_planet_name_'+GLOB_rgID).parent().attr('href')+'&am202='+(2+Math.floor(butin/5000))+'&am203='+(2+Math.floor(butin/25000));
     $('#rap_general_planet_name_'+GLOB_rgID).parent().attr("href",tmp);
     tmp=null;
     document.getElementById('rap_general_butin_'+GLOB_rgID).innerHTML = get_cool_digit(butin);
-    attack_data = '<span id="RG_PT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'https://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+'&force=0&flotte_perso='+flotte_perso+'&blockswitchplanet=yes\';setTimeout(function(){document.getElementById(\'RG_PT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Envoyer '+(2+Math.floor(butin/5000))+' PT</span>';
-    attack_data += '<br><span id="RG_GT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'https://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&GT='+(2+Math.floor(butin/25000))+'&force=0&flotte_perso='+flotte_perso+'&blockswitchplanet=yes\';setTimeout(function(){document.getElementById(\'RG_GT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Envoyer '+(2+Math.floor(butin/25000))+' GT</span>';
+    attack_data = '<span id="RG_PT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'https://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+'&force=0&flotte_perso='+flotte_perso+'&blockswitchplanet=yes&check_perso_is_needed='+check_perso_is_needed+'\';setTimeout(function(){document.getElementById(\'RG_PT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Envoyer '+(2+Math.floor(butin/5000))+' PT</span>';
+    attack_data += '<br><span id="RG_GT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'https://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&GT='+(2+Math.floor(butin/25000))+'&force=0&flotte_perso='+flotte_perso+'&blockswitchplanet=yes&check_perso_is_needed='+check_perso_is_needed+'\';setTimeout(function(){document.getElementById(\'RG_GT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Envoyer '+(2+Math.floor(butin/25000))+' GT</span>';
     attack_data += '<span id="frigoID_'+GLOB_rgID+'" style="display:none">'+idFrigo+'</span>';
     document.getElementById('rap_general_attack_'+GLOB_rgID).innerHTML = attack_data;
     GLOB_rgButins[GLOB_rgID] = new Array();
@@ -2245,8 +2252,8 @@ function fill_case(butin, flotte_perso, idFrigo, curplanet_name) {
     GLOB_rgButins[GLOB_rgID][1] = GLOB_rgID;
     forceparam = '';
     if(readCookie('force','AA') == 'oui') forceparam = '&force=1';
-    GLOB_rgButins[GLOB_rgID][2] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+forceparam+'&flotte_perso='+flotte_perso+'&blockswitchplanet=yes';
-    GLOB_rgButins[GLOB_rgID][3] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&GT='+(2+Math.floor(butin/25000))+forceparam+'&flotte_perso='+flotte_perso+'&blockswitchplanet=yes';
+    GLOB_rgButins[GLOB_rgID][2] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+forceparam+'&flotte_perso='+flotte_perso+'&blockswitchplanet=yes&check_perso_is_needed='+check_perso_is_needed+'';
+    GLOB_rgButins[GLOB_rgID][3] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&GT='+(2+Math.floor(butin/25000))+forceparam+'&flotte_perso='+flotte_perso+'&blockswitchplanet=yes&check_perso_is_needed='+check_perso_is_needed+'';
     GLOB_rgID++;
 }
 
@@ -2274,7 +2281,13 @@ function fill_rapport_general() {
         mail_url = document.getElementById('url_rap_esp_'+GLOB_rgID).innerHTML.replace(/&amp;/g,'&');
         //Imperator2Toulouse- If second attack, middle butin is set
         butin = (mail_url !== "second") ? parseInt(mail_url.replace('puredata:','')) : parseInt(parseInt(document.getElementById('url_rap_esp_'+(GLOB_rgID-1)).innerHTML.replace('puredata:','')) /2);
-        fill_case(butin, flotte_perso, idFrig,curplanet_name);
+
+        //Check if flotte perso need to be improved because of opponant flotte and def has changed
+        debugger
+        check_perso_is_needed='';
+        check_perso_is_needed=((parseInt(importvars["frigos"][idFrig][7])<parseInt(importvars["frigos"][idFrig][9])) || (parseInt(importvars["frigos"][idFrig][8])<parseInt(importvars["frigos"][idFrig][10])))?"1":"0";
+
+        fill_case(butin, flotte_perso, idFrig, curplanet_name, check_perso_is_needed);
         fill_rapport_general(); 
 
     } else {
@@ -2385,6 +2398,7 @@ function check_AA_feedback() { // Checkout Auto Attack feedback
         if (readCookie('AA_feed','all').match('NO_PERSO')) {e.innerHTML = '<span title="Votre flotte personnalisée est irréalisable">? [Perso]</span> ' + clean_name(e.innerHTML); e.style.color='#d43635';flotte_succes = false;}
         if (readCookie('AA_feed','all').match('NO_PT')) {fail_bec_PT = true;e.innerHTML = '<span title="Vous manquez de petits transporteurs, cliquez sur \'\'forcer\'\' pour envoyer tout ceux que vous avez">? [PT]</span> ' + clean_name(e.innerHTML); e.style.color='#d43635';flotte_succes = false;}
         if (readCookie('AA_feed','all').match('NO_GT')) {fail_bec_GT = true;e.innerHTML = '<span title="Vous manquez de grands transporteurs, cliquez sur \'\'forcer\'\' pour envoyer tout ceux que vous avez">? [GT]</span> ' + clean_name(e.innerHTML); e.style.color='#d43635';flotte_succes = false;}
+        if (readCookie('AA_feed','all').match('DEForFLOTTE_HasCHANGED')) {e.innerHTML = '<span title="La flotte ou la defense de votre adversaire a changé, votre flotte perso n\'est peut-être plus adpatée, controler et cliquez sur \'\'forcer\'\' pour envoyer votre attaque">? [CheckBeforeAttack]</span> ' + clean_name(e.innerHTML); e.style.color='#d43635';flotte_succes = false;}
         if (AATimeout !== null) clearTimeout(AATimeout);
         createCookie('lastRap', document.getElementById('rap_general_table').innerHTML, 1, 'AA');
         document.getElementById('ifr_AA').src = 'https://ready';
@@ -3213,11 +3227,13 @@ if (gup('page') == "fleet1" && gup('auto') == 'yes') {
     maxPT = get_info_button("button202")[0];
     maxGT = get_info_button("button203")[0];
 
+    debugger
+    check_perso_is_needed=(gup('check_perso_is_needed') === "1");
+    //Check if Flotte/Def of opponant has changed
+
     maxNames = new Array('Chasseur léger','Chasseur lourd','Croiseur','Vaisseau de bataille','Traqueur','Bombardier','Destructeur','Étoile de la mort','Petit transporteur','Grand transporteur','Vaisseau de colonisation','Recycleur','Sonde d`espionnage');
     maxNames_button = new Array('204','205','206','207','215','211','213','214','202','203','208','209','210');
-
     perso_is_ok = true;
-
     //Check if flotte_perso is ok
     fleets_perso="";
     if (gup('flotte_perso') !== '') {
@@ -3273,6 +3289,7 @@ if (gup('page') == "fleet1" && gup('auto') == 'yes') {
     } else if (!perso_is_ok) {document.title = 'Flotte Perso impossible'; createCookie(idcook, gup('ID')+'_NO_PERSO', 1, 'all');}
     else if (nbPT > maxPT && (gup('force') !== '1' || maxPT==0)) {document.title = 'Manque de Petits transporteurs'; createCookie(idcook, gup('ID')+'_NO_PT', 1, 'all');}
     else if (nbGT > maxGT && (gup('force') !== '1' || maxGT==0)) {document.title = 'Manque de Grands transporteurs'; createCookie(idcook, gup('ID')+'_NO_GT', 1, 'all');}
+    else if (check_perso_is_needed && gup('force') !== '1') {document.title = 'Alerte sur volume de Flotte/Defense ennemie'; createCookie(idcook, gup('ID')+'_DEForFLOTTE_HasCHANGED', 1, 'all');}
     else {
         ////////////////////////////
         //// USE NEW SendFleet
@@ -3579,6 +3596,11 @@ if (gup('page') == 'messages') {
             if (idFrig>=0 && importvars["frigos"][idFrig].length > 5) flotte_perso=importvars["frigos"][idFrig][5];
             ////
 
+            // Set if flotte perso need to be check in case of opponant flotte or def has changed
+            debugger
+            check_perso_is_needed='';
+            check_perso_is_needed=((parseInt(importvars["frigos"][idFrig][7])<parseInt(importvars["frigos"][idFrig][9])) || (parseInt(importvars["frigos"][idFrig][8])<parseInt(importvars["frigos"][idFrig][10])))?"1":"0";
+
             document.getElementById('rap_general_planet_name_'+GLOB_rgID).innerHTML = clean_name(document.getElementById('rap_general_planet_name_'+GLOB_rgID).innerHTML);
             document.getElementById('rap_general_planet_name_'+GLOB_rgID).style.color = '';
             GLOB_rgButins[GLOB_rgID] = new Array();
@@ -3586,8 +3608,8 @@ if (gup('page') == 'messages') {
             GLOB_rgButins[GLOB_rgID][1] = GLOB_rgID;
             forceparam = '';
             if(readCookie('force','AA') == 'oui') forceparam = '&force=1';
-            GLOB_rgButins[GLOB_rgID][2] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+(GLOB_rgID)+'&PT='+(2+Math.floor(butin/5000))+forceparam+'&flotte_perso='+flotte_perso+'';
-            GLOB_rgButins[GLOB_rgID][3] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+(GLOB_rgID)+'&GT='+(2+Math.floor(butin/25000))+forceparam+'&flotte_perso='+flotte_perso+'';
+            GLOB_rgButins[GLOB_rgID][2] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+(GLOB_rgID)+'&PT='+(2+Math.floor(butin/5000))+forceparam+'&flotte_perso='+flotte_perso+'&check_perso_is_needed='+check_perso_is_needed+'';
+            GLOB_rgButins[GLOB_rgID][3] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+(GLOB_rgID)+'&GT='+(2+Math.floor(butin/25000))+forceparam+'&flotte_perso='+flotte_perso+'&check_perso_is_needed='+check_perso_is_needed+'';
             GLOB_rgID++;
         }
 
