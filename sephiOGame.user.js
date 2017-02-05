@@ -1351,7 +1351,7 @@ function launch_spy(self, override_id){
         window.location.href = window.location.href.replace(gup('page'), 'overview').replace('&sephiScript=1', '');
         return;
     }
-    
+
     var caller_id = this.id;
     if (override_id) caller_id = override_id;
     init_spy_id = 0;
@@ -1385,40 +1385,7 @@ function launch_spy(self, override_id){
         $('#spy_all').html('&#9658; Aucun frigo à espionner');
         return;
     }
-    
-    
-    //Programmer
-    /*if(want_a_AA && (document.getElementById('prog_AA').checked || document.getElementById('repeat_AA').checked || document.getElementById('aa_enable').checked || document.getElementById('time_no_AA').checked)) {
-        createCookie('isProg', 'oui', 1,'AA' );
-        
-        //programmé oui démarrage direct, auquel cas : le prog time vaut le repeat time
-        if (document.getElementById('prog_AA').checked) progTime = time() + 60*60*1000*parseInt('0'+document.getElementById('time_AA_h').value) + 60*1000*parseInt('0'+document.getElementById('time_AA_m').value);
-        else progTime = time() + 3*1000;
-        
-        if (document.getElementById('repeat_AA').checked) {
-            createCookie('repeat', 'oui', 1,'AA');
-            createCookie('repeatTime', 60*60*1000*parseInt('0'+document.getElementById('repeat_AA_h').value) + 60*1000*parseInt('0'+document.getElementById('repeat_AA_m').value), 1,'AA');
-        } else createCookie('repeat', 'non', 1,'AA');
-        
-        //I2T: Intégre l'auto-attaque
-        if (document.getElementById('aa_enable').checked) {
-            createCookie('aa_enable', 'oui', 1,'AA');
-        } else createCookie('aa_enable', 'non', 1,'AA');
-        
-        if (document.getElementById('time_no_AA').checked) {
-            createCookie('time_no_AA', 'oui', 1,'AA');
-            createCookie('time_no_AA_start', 60*60*1000*parseInt('0'+document.getElementById('time_no_AA_h_start').value) + 60*1000*parseInt('0'+document.getElementById('time_no_AA_m_start').value), 1,'AA');
-            createCookie('time_no_AA_end', 60*60*1000*parseInt('0'+document.getElementById('time_no_AA_h_end').value) + 60*1000*parseInt('0'+document.getElementById('time_no_AA_m_end').value), 1,'AA');
-        } else createCookie('time_no_AA', 'non', 1,'AA');
-        
-        createCookie('progTime', progTime, 1,'AA');
-        document.getElementById('auto_attack').style.color='#A52592';
-        document.getElementById('auto_attack').innerHTML='&#9658; Rapport général <u>'+((readCookie('aa_enable','AA') == 'oui')?'AVEC':'SANS')+'</u> auto-attaque programmé avec succès';
-        
-        window.location.href = window.location.href;
-        return;
-    }*/
-       
+
     if(spy_all && spy_id==init_spy_id) {
         $('#spy_all').css("color", '#808080');
         $('#spy_all').html('&#9658; Espionnage des frigos en cours...');
@@ -1448,7 +1415,7 @@ function launch_spy(self, override_id){
     auCasOu = setTimeout(function() {
            window.location.href = window.location.href.replace(gup('page'), 'overview').replace('&sephiScript=1', '');
     }, 5*60*1000);
-    
+
     spyTimeout = setTimeout(function() {
         blit_message('<span style="float: none;margin: 0;color:#d43635">Pas de réponse</span>. Nouvel essai ('+(nb_fail+1)+'/10).');
         //Imperator2Toulouse- If nb fails reached, abandon the spy process which will return to the overview
@@ -1470,7 +1437,7 @@ function launch_spy(self, override_id){
                 miniFleetToken = dateESP.newToken;
             }
             nb_tries++;
-            if (dateESP.response == 'undefined') {
+            if (dateESP.response == undefined) {
                 blit_message('<span style="float: none;margin: 0;color:#d43635">Erreur inconnue</span>. Nouvel essai');
                 $('#auto_attack').html('&#9658; Erreur inconnue');
                 clearTimeout(spyTimeout);
@@ -2082,7 +2049,7 @@ function read_rapports_and_create_table() {
                 if (document.getElementById('with_readed_RG').checked && count_esp>=nb_limit*2) return;
                 
                 if ($(this).find("span.msg_title").text().match("Rapport d`espionnage de")) {
-debugger
+
                     no_more_new_esp = false;
                     [,planame,galaxy,system,planet]=$(this).find("span.msg_title a").text().trim().match(/(.*) \[(\d+):(\d+):(\d+)\]/);
                     coord = '['+galaxy+":"+system+":"+planet+']';
