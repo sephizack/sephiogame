@@ -1372,7 +1372,8 @@ function launch_spy(self, override_id){
         spy_id=-1;
         createCookie('AA_butin', $('#butin_AA_RG').val().match(/\d/g).join(""), 1, 'AA');
     } else {
-        if (spy_all) spy_id = next_id
+        if (typeof next_id == "undefined") next_id=-1;
+        if (spy_all) spy_id = next_id;
         else spy_id = parseInt(caller_id.replace('spy_button_',''));
     }
     
@@ -2220,17 +2221,20 @@ function fill_case(butin, flotte_perso, idFrigo, curplanet_name, check_perso_is_
     $('#rap_general_planet_name_'+GLOB_rgID).parent().attr("href",tmp);
     tmp=null;
     document.getElementById('rap_general_butin_'+GLOB_rgID).innerHTML = get_cool_digit(butin);
-    attack_data = '<span id="RG_PT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'https://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+'&force=0&flotte_perso='+flotte_perso+'&blockswitchplanet=yes&check_perso_is_needed='+check_perso_is_needed+'\';setTimeout(function(){document.getElementById(\'RG_PT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Envoyer '+(2+Math.floor(butin/5000))+' PT</span>';
-    attack_data += '<br><span id="RG_GT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'https://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&GT='+(2+Math.floor(butin/25000))+'&force=0&flotte_perso='+flotte_perso+'&blockswitchplanet=yes&check_perso_is_needed='+check_perso_is_needed+'\';setTimeout(function(){document.getElementById(\'RG_GT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Envoyer '+(2+Math.floor(butin/25000))+' GT</span>';
+
+    (check_perso_is_needed != "")?checkperso_param="&check_perso_is_needed="+check_perso_is_needed:checkperso_param="";
+
+    attack_data = '<span id="RG_PT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'https://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+'&force=0&flotte_perso='+flotte_perso+'&blockswitchplanet=yes&cp='+cur_planet+checkperso_param+'\';setTimeout(function(){document.getElementById(\'RG_PT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Envoyer '+(2+Math.floor(butin/5000))+' PT</span>';
+    attack_data += '<br><span id="RG_GT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'https://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&GT='+(2+Math.floor(butin/25000))+'&force=0&flotte_perso='+flotte_perso+'&blockswitchplanet=yes&cp='+cur_planet+checkperso_param+'\';setTimeout(function(){document.getElementById(\'RG_GT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Envoyer '+(2+Math.floor(butin/25000))+' GT</span>';
     attack_data += '<span id="frigoID_'+GLOB_rgID+'" style="display:none">'+idFrigo+'</span>';
     document.getElementById('rap_general_attack_'+GLOB_rgID).innerHTML = attack_data;
     GLOB_rgButins[GLOB_rgID] = new Array();
     GLOB_rgButins[GLOB_rgID][0] = butin;
     GLOB_rgButins[GLOB_rgID][1] = GLOB_rgID;
-    forceparam = '';
-    if(readCookie('force','AA') == 'oui') forceparam = '&force=1';
-    GLOB_rgButins[GLOB_rgID][2] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+forceparam+'&flotte_perso='+flotte_perso+'&blockswitchplanet=yes&check_perso_is_needed='+check_perso_is_needed;
-    GLOB_rgButins[GLOB_rgID][3] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&GT='+(2+Math.floor(butin/25000))+forceparam+'&flotte_perso='+flotte_perso+'&blockswitchplanet=yes&check_perso_is_needed='+check_perso_is_needed;
+
+    (readCookie('force','AA') == 'oui')?forceparam = '&force=1':forceparam = '';
+    GLOB_rgButins[GLOB_rgID][2] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+forceparam+'&flotte_perso='+flotte_perso+'&blockswitchplanet=yes&cp='+cur_planet+checkperso_param;
+    GLOB_rgButins[GLOB_rgID][3] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&GT='+(2+Math.floor(butin/25000))+forceparam+'&flotte_perso='+flotte_perso+'&blockswitchplanet=yes&cp='+cur_planet+checkperso_param;
     GLOB_rgID++;
 }
 
@@ -2451,7 +2455,7 @@ function startAA() {
     } else createCookie('isProg', 'non', 1, 'AA');
     
     // On démarre l'AA
-    window.location.href='https://'+univers+'/game/index.php?page=shipyard&sephiScript=1&startAA=1';
+    window.location.href='https://'+univers+'/game/index.php?page=shipyard&sephiScript=1&cp='+cur_planet+'&startAA=1';
 }
 
 /* Affiche l'attaques en attente */
@@ -2486,7 +2490,7 @@ function add_auto_attack_bar() {
             }
             data += '<p style="width:600px;height:20px;white-space: nowrap">' + auto_attack_bar_text;
             data += "\n"+'<div id="del_button_AA" style="height:0px;position:relative;left:578px;top:-20px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/newsletter-close-button.png" title="Annuler la configuration de la génération des rapports" onclick="localStorage.setItem(\''+cur_planet+'_AA_isProg\', \'non\');window.location.href=window.location.href.replace(\'startAA=1\',\'\');"/></div>';
-            data += "\n"+'<div id="retrad_AA_button" style="height:0px;position:relative;left:555px;top:-21px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/IconeChrono2.png" title="Retarder la génération du rapport'+((readCookie('aa_enable','AA') == 'oui')?' avec ':' sans ')+'auto attaque de 15 minutes"/></div>';
+            data += "\n"+'<div id="retard_AA_button" style="height:0px;position:relative;left:555px;top:-21px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/IconeChrono2.png" title="Retarder la génération du rapport'+((readCookie('aa_enable','AA') == 'oui')?' avec ':' sans ')+'auto attaque de 15 minutes"/></div>';
             data += "\n"+'<div id="launch_AA_button" style="height:0px;position:relative;left:530px;top:-20px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/icon_launch.png" title="Démarrer la génération du rapport'+((readCookie('aa_enable','AA') == 'oui')?' avec ':' sans ')+'auto attaque maintenant"/></div>';
             data += "\n"+'</div>';
             data += "\n"+'</div>';
@@ -2677,7 +2681,7 @@ if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page')
     $("#support_prev_block").height((count_progs*27)+"px");
 
     if (retard_AA_button) {
-        $('#retrad_AA_button').on('click', function() {
+        $('#retard_AA_button').on('click', function() {
             new_prog_time = parseInt(readCookie('progTime','AA')) + 15*60*1000; // retarde de 15 min
             localStorage.setItem(cur_planet+'_AA_progTime', new_prog_time);
         });
@@ -3581,10 +3585,11 @@ if (gup('page') == 'messages') {
             GLOB_rgButins[GLOB_rgID] = new Array();
             GLOB_rgButins[GLOB_rgID][0] = butin;
             GLOB_rgButins[GLOB_rgID][1] = GLOB_rgID;
-            forceparam = '';
-            if(readCookie('force','AA') == 'oui') forceparam = '&force=1';
-            GLOB_rgButins[GLOB_rgID][2] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+(GLOB_rgID)+'&PT='+(2+Math.floor(butin/5000))+forceparam+'&flotte_perso='+flotte_perso+'&check_perso_is_needed='+check_perso_is_needed+'';
-            GLOB_rgButins[GLOB_rgID][3] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+(GLOB_rgID)+'&GT='+(2+Math.floor(butin/25000))+forceparam+'&flotte_perso='+flotte_perso+'&check_perso_is_needed='+check_perso_is_needed+'';
+
+            (readCookie('force','AA') == 'oui')?forceparam = '&force=1':forceparam = '';
+            (check_perso_is_needed != "")?checkperso_param="&check_perso_is_needed="+check_perso_is_needed:checkperso_param="";
+            GLOB_rgButins[GLOB_rgID][2] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+(GLOB_rgID)+'&PT='+(2+Math.floor(butin/5000))+forceparam+'&flotte_perso='+flotte_perso+'&cp='+cur_planet+checkperso_param+'';
+            GLOB_rgButins[GLOB_rgID][3] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+(GLOB_rgID)+'&GT='+(2+Math.floor(butin/25000))+forceparam+'&flotte_perso='+flotte_perso+'&cp='+cur_planet+checkperso_param+'';
             GLOB_rgID++;
         }
 
