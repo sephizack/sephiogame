@@ -785,12 +785,12 @@ function change_actions_tab(action_tab){
         var parent=$(this).parent();
         if (! parent.attr("href")) {
             var api_num = $(this).attr("title").replace(/^.*input value='(.*)' readonly.*$/m, '$1');
-            if (api_num.match(/^sr-.*$/)) api_param="SR_KEYconv=".concat(api_num);
+            if (api_num.match(/^sr-.*$/)) api_param="SR_KEY=".concat(api_num);
             if (api_num.match(/^cr-.*$/)) api_param="CR_KEY=".concat(api_num);
 
             parent.replaceWith(function () {
                 return $('<a/>', {
-                    href: "http://topraider.eu/index.php?langue=fr&".concat(api_param),
+                    href: "http://topraider.eu/index.php?langue=fr&simulator=speedsim&".concat(api_param),
                     target: '_blank',
                     class: "icon_nf_link fleft",
                     html: this.innerHTML
@@ -2265,7 +2265,7 @@ function fill_rapport_general() {
 
         //Check if flotte perso need to be improved because of opponant flotte and def has changed or if flotte or def exist and flotteperso is empty
         check_perso_is_needed='';
-        check_perso_is_needed=( ((parseInt(importvars["frigos"][idFrig][7]) >0 || parseInt(importvars["frigos"][idFrig][7])>0) && importvars["frigos"][idFrig][5] == '') || (parseInt(importvars["frigos"][idFrig][7])<parseInt(importvars["frigos"][idFrig][9])) || (parseInt(importvars["frigos"][idFrig][8])<parseInt(importvars["frigos"][idFrig][10])))?"1":"0";
+        check_perso_is_needed=( ((parseInt(importvars["frigos"][idFrig][7]) >0 || parseInt(importvars["frigos"][idFrig][8])>0) && importvars["frigos"][idFrig][5] == '') || (parseInt(importvars["frigos"][idFrig][7])<parseInt(importvars["frigos"][idFrig][9])) || (parseInt(importvars["frigos"][idFrig][8])<parseInt(importvars["frigos"][idFrig][10])))?"1":"0";
 
         fill_case(butin, flotte_perso, idFrig, curplanet_name, check_perso_is_needed);
         fill_rapport_general(); 
@@ -2413,7 +2413,7 @@ capa_crystal = parseInt($(document.body).html().split(',"max":')[2].split(',')[0
 capa_deuterium = parseInt($(document.body).html().split(',"max":')[3].split(',')[0].match(/\d/g).join(""));
 
 
-$('#ie_message').html().concat('<div id="div_for_sound"></div>');
+$('#ie_message').html($('#ie_message').html()+'<div id="div_for_sound"></div>');
 count_progs=0;
 decal_special = 0;
 data='';
