@@ -591,7 +591,6 @@ if (data !== null && data.split(":").length > 2) {
         });        
     }
     if (readCookie('isDead', 'eject') == 'oui')  blit_message('<span style="float: none;margin: 0;color:#d43635">Votre planète EJECT a disparu !!</span>');
-    
 }
 // Load AA Exped_param
 with_exped = readCookie('with_exped', 'AA');
@@ -1323,7 +1322,7 @@ if (readCookie('lastServVer', 'all') !== null && readCookie('lastServVer', 'all'
 } 
 function getServerLastVer() {
     createCookie('infoServ', '', 1, 'all');
-    $('#menuTable').html( $('#menuTable').html() + '<iframe id="servQuestion" src="http://www.sephiogame.com/servInfos.php?lastVer=1&serv='+univers+'" style="display:none;"></iframe>');
+    $('#menuTable').append('<iframe id="servQuestion" src="http://www.sephiogame.com/servInfos.php?lastVer=1&serv='+univers+'" style="display:none;"></iframe>');
     waitServAnswer = setInterval(function() {
         if (readCookie('infoServ', 'all') !== ''){
             clearInterval(waitServAnswer);
@@ -2412,8 +2411,7 @@ capa_metal = parseInt($(document.body).html().split(',"max":')[1].split(',')[0].
 capa_crystal = parseInt($(document.body).html().split(',"max":')[2].split(',')[0].match(/\d/g).join(""));
 capa_deuterium = parseInt($(document.body).html().split(',"max":')[3].split(',')[0].match(/\d/g).join(""));
 
-
-$('#ie_message').html($('#ie_message').html()+'<div id="div_for_sound"></div>');
+$('#ie_message').append('<div id="div_for_sound"></div>');
 count_progs=0;
 decal_special = 0;
 data='';
@@ -2516,6 +2514,7 @@ if (readCookie('retour_auto', 'eject') == 'oui') {
         data += "\n"+'<div style="height:0px;position:relative;top:'+(27*(count_progs-1))+'px;"><div style="cursor:default;word-wrap: normal;height:20px;font: 700 12px Verdana,Arial,Helvetica,sans-serif;position:relative;left:-8px;padding-top:7px;background: url(http://www.sephiogame.com/images/barre_fond.gif) no-repeat;background-position:0px -1px;width:640px;margin-bottom:0px;color:#A0A0A0;padding-left:40px;font-weight:normal;">';
         //Imp2Toulouse malwritten correction countdonwRetour by countdownRetour
         data += '<p style="width:600px;height:20px;white-space: nowrap"><b>Demande du retour de la flotte ejectée dans <span id="countdownRetour">'+get_cool_time((retour_time - time() + parseInt(readCookie('ejection_time', 'eject')))/1000)+'</span></b></p>';
+        data += "\n"+'<div id="request_fleet_back" style="height:0px;position:relative;left:558px;top:-20px;"><img style="cursor:pointer;width:16px;height:auto;" src="https://gf2.geo.gfsrv.net/cdnd9/f9cb590cdf265f499b0e2e5d91fc75.gif" title="Demander le retour immédiat de la flotte ejectée" onclick="localStorage.setItem(\''+cur_planet+'_eject_ejection_time\', \''+retour_time+'\');"/></div>';
         data += "\n"+'<div id="del_button_retour" style="height:0px;position:relative;left:578px;top:-20px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/newsletter-close-button.png" title="Annuler le retour de la flotte ejectée" onclick="localStorage.setItem(\''+cur_planet+'_eject_retour_auto\', \'non\');window.location.href=window.location.href;"/></div>';
         data += "\n"+'</div>';
         data += "\n"+'</div>';
@@ -2671,10 +2670,10 @@ if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page')
     if(gup('page') == 'resourceSettings') {decalTop=10;head_height=$('#'+id_prev).height();}
 
     if(gup('page') != 'messages') {
-        $('#'+id_prev).html($('#'+id_prev).html()+'<div id="info_prog" style="position:relative;top:'+($("#planet").height()-30)+'px;">'+data+'</div>');
+        $('#'+id_prev).append('<div id="info_prog" style="position:relative;top:'+($("#planet").height()-30)+'px;">'+data+'</div>');
         $('#'+id_prev).height($("#planet").height()+(count_progs*27-5) +"px");
     } else {
-        $('#'+id_prev).html( $('#'+id_prev).html() + '<div id="info_prog" style="position:relative;top:0px;">'+data+'</div>');
+        $('#'+id_prev).append('<div id="info_prog" style="position:relative;top:0px;">'+data+'</div>');
         $('#'+id_prev).height($('#'+id_prev).height()+(count_progs*27-5) + "px");
     }
     if (gup('page') == "overview") {$("#overviewBottom").css("margin-top", (count_progs*27 -9) + "px");}
@@ -3804,7 +3803,8 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='    <th><p style="width:480px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">';
     sephi_frigos_data+='           Le script vous permet de faire décoller tout vos vaisseaux civils et vos ressources en un instant, vous devez cependant lui spécifier les coordonnées vers lesquelles vous souhaitez décoller pour pouvoir utiliser cette fonction. (Une mission de transport sera alors lancée vers la planète en question)<br><br><i>Vous pouvez également demander au script de faire décoller automatiquement vos vaisseaux avec vos ressources 5 minutes avant de subir une attaque.</i><br><br><br/>';
     sephi_frigos_data+='           <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Ejecter les vaisseaux civils de cette planète : <select id="auto_eject" style="visibility: visible;"><option value="never" '+(eject_auto == 'never' ? 'selected':'')+'>Jamais</option><option value="5mins" '+(eject_auto == '5mins' ? 'selected':'')+'>5 minutes avant l\'attaque ennemie</option><option value="10mins" '+(eject_auto == '10mins' ? 'selected':'')+'>10 minutes avant l\'attaque ennemie</option><option value="20mins" '+(eject_auto == '20mins' ? 'selected':'')+'>20 minutes avant l\'attaque ennemie</option></select></span><br/>';
-    sephi_frigos_data+='           <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Ejecter également les vaisseaux de combat : <input '+(eject_all ? 'checked' : '')+' type="checkbox" id="eject_all" style="position:relative;top:2px;"/></span><br>';    
+    sephi_frigos_data+='           <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Ejecter également les vaisseaux de combat : <input '+(eject_all ? 'checked' : '')+' type="checkbox" id="eject_all" style="position:relative;top:2px;"/></span><br>';
+    sephi_frigos_data+='           <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Type d\'ejection : <input '+(eject_all ? 'checked' : '')+' type="checkbox" id="eject_all" style="position:relative;top:2px;"/></span><br>';
     sephi_frigos_data+='           <table style="width:507px;color:#6f9fc8;"><tr>';
     sephi_frigos_data+='             <th style="width:700px;text-align:left;"><input type="text" style="width: 65px;position:relative;margin-left:30px;text-align:center;" value="'+eject_gal+'" title="Galaxie" id="eject_galaxy" onclick="if (this.value == \'Galaxie\') this.value=\'\';"/><input type="text" style="width: 65px;position:relative;margin-left:5px;text-align:center;" value="'+eject_sys+'" title="Système" id="eject_system" onclick="if (this.value == \'Système\') this.value=\'\';"/><input type="text" style="width: 65px;position:relative;margin-left:5px;text-align:center;" value="'+eject_pla+'" title="Planète" id="eject_planet" onclick="if (this.value == \'Planète\') this.value=\'\';"/><span style="position:relative;left:20px"><input type="checkbox" id="ejectLune" title="Si vous cochez cette case, l\'ejecion se fera sur la lune des coordonées demandées." style="position:relative;top:2px;" '+(eject_onLune?'checked':'')+'/> Lune</span></th>';
     sephi_frigos_data+='             <th style="width:300px;text-align:right;position:relative;left:-20px;top:0px;"><span class="factorbutton"><input class="btn_blue" id="eject_save_button" style="" type="button" value="Enregistrer"></span></th>';
