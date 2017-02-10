@@ -3652,7 +3652,7 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='<div style="background:#404040;position:relative;top:-25px;left:7%;margin-top:20px"></div>';
     sephi_frigos_data+='<span style="text-align:left;color:#c0c0c0;position:relative;top:-12px;padding-left:40px;font-weight:normal;">Configuration de l\'Auto-Attaque:</span><br><br>';
     sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-2px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="prog_AA" style="position:relative;top:2px;"/> Lancer l\'action dans <input type="text" id="time_AA_h" value="1" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onfocus="document.getElementById(\'prog_AA\').checked = true;">h<input type="text" id="time_AA_m" value="0" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onfocus="document.getElementById(\'prog_AA\').checked = true;">  <i><span id="save_AA_prog" style="display:none;">(enregistré)</span></i></span><br><br>';
-    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-7px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="repeat_AA" style="position:relative;top:2px;"'+((readCookie('repeat','AA') == 'oui')?'checked':'')+'/> Répéter cette action toutes les <input type="text" id="repeat_AA_h" value="'+((readCookie('repeatTime','AA') == null)?'6':parseInt('0'+get_cool_time(readCookie('repeatTime','AA')/1000).replace('.00','').split('h')[0]))+'" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onchange="$(\'#repeat_AA\').trigger(\'click\');document.getElementById(\'repeat_AA\').checked = true;">h<input type="text" id="repeat_AA_m" value="'+((readCookie('repeatTime','AA') == null)?'0':parseInt('0'+get_cool_time(readCookie('repeatTime','AA')/1000).replace('.00','').split('h')[1]))+'" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onchange="$(\'#repeat_AA\').trigger(\'click\');document.getElementById(\'repeat_AA\').checked = true;">  <i><span id="save_AA_repeatTime" style="display:none;">(enregistré)</span></i></span><br><br>';
+    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-7px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="repeat_AA" style="position:relative;top:2px;"'+((readCookie('repeat','AA') == 'oui')?'checked':'')+'/> Répéter cette action toutes les <input type="text" id="repeat_AA_h" value="'+((readCookie('repeat_AA_h','AA') == null)?'6':parseInt('0'+readCookie('repeat_AA_h','AA')))+'" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;">h<input type="text" id="repeat_AA_m" value="'+((readCookie('repeatTime','AA') == null)?'0':parseInt('0'+readCookie('repeat_AA_m','AA')))+'" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;">  <i><span id="save_AA_repeatTime" style="display:none;">(enregistré)</span></i></span><br><br>';
     sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-7px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="time_no_AA" style="position:relative;top:2px;"'+((readCookie('time_no_AA','AA') == 'oui')?'checked':'')+'/> Désactiver l\'action entre <input type="text" id="time_no_AA_h_start" value="'+((readCookie('time_no_AA_start','AA') == null)?'23':parseInt('0'+get_cool_time(readCookie('time_no_AA_start','AA')/1000).replace('.00','').split('h')[0]))+'" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;">h<input type="text" id="time_no_AA_m_start" value="'+((readCookie('time_no_AA_start','AA') == null)?'00':parseInt('0'+get_cool_time(readCookie('time_no_AA_start','AA')/1000).replace('.00','').split('h')[1]))+'" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;"> et <input type="text" id="time_no_AA_h_end" value="'+((readCookie('time_no_AA_end','AA') == null)?'6':parseInt('0'+get_cool_time(readCookie('time_no_AA_end','AA')/1000).replace('.00','').split('h')[0]))+'" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;">h<input type="text" id="time_no_AA_m_end" value="'+((readCookie('time_no_AA_end','AA') == null)?'0':parseInt('0'+get_cool_time(readCookie('time_no_AA_end','AA')/1000).replace('.00','').split('h')[1]))+'" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;">  <i><span id="save_time_no_AA" style="display:none;">(enregistré)</span></i></span><br><br>';
     sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-2px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="aa_enable" style="position:relative;top:2px;"'+((readCookie('aa_enable','AA') == 'oui')?'checked':'')+'/> Lancer une Auto-Attaque suite à la génération. <i><span id="save_AA_enable" style="display:none;">(enregistré)</span></i></span><br><br>';
     sephi_frigos_data+='<div style="background:#404040;position:relative;top:-25px;left:7%;margin-top:20px"></div>';
@@ -3849,15 +3849,28 @@ if (gup('sephiScript') == '1') {
         }
     }*/
 
-    document.getElementById('repeat_AA').onclick = function () {
-        if (document.getElementById('repeat_AA').checked) {
-            createCookie('repeat', 'oui', 1,'AA');
-            createCookie('repeatTime', 60*60*1000*parseInt('0'+document.getElementById('repeat_AA_h').value) + 60*1000*parseInt('0'+document.getElementById('repeat_AA_m').value), 1,'AA');
-            $('#AA_repeat').html(get_cool_time(readCookie('repeatTime','AA')/1000).replace('.00',''));
-        } else createCookie('repeat', 'non', 1,'AA');
+    var update_repeat_AA_time = function(){
+        $('#repeat_AA').prop("checked", true );
+        createCookie('repeat', 'oui', 1, 'AA');
+        createCookie('repeat_AA_h', $('#repeat_AA_h').val(), 1,'AA');
+        createCookie('repeat_AA_m', $('#repeat_AA_m').val(), 1,'AA');
+
+        createCookie('repeatTime', 60*60*1000*parseInt('0'+readCookie('repeat_AA_h','AA')) + 60*1000*parseInt('0'+readCookie('repeat_AA_m','AA')), 1,'AA');
+        if ($('#AA_repeat').length > 0) $('#AA_repeat').html(get_cool_time(readCookie('repeatTime','AA')/1000).replace('.00',''));
 
         $('#save_AA_repeatTime').show(1500,function(){$('#save_AA_repeatTime').hide();});
     }
+
+    $('#repeat_AA').on("click", function() {
+        if ($('#repeat_AA:checked').length > 0) {
+            createCookie('repeat', 'oui', 1, 'AA');
+            update_repeat_AA_time();
+        } else createCookie('repeat', 'non', 1,'AA');
+
+        $('#save_AA_repeatTime').show(1500,function(){$('#save_AA_repeatTime').hide();});
+    });
+    $('#repeat_AA_h').on("change", update_repeat_AA_time);
+    $('#repeat_AA_m').on("change", update_repeat_AA_time);
 
     document.getElementById('aa_enable').onclick = function () {
         if (document.getElementById('aa_enable').checked) {
