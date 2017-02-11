@@ -2443,21 +2443,43 @@ function countdownAA() {
     //Add condition to avoid error when countdownAA is null
     var countdownObj = $('#countdownAA');
     if (countdownObj.length > 0) {
-        if (t>0) {
+        if (t>0 && !is_AA_blocked_by_time()) {
             countdownObj.html(get_cool_time(t/1000));
+
+            if (readCookie('time_no_AA_eject_done','AA') == 'oui') {
+                createCookie('time_no_AA_eject_done', 'non', 1, 'AA');
+                repeat_text = '';
+                time_repeat = 0;
+                if (readCookie('repeat', 'AA') == 'oui' && readCookie('repeatTime', 'AA') !== null) {
+                    time_repeat = parseInt(readCookie('repeatTime', 'AA'));
+                    repeat_text = ' <span style="color:#761B68">(Répéter toutes les <span id="AA_repeat">' + get_cool_time(time_repeat / 1000).replace('.00', '') + '</span>)</span>';
+                }
+                auto_attack_bar_text = 'Rapport général <span id="is_AA_enable">' + ((readCookie('aa_enable', 'AA') == 'oui') ? 'avec' : 'sans') + '</span> Auto-Attaque <b>prévue dans <span id="countdownAA">' + get_cool_time(time_restant / 1000) + '</span></b>' + repeat_text;
+                $('span#auto_attack_bar_text').html(auto_attack_bar_text);
+            }
         } else {
             if (is_AA_blocked_by_time()) {
-                location.href = location.href;
-                if (readCookie('time_no_AA_with_eject','AA') == 'oui') {
-                    blit_message_time("<b>Desactivation des Auto attaques</b><br>Lancement de l'ejection complète de votre flotte via le mode "+readCookie('time_no_AA_type_eject','AA')+" dans quelques secondes!",2000)
+                auto_attack_bar_text = '<span style="color:darkred">Rapport général désactivé car il est ' + (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + 'h' + date.getMinutes() + ' (reprise à '+parseInt('0'+readCookie('time_no_AA_h_end','AA'))+'h'+parseInt('0'+readCookie('time_no_AA_m_end','AA'))+').</span>';
+                $('span#auto_attack_bar_text').html(auto_attack_bar_text);
+                //Si besoin d'une ejection durant la periode de désactivation des attaques
+                if (readCookie('time_no_AA_with_eject','AA') == 'oui' && (readCookie('time_no_AA_eject_done','AA') == 'non' || readCookie('time_no_AA_eject_done','AA') == null)) {
+                    createCookie('time_no_AA_eject_done','oui',1,'AA');
                     setTimeout(startEject, 2000);
-                }
+                } /*else
+                    location.href = location.href;*/
             } else {
                 setTimeout(startAA, 2000);
             }
         }
     }
 }
+
+function startEject(){
+    blit_message_time("<b>Desactivation des Auto attaques</b><br>Lancement de l'ejection complète de votre flotte via le mode "+readCookie('time_no_AA_type_eject','AA')+" dans quelques secondes!",2000)
+    // On démarre l'AA
+    //window.location.href='https://'+univers+'/game/index.php?page=shipyard&sephiScript=1&cp='+cur_planet+'&startAA=1';
+}
+
 function startAA() {
     if ($(document.body).html().match('<div id="attack_alert" style="visibility:visible;">')) return;
     
@@ -2492,7 +2514,12 @@ function add_auto_attack_bar() {
             var auto_attack_bar_text = '';
             if (is_AA_blocked_by_time_result) {
                 var date = new Date();
-                auto_attack_bar_text = '<span style="color:darkred">Rapport général désactivé car il est '+(date.getHours()<10 ? '0'+date.getHours():date.getHours())+'h'+date.getMinutes()+'</span>';
+                auto_attack_bar_text = '<span style="color:darkred">Rapport général désactivé car il est ' + (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + 'h' + date.getMinutes() + ' (reprise à '+parseInt('0'+readCookie('time_no_AA_h_end','AA'))+'h'+parseInt('0'+readCookie('time_no_AA_m_end','AA'))+').</span>';
+                //Si besoin d'une ejection durant la periode de désactivation des attaques
+                if (readCookie('time_no_AA_with_eject','AA') == 'oui' && (readCookie('time_no_AA_eject_done','AA') == 'non' || readCookie('time_no_AA_eject_done','AA') == null)) {
+                    createCookie('time_no_AA_eject_done','oui',1,'AA');
+                    setTimeout(startEject, 2000);
+                }
             } else {
                 repeat_text = '';
                 time_repeat=0;
@@ -2501,8 +2528,12 @@ function add_auto_attack_bar() {
                     repeat_text = ' <span style="color:#761B68">(Répéter toutes les <span id="AA_repeat">'+get_cool_time(time_repeat/1000).replace('.00','')+'</span>)</span>';
                 }
                 auto_attack_bar_text = 'Rapport général <span id="is_AA_enable">'+((readCookie('aa_enable','AA') == 'oui')?'avec':'sans')+'</span> Auto-Attaque <b>prévue dans <span id="countdownAA">'+get_cool_time(time_restant/1000)+'</span></b>'+repeat_text;
+                if (readCookie('time_no_AA_eject_done','AA') == 'oui') {
+                    createCookie('time_no_AA_eject_done','non',1,'AA');
+                    $('span#auto_attack_bar_text').html(auto_attack_bar_text);
+                }
             }
-            data += '<p style="width:600px;height:20px;white-space: nowrap">' + auto_attack_bar_text;
+            data += '<p style="width:600px;height:20px;white-space: nowrap"><span id="auto_attack_bar_text">' + auto_attack_bar_text + "</span>";
             data += "\n"+'<div id="del_button_AA" style="height:0px;position:relative;left:578px;top:-20px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/newsletter-close-button.png" title="Annuler la génération des rapports" onclick="localStorage.setItem(\''+cur_planet+'_AA_isProg\', \'non\');window.location.href=window.location.href.replace(\'startAA=1\',\'\');"/></div>';
             data += "\n"+'<div id="retard_AA_button" style="height:0px;position:relative;left:555px;top:-21px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/IconeChrono2.png" title="Retarder la génération du rapport'+((readCookie('aa_enable','AA') == 'oui')?' avec ':' sans ')+'auto attaque de 15 minutes"/></div>';
             data += "\n"+'<div id="launch_AA_button" style="height:0px;position:relative;left:530px;top:-20px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/icon_launch.png" title="Démarrer la génération du rapport'+((readCookie('aa_enable','AA') == 'oui')?' avec ':' sans ')+'auto attaque maintenant"/></div>';
@@ -3866,12 +3897,6 @@ if (gup('sephiScript') == '1') {
         }
     }*/
     var update_repeat_AA_time = function(){
-        $('#repeat_AA').prop( "checked", true );
-        createCookie('repeat', 'oui', 1, 'AA');
-        createCookie('repeat_AA_h', $('#repeat_AA_h').val(), 1,'AA');
-        createCookie('repeat_AA_m', $('#repeat_AA_m').val(), 1,'AA');
-
-    var update_repeat_AA_time = function(){
         $('#repeat_AA').prop("checked", true );
         createCookie('repeat', 'oui', 1, 'AA');
         createCookie('repeat_AA_h', $('#repeat_AA_h').val(), 1,'AA');
@@ -3905,21 +3930,23 @@ if (gup('sephiScript') == '1') {
     }
 
     var update_no_AA_time = function () {
-        createCookie('time_no_AA_h_start', document.getElementById('time_no_AA_h_start').value, 1,'AA');
-        createCookie('time_no_AA_m_start', document.getElementById('time_no_AA_m_start').value, 1,'AA');
-        createCookie('time_no_AA_h_end', document.getElementById('time_no_AA_h_end').value, 1,'AA');
-        createCookie('time_no_AA_m_end', document.getElementById('time_no_AA_m_end').value, 1,'AA');
+        createCookie('time_no_AA_h_start', $('#time_no_AA_h_start').val(), 1,'AA');
+        createCookie('time_no_AA_m_start', $('#time_no_AA_m_start').val(), 1,'AA');
+        createCookie('time_no_AA_h_end', $('#time_no_AA_h_end').val(), 1,'AA');
+        createCookie('time_no_AA_m_end', $('#time_no_AA_m_end').val(), 1,'AA');
 
-        createCookie('time_no_AA_start', 60*60*1000*parseInt('0'+document.getElementById('time_no_AA_h_start').value) + 60*1000*parseInt('0'+document.getElementById('time_no_AA_m_start').value), 1,'AA');
-        createCookie('time_no_AA_end', 60*60*1000*parseInt('0'+document.getElementById('time_no_AA_h_end').value) + 60*1000*parseInt('0'+document.getElementById('time_no_AA_m_end').value), 1,'AA');
+        createCookie('time_no_AA_start', 60*60*1000*parseInt('0'+readCookie('time_no_AA_h_start','AA')) + 60*1000*parseInt('0'+readCookie('time_no_AA_m_start','AA')), 1,'AA');
+        createCookie('time_no_AA_end', 60*60*1000*parseInt('0'+readCookie('time_no_AA_h_end','AA')) + 60*1000*parseInt('0'+readCookie('time_no_AA_m_end','AA')), 1,'AA');
         $('#save_time_no_AA').show(1500,function(){$('#save_time_no_AA').hide();});
     }
-    document.getElementById('time_no_AA').onclick = function () {
-        if (document.getElementById('time_no_AA').checked) createCookie('time_no_AA', 'oui', 1,'AA');
-        else createCookie('time_no_AA', 'non', 1,'AA');
+    $('#time_no_AA').on("click", function () {
+        if ($('#time_no_AA').length > 0) {
+            createCookie('time_no_AA', 'oui', 1,'AA');
+            update_no_AA_time();
+        } else createCookie('time_no_AA', 'non', 1,'AA');
 
         $('#save_time_no_AA').show(1500,function(){$('#save_time_no_AA').hide();});
-    }
+    });
     document.getElementById('time_no_AA_h_start').onchange = update_no_AA_time;
     document.getElementById('time_no_AA_m_start').onchange = update_no_AA_time;
     document.getElementById('time_no_AA_h_end').onchange = update_no_AA_time;
@@ -3928,7 +3955,7 @@ if (gup('sephiScript') == '1') {
     $('#time_no_AA_eject_choice').on("change", function(){
         $('#time_no_AA_with_eject').css("display", ($(this).val() == 1)?"block":"none");
         if ($(this).val() == 1) {createCookie('time_no_AA_with_eject', 'oui', 1,'AA');createCookie('time_no_AA_type_eject', $('#time_no_AA_with_eject').val(), 1,'AA');}
-        else {debugger;createCookie('time_no_AA_with_eject', 'non', 1,'AA');eraseCookie('time_no_AA_type_eject','AA');}
+        else {createCookie('time_no_AA_with_eject', 'non', 1,'AA');eraseCookie('time_no_AA_type_eject','AA');}
 
         $('#save_time_no_AA_eject_choice').show(1500,function(){$('#save_time_no_AA_eject_choice').hide();});
 
