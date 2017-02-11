@@ -591,7 +591,6 @@ if (data !== null && data.split(":").length > 2) {
         });        
     }
     if (readCookie('isDead', 'eject') == 'oui')  blit_message('<span style="float: none;margin: 0;color:#d43635">Votre planète EJECT a disparu !!</span>');
-    
 }
 // Load AA Exped_param
 with_exped = readCookie('with_exped', 'AA');
@@ -785,12 +784,12 @@ function change_actions_tab(action_tab){
         var parent=$(this).parent();
         if (! parent.attr("href")) {
             var api_num = $(this).attr("title").replace(/^.*input value='(.*)' readonly.*$/m, '$1');
-            if (api_num.match(/^sr-.*$/)) api_param="SR_KEYconv=".concat(api_num);
+            if (api_num.match(/^sr-.*$/)) api_param="SR_KEY=".concat(api_num);
             if (api_num.match(/^cr-.*$/)) api_param="CR_KEY=".concat(api_num);
 
             parent.replaceWith(function () {
                 return $('<a/>', {
-                    href: "http://topraider.eu/index.php?langue=fr&".concat(api_param),
+                    href: "http://topraider.eu/index.php?langue=fr&simulator=speedsim&".concat(api_param),
                     target: '_blank',
                     class: "icon_nf_link fleft",
                     html: this.innerHTML
@@ -1323,7 +1322,7 @@ if (readCookie('lastServVer', 'all') !== null && readCookie('lastServVer', 'all'
 } 
 function getServerLastVer() {
     createCookie('infoServ', '', 1, 'all');
-    $('#menuTable').html( $('#menuTable').html() + '<iframe id="servQuestion" src="http://www.sephiogame.com/servInfos.php?lastVer=1&serv='+univers+'" style="display:none;"></iframe>');
+    $('#menuTable').append('<iframe id="servQuestion" src="http://www.sephiogame.com/servInfos.php?lastVer=1&serv='+univers+'" style="display:none;"></iframe>');
     waitServAnswer = setInterval(function() {
         if (readCookie('infoServ', 'all') !== ''){
             clearInterval(waitServAnswer);
@@ -2265,7 +2264,7 @@ function fill_rapport_general() {
 
         //Check if flotte perso need to be improved because of opponant flotte and def has changed or if flotte or def exist and flotteperso is empty
         check_perso_is_needed='';
-        check_perso_is_needed=( ((parseInt(importvars["frigos"][idFrig][7]) >0 || parseInt(importvars["frigos"][idFrig][7])>0) && importvars["frigos"][idFrig][5] == '') || (parseInt(importvars["frigos"][idFrig][7])<parseInt(importvars["frigos"][idFrig][9])) || (parseInt(importvars["frigos"][idFrig][8])<parseInt(importvars["frigos"][idFrig][10])))?"1":"0";
+        check_perso_is_needed=( ((parseInt(importvars["frigos"][idFrig][7]) >0 || parseInt(importvars["frigos"][idFrig][8])>0) && importvars["frigos"][idFrig][5] == '') || (parseInt(importvars["frigos"][idFrig][7])<parseInt(importvars["frigos"][idFrig][9])) || (parseInt(importvars["frigos"][idFrig][8])<parseInt(importvars["frigos"][idFrig][10])))?"1":"0";
 
         fill_case(butin, flotte_perso, idFrig, curplanet_name, check_perso_is_needed);
         fill_rapport_general(); 
@@ -2412,8 +2411,7 @@ capa_metal = parseInt($(document.body).html().split(',"max":')[1].split(',')[0].
 capa_crystal = parseInt($(document.body).html().split(',"max":')[2].split(',')[0].match(/\d/g).join(""));
 capa_deuterium = parseInt($(document.body).html().split(',"max":')[3].split(',')[0].match(/\d/g).join(""));
 
-
-$('#ie_message').html().concat('<div id="div_for_sound"></div>');
+$('#ie_message').append('<div id="div_for_sound"></div>');
 count_progs=0;
 decal_special = 0;
 data='';
@@ -2516,6 +2514,7 @@ if (readCookie('retour_auto', 'eject') == 'oui') {
         data += "\n"+'<div style="height:0px;position:relative;top:'+(27*(count_progs-1))+'px;"><div style="cursor:default;word-wrap: normal;height:20px;font: 700 12px Verdana,Arial,Helvetica,sans-serif;position:relative;left:-8px;padding-top:7px;background: url(http://www.sephiogame.com/images/barre_fond.gif) no-repeat;background-position:0px -1px;width:640px;margin-bottom:0px;color:#A0A0A0;padding-left:40px;font-weight:normal;">';
         //Imp2Toulouse malwritten correction countdonwRetour by countdownRetour
         data += '<p style="width:600px;height:20px;white-space: nowrap"><b>Demande du retour de la flotte ejectée dans <span id="countdownRetour">'+get_cool_time((retour_time - time() + parseInt(readCookie('ejection_time', 'eject')))/1000)+'</span></b></p>';
+        data += "\n"+'<div id="request_fleet_back" style="height:0px;position:relative;left:558px;top:-20px;"><img style="cursor:pointer;width:16px;height:auto;" src="https://gf2.geo.gfsrv.net/cdnd9/f9cb590cdf265f499b0e2e5d91fc75.gif" title="Demander le retour immédiat de la flotte ejectée" onclick="localStorage.setItem(\''+cur_planet+'_eject_ejection_time\', \''+retour_time+'\');"/></div>';
         data += "\n"+'<div id="del_button_retour" style="height:0px;position:relative;left:578px;top:-20px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/newsletter-close-button.png" title="Annuler le retour de la flotte ejectée" onclick="localStorage.setItem(\''+cur_planet+'_eject_retour_auto\', \'non\');window.location.href=window.location.href;"/></div>';
         data += "\n"+'</div>';
         data += "\n"+'</div>';
@@ -2671,10 +2670,10 @@ if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page')
     if(gup('page') == 'resourceSettings') {decalTop=10;head_height=$('#'+id_prev).height();}
 
     if(gup('page') != 'messages') {
-        $('#'+id_prev).html($('#'+id_prev).html()+'<div id="info_prog" style="position:relative;top:'+($("#planet").height()-30)+'px;">'+data+'</div>');
+        $('#'+id_prev).append('<div id="info_prog" style="position:relative;top:'+($("#planet").height()-30)+'px;">'+data+'</div>');
         $('#'+id_prev).height($("#planet").height()+(count_progs*27-5) +"px");
     } else {
-        $('#'+id_prev).html( $('#'+id_prev).html() + '<div id="info_prog" style="position:relative;top:0px;">'+data+'</div>');
+        $('#'+id_prev).append('<div id="info_prog" style="position:relative;top:0px;">'+data+'</div>');
         $('#'+id_prev).height($('#'+id_prev).height()+(count_progs*27-5) + "px");
     }
     if (gup('page') == "overview") {$("#overviewBottom").css("margin-top", (count_progs*27 -9) + "px");}
@@ -3653,7 +3652,7 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='<div style="background:#404040;position:relative;top:-25px;left:7%;margin-top:20px"></div>';
     sephi_frigos_data+='<span style="text-align:left;color:#c0c0c0;position:relative;top:-12px;padding-left:40px;font-weight:normal;">Configuration de l\'Auto-Attaque:</span><br><br>';
     sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-2px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="prog_AA" style="position:relative;top:2px;"/> Lancer l\'action dans <input type="text" id="time_AA_h" value="1" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onfocus="document.getElementById(\'prog_AA\').checked = true;">h<input type="text" id="time_AA_m" value="0" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onfocus="document.getElementById(\'prog_AA\').checked = true;">  <i><span id="save_AA_prog" style="display:none;">(enregistré)</span></i></span><br><br>';
-    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-7px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="repeat_AA" style="position:relative;top:2px;"'+((readCookie('repeat','AA') == 'oui')?'checked':'')+'/> Répéter cette action toutes les <input type="text" id="repeat_AA_h" value="'+((readCookie('repeatTime','AA') == null)?'6':parseInt('0'+get_cool_time(readCookie('repeatTime','AA')/1000).replace('.00','').split('h')[0]))+'" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onchange="$(\'#repeat_AA\').trigger(\'click\');document.getElementById(\'repeat_AA\').checked = true;">h<input type="text" id="repeat_AA_m" value="'+((readCookie('repeatTime','AA') == null)?'0':parseInt('0'+get_cool_time(readCookie('repeatTime','AA')/1000).replace('.00','').split('h')[1]))+'" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onchange="$(\'#repeat_AA\').trigger(\'click\');document.getElementById(\'repeat_AA\').checked = true;">  <i><span id="save_AA_repeatTime" style="display:none;">(enregistré)</span></i></span><br><br>';
+    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-7px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="repeat_AA" style="position:relative;top:2px;"'+((readCookie('repeat','AA') == 'oui')?'checked':'')+'/> Répéter cette action toutes les <input type="text" id="repeat_AA_h" value="'+((readCookie('repeat_AA_h','AA') == null)?'6':parseInt('0'+readCookie('repeat_AA_h','AA')))+'" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;">h<input type="text" id="repeat_AA_m" value="'+((readCookie('repeatTime','AA') == null)?'0':parseInt('0'+readCookie('repeat_AA_m','AA')))+'" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;">  <i><span id="save_AA_repeatTime" style="display:none;">(enregistré)</span></i></span><br><br>';
     sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-7px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="time_no_AA" style="position:relative;top:2px;"'+((readCookie('time_no_AA','AA') == 'oui')?'checked':'')+'/> Désactiver l\'action entre <input type="text" id="time_no_AA_h_start" value="'+((readCookie('time_no_AA_start','AA') == null)?'23':parseInt('0'+get_cool_time(readCookie('time_no_AA_start','AA')/1000).replace('.00','').split('h')[0]))+'" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;">h<input type="text" id="time_no_AA_m_start" value="'+((readCookie('time_no_AA_start','AA') == null)?'00':parseInt('0'+get_cool_time(readCookie('time_no_AA_start','AA')/1000).replace('.00','').split('h')[1]))+'" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;"> et <input type="text" id="time_no_AA_h_end" value="'+((readCookie('time_no_AA_end','AA') == null)?'6':parseInt('0'+get_cool_time(readCookie('time_no_AA_end','AA')/1000).replace('.00','').split('h')[0]))+'" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;">h<input type="text" id="time_no_AA_m_end" value="'+((readCookie('time_no_AA_end','AA') == null)?'0':parseInt('0'+get_cool_time(readCookie('time_no_AA_end','AA')/1000).replace('.00','').split('h')[1]))+'" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;">  <i><span id="save_time_no_AA" style="display:none;">(enregistré)</span></i></span><br><br>';
     sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-2px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="aa_enable" style="position:relative;top:2px;"'+((readCookie('aa_enable','AA') == 'oui')?'checked':'')+'/> Lancer une Auto-Attaque suite à la génération. <i><span id="save_AA_enable" style="display:none;">(enregistré)</span></i></span><br><br>';
     sephi_frigos_data+='<div style="background:#404040;position:relative;top:-25px;left:7%;margin-top:20px"></div>';
@@ -3804,7 +3803,7 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='    <th><p style="width:480px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">';
     sephi_frigos_data+='           Le script vous permet de faire décoller tout vos vaisseaux civils et vos ressources en un instant, vous devez cependant lui spécifier les coordonnées vers lesquelles vous souhaitez décoller pour pouvoir utiliser cette fonction. (Une mission de transport sera alors lancée vers la planète en question)<br><br><i>Vous pouvez également demander au script de faire décoller automatiquement vos vaisseaux avec vos ressources 5 minutes avant de subir une attaque.</i><br><br><br/>';
     sephi_frigos_data+='           <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Ejecter les vaisseaux civils de cette planète : <select id="auto_eject" style="visibility: visible;"><option value="never" '+(eject_auto == 'never' ? 'selected':'')+'>Jamais</option><option value="5mins" '+(eject_auto == '5mins' ? 'selected':'')+'>5 minutes avant l\'attaque ennemie</option><option value="10mins" '+(eject_auto == '10mins' ? 'selected':'')+'>10 minutes avant l\'attaque ennemie</option><option value="20mins" '+(eject_auto == '20mins' ? 'selected':'')+'>20 minutes avant l\'attaque ennemie</option></select></span><br/>';
-    sephi_frigos_data+='           <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Ejecter également les vaisseaux de combat : <input '+(eject_all ? 'checked' : '')+' type="checkbox" id="eject_all" style="position:relative;top:2px;"/></span><br>';    
+    sephi_frigos_data+='           <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Ejecter également les vaisseaux de combat : <input '+(eject_all ? 'checked' : '')+' type="checkbox" id="eject_all" style="position:relative;top:2px;"/></span><br>';
     sephi_frigos_data+='           <table style="width:507px;color:#6f9fc8;"><tr>';
     sephi_frigos_data+='             <th style="width:700px;text-align:left;"><input type="text" style="width: 65px;position:relative;margin-left:30px;text-align:center;" value="'+eject_gal+'" title="Galaxie" id="eject_galaxy" onclick="if (this.value == \'Galaxie\') this.value=\'\';"/><input type="text" style="width: 65px;position:relative;margin-left:5px;text-align:center;" value="'+eject_sys+'" title="Système" id="eject_system" onclick="if (this.value == \'Système\') this.value=\'\';"/><input type="text" style="width: 65px;position:relative;margin-left:5px;text-align:center;" value="'+eject_pla+'" title="Planète" id="eject_planet" onclick="if (this.value == \'Planète\') this.value=\'\';"/><span style="position:relative;left:20px"><input type="checkbox" id="ejectLune" title="Si vous cochez cette case, l\'ejecion se fera sur la lune des coordonées demandées." style="position:relative;top:2px;" '+(eject_onLune?'checked':'')+'/> Lune</span></th>';
     sephi_frigos_data+='             <th style="width:300px;text-align:right;position:relative;left:-20px;top:0px;"><span class="factorbutton"><input class="btn_blue" id="eject_save_button" style="" type="button" value="Enregistrer"></span></th>';
@@ -3850,15 +3849,28 @@ if (gup('sephiScript') == '1') {
         }
     }*/
 
-    document.getElementById('repeat_AA').onclick = function () {
-        if (document.getElementById('repeat_AA').checked) {
-            createCookie('repeat', 'oui', 1,'AA');
-            createCookie('repeatTime', 60*60*1000*parseInt('0'+document.getElementById('repeat_AA_h').value) + 60*1000*parseInt('0'+document.getElementById('repeat_AA_m').value), 1,'AA');
-            $('#AA_repeat').html(get_cool_time(readCookie('repeatTime','AA')/1000).replace('.00',''));
-        } else createCookie('repeat', 'non', 1,'AA');
+    var update_repeat_AA_time = function(){
+        $('#repeat_AA').prop("checked", true );
+        createCookie('repeat', 'oui', 1, 'AA');
+        createCookie('repeat_AA_h', $('#repeat_AA_h').val(), 1,'AA');
+        createCookie('repeat_AA_m', $('#repeat_AA_m').val(), 1,'AA');
+
+        createCookie('repeatTime', 60*60*1000*parseInt('0'+readCookie('repeat_AA_h','AA')) + 60*1000*parseInt('0'+readCookie('repeat_AA_m','AA')), 1,'AA');
+        if ($('#AA_repeat').length > 0) $('#AA_repeat').html(get_cool_time(readCookie('repeatTime','AA')/1000).replace('.00',''));
 
         $('#save_AA_repeatTime').show(1500,function(){$('#save_AA_repeatTime').hide();});
     }
+
+    $('#repeat_AA').on("click", function() {
+        if ($('#repeat_AA:checked').length > 0) {
+            createCookie('repeat', 'oui', 1, 'AA');
+            update_repeat_AA_time();
+        } else createCookie('repeat', 'non', 1,'AA');
+
+        $('#save_AA_repeatTime').show(1500,function(){$('#save_AA_repeatTime').hide();});
+    });
+    $('#repeat_AA_h').on("change", update_repeat_AA_time);
+    $('#repeat_AA_m').on("change", update_repeat_AA_time);
 
     document.getElementById('aa_enable').onclick = function () {
         if (document.getElementById('aa_enable').checked) {
