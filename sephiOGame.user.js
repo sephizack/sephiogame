@@ -2533,7 +2533,7 @@ function add_auto_attack_bar() {
                     $('span#auto_attack_bar_text').html(auto_attack_bar_text);
                 }
             }
-            data += '<p style="width:600px;height:20px;white-space: nowrap"><span id="auto_attack_bar_text">' + auto_attack_bar_text + "</span>";
+            data += '<p style="width:600px;height:20px;white-space: nowrap"><span id="auto_attack_bar_text">' + auto_attack_bar_text + '</span>';
             data += "\n"+'<div id="del_button_AA" style="height:0px;position:relative;left:578px;top:-20px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/newsletter-close-button.png" title="Annuler la génération des rapports" onclick="localStorage.setItem(\''+cur_planet+'_AA_isProg\', \'non\');window.location.href=window.location.href.replace(\'startAA=1\',\'\');"/></div>';
             data += "\n"+'<div id="retard_AA_button" style="height:0px;position:relative;left:555px;top:-21px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/IconeChrono2.png" title="Retarder la génération du rapport'+((readCookie('aa_enable','AA') == 'oui')?' avec ':' sans ')+'auto attaque de 15 minutes"/></div>';
             data += "\n"+'<div id="launch_AA_button" style="height:0px;position:relative;left:530px;top:-20px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/icon_launch.png" title="Démarrer la génération du rapport'+((readCookie('aa_enable','AA') == 'oui')?' avec ':' sans ')+'auto attaque maintenant"/></div>';
@@ -3897,15 +3897,18 @@ if (gup('sephiScript') == '1') {
         }
     }*/
     var update_repeat_AA_time = function(){
-        $('#repeat_AA').prop("checked", true );
+        $('#repeat_AA').prop( "checked", true );
         createCookie('repeat', 'oui', 1, 'AA');
         createCookie('repeat_AA_h', $('#repeat_AA_h').val(), 1,'AA');
         createCookie('repeat_AA_m', $('#repeat_AA_m').val(), 1,'AA');
+
         createCookie('repeatTime', 60*60*1000*parseInt('0'+readCookie('repeat_AA_h','AA')) + 60*1000*parseInt('0'+readCookie('repeat_AA_m','AA')), 1,'AA');
         if ($('#AA_repeat').length > 0) $('#AA_repeat').html(get_cool_time(readCookie('repeatTime','AA')/1000).replace('.00',''));
 
         $('#save_AA_repeatTime').show(1500,function(){$('#save_AA_repeatTime').hide();});
-    }
+    });
+    $('#repeat_AA_h').on("change", update_repeat_AA_time);
+    $('#repeat_AA_m').on("change", update_repeat_AA_time);
 
     $('#repeat_AA').on("click", function() {
         if ($('#repeat_AA:checked').length > 0) {
