@@ -960,6 +960,15 @@ function change_message_actiontab() {
         if (subtabs_fleets.find('#ui-id-24 .tab_inner li.msg').length > 0) { // Tab subtabs-nfFleetTrash - Corbeille
             change_actions_tab(subtabs_fleets.find('#ui-id-24 .tab_inner li.msg div.msg_actions'));
         }
+        if (subtabs_fleets.find('#ui-id-26 .tab_inner li.msg').length > 0) { // Tab subtabs-nfFleetTrash - Corbeille
+            change_actions_tab(subtabs_fleets.find('#ui-id-26 .tab_inner li.msg div.msg_actions'));
+        }
+        if (subtabs_fleets.find('#ui-id-28 .tab_inner li.msg').length > 0) { // Tab subtabs-nfFleetTrash - Corbeille
+            change_actions_tab(subtabs_fleets.find('#ui-id-28 .tab_inner li.msg div.msg_actions'));
+        }
+        if (subtabs_fleets.find('#ui-id-30 .tab_inner li.msg').length > 0) { // Tab subtabs-nfFleetTrash - Corbeille
+            change_actions_tab(subtabs_fleets.find('#ui-id-30 .tab_inner li.msg div.msg_actions'));
+        }
     }
     if (Overlay_Detail.length == 1) { // Message detail overlay
         change_actions_tab(Overlay_Detail.find('.detail_msg .detail_msg_head .msg_actions'));
