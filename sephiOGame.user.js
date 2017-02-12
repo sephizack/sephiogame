@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.6.4.4
+// @version     3.7.0
 // @description Script Ogame
 // @author      Sephizack
 // @include     http://s*.ogame.gameforge.com/game/*
@@ -69,7 +69,7 @@
 
 antiBugTimeout = setTimeout(function() {location.href=location.href;}, 5*60*1000);
 
-cur_version = '3.7.0 Dev';
+cur_version = '3.7.0';
 univers = window.location.href.split('/')[2];
 
 // Multi langues
@@ -783,6 +783,7 @@ function change_actions_tab(action_tab){
     action_tab.find("span.icon_apikey").each(function (index) {
         var parent=$(this).parent();
         if (! parent.attr("href")) {
+            var title = $(this).attr("title");
             var api_num = $(this).attr("title").replace(/^.*input value='(.*)' readonly.*$/m, '$1');
             if (api_num.match(/^sr-.*$/)) api_param="SR_KEY=".concat(api_num);
             if (api_num.match(/^cr-.*$/)) api_param="CR_KEY=".concat(api_num);
