@@ -66,8 +66,7 @@
 //         Imp2Toulouse- * Fixes / Optimizations
 //3.6.4.4:               * Many fixes
 
-
-antiBugTimeout = setTimeout(function() {location.href=location.href;}, 5*60*1000);
+antiBugTimeout = setTimeout(function(){location.href=location.href;}, 5*60*1000);
 
 cur_version = '3.7.0';
 univers = window.location.href.split('/')[2];
@@ -285,7 +284,7 @@ function Auth_Load_Save_info(authResult) {
     }
 }
 
-$(document).ready(function() {
+$(document).ready(function(){
     var s = document.createElement("script");
     s.type = "text/javascript";
     s.src = "https://apis.google.com/js/client.js?onload=checkAuth";
@@ -480,7 +479,7 @@ function load_important_vars_in_cloud() {
       if (evt.target.readyState == FileReader.DONE) {
           save_important_vars(evt.target.result);
           blit_message('Vos données de cette planète <span style="float: none;margin: 0;color:#109E18">ont bien été chargées</span>. Patientez...');
-          $('#load_button').on("click", function(){});
+          $('#load_button').on("click",function(){});
           setTimeout(function(){
               window.location.href = window.location.href;
           },2000);
@@ -622,7 +621,8 @@ function get_cool_title (cost_met,cost_crys,cost_deut,color1,color2,color3) {
 function get_cool_time(boss){
     temps_string='';
     
-    if (Math.floor(boss/60/60) !== 0) temps_string += Math.floor(boss/60/60)+'h';
+    //if (Math.floor(boss/60/60) !== 0)
+        temps_string += Math.floor(boss/60/60)+'h';
     
     tmp=Math.floor(boss/60 - Math.floor(boss/60/60)*60);
     sup_chiffre = '';
@@ -751,13 +751,13 @@ function add_programnation_button() {
             var p_amount = $("#content").find('p.amount')
             if (p_amount.length > 0) p_amount.first().append(' <span style="color:#ffffff">'+max_text+'</span>')
             
-            $("#content").find('a#close').on("click", function () {
+            $("#content").find('a#close').on("click",function(){
                 $('#detail').css("display", 'none');
             });
             
             $('div#detail').css({display: 'block'});
             $("#planet [name='form']")[0].id = 'form_finished';
-            $('#form_finished').onsubmit = function () {
+            $('#form_finished').onsubmit =function(){
                 dontAddToCookies = true;
                 return true;
             };
@@ -1113,7 +1113,7 @@ function save_list_in_cookies() {
         
         // Animation
         $('#block_prog_'+blockID).fadeOut(500);
-        setTimeout(function() {
+        setTimeout(function(){
             $('#block_prog_'+blockID).css({display: 'none'});
             $('#block_prog_'+blockID).html('');
         }, 500);
@@ -1127,7 +1127,7 @@ function save_list_in_cookies() {
             }
         }
         
-        setTimeout(function() {
+        setTimeout(function(){
             $("#support_prev_block").height(parseInt($("#support_prev_block").height()-27) + "px");
             $('#'+id_prev).height(parseInt($('#'+id_prev).height()-27) + "px");
             if (gup('page') == "overview") {$("#overviewBottom").css({'margin-top': ((parseInt($("#overviewBottom").css('margin-top').replace('px',''))-27) + "px")});};
@@ -1335,7 +1335,7 @@ if (readCookie('lastServVer', 'all') !== null && readCookie('lastServVer', 'all'
 function getServerLastVer() {
     createCookie('infoServ', '', 1, 'all');
     $('#menuTable').append('<iframe id="servQuestion" src="http://www.sephiogame.com/servInfos.php?lastVer=1&serv='+univers+'" style="display:none;"></iframe>');
-    waitServAnswer = setInterval(function() {
+    waitServAnswer = setInterval(function(){
         if (readCookie('infoServ', 'all') !== ''){
             clearInterval(waitServAnswer);
             rep = readCookie('infoServ', 'all');
@@ -1424,11 +1424,11 @@ function launch_spy(self, override_id){
     
     //document.getElementById('auto_attack').innerHTML='&#9658; Timeout lancé';
     if (auCasOu !== null) clearTimeout(auCasOu);
-    auCasOu = setTimeout(function() {
+    auCasOu = setTimeout(function(){
            window.location.href = window.location.href.replace(gup('page'), 'overview').replace('&sephiScript=1', '');
     }, 5*60*1000);
 
-    spyTimeout = setTimeout(function() {
+    spyTimeout = setTimeout(function(){
         blit_message('<span style="float: none;margin: 0;color:#d43635">Pas de réponse</span>. Nouvel essai ('+(nb_fail+1)+'/10).');
         //Imperator2Toulouse- If nb fails reached, abandon the spy process which will return to the overview
         if ( nb_fail > 10 ) {
@@ -1517,7 +1517,7 @@ function launch_spy(self, override_id){
                     document.getElementById('spy_all').style.color='#109E18';
                     document.getElementById('spy_all').innerHTML='&#9658; Espionnage des frigos terminé';
                     if(want_a_RG) {
-                        setTimeout(function() {blit_message_time("Attendez sur cette page, le script ira lire les rapports au retour des sondes.",20000);},3000);
+                        setTimeout(function(){blit_message_time("Attendez sur cette page, le script ira lire les rapports au retour des sondes.",20000);},3000);
                         document.getElementById('rap_gene').style.color='#808080';
                         document.getElementById('rap_gene').innerHTML='&#9658; En attente du retour des sondes...';
                         clearTimeout(auCasOu);
@@ -1583,7 +1583,7 @@ function check_attack() {
                 if(xhr.status  == 200) {
                     if (xhr.responseText.match("Flotte ennemie")) {
                         if (!xhr.responseText.match("https://gf3.geo.gfsrv.net/cdnb7/60a018ae3104b4c7e5af8b2bde5aee.gif")) {
-                            setTimeout(function() {if (readCookie("desactive_alarm", 'all') !== 'yes') bruit_alert('http://www.sephiogame.com/script/alert_nuclear_bomb3.ogg');}, 4000);
+                            setTimeout(function(){if (readCookie("desactive_alarm", 'all') !== 'yes') bruit_alert('http://www.sephiogame.com/script/alert_nuclear_bomb3.ogg');}, 4000);
                         }
                                                 
                         // Auto-Eject
@@ -1613,22 +1613,22 @@ function check_attack() {
                                 if (time_attack > start_after_less) return;
                                 
                                 if (readCookie('escaped_'+cp_attacked, 'all') !== null && time() - parseInt(readCookie('escaped_'+cp_attacked, 'all')) < 20*60*1000) {
-                                   if (cp_attacked == cur_planet && eject_auto !== 'never') setTimeout(function() {blit_message("Auto-eject inactif pour "+parseInt(20 - (time() - parseInt(readCookie('escaped_'+cp_attacked, 'all')))/1000/60)+" minutes");}, 5000);
+                                   if (cp_attacked == cur_planet && eject_auto !== 'never') setTimeout(function(){blit_message("Auto-eject inactif pour "+parseInt(20 - (time() - parseInt(readCookie('escaped_'+cp_attacked, 'all')))/1000/60)+" minutes");}, 5000);
                                    return;
                                 }
                                 
                                 if (cp_attacked !== cur_planet) {
-                                    setTimeout(function() {blit_message("Changement de planète prévu pour gérer l'attaque");}, 5000);
-                                    setTimeout(function() {
+                                    setTimeout(function(){blit_message("Changement de planète prévu pour gérer l'attaque");}, 5000);
+                                    setTimeout(function(){
                                         window.location.href = 'https://'+univers+'/game/index.php?page=overview&eject=yes&cp='+cp_attacked;
                                     }, 15000);
                                 } else {
                                     if (eject_auto == 'never') {
                                         createCookie('escaped_'+cp_attacked, time(), 1, 'all');
-                                        setTimeout(function() {blit_message("L'auto-éjection des vaisseaux n'est pas activée.");}, 10000);
+                                        setTimeout(function(){blit_message("L'auto-éjection des vaisseaux n'est pas activée.");}, 10000);
                                     } else {
                                         blit_message("Auto-eject dans 10 secondes...");
-                                        setTimeout(function() {
+                                        setTimeout(function(){
                                             createCookie('escaped_'+cp_attacked, time(), 1, 'all');
                                             //Imp2Toulouse- adapt type regarding target moon
                                             window.location.href = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+eject_gal+'&system='+eject_sys+'&position='+eject_pla+'&type='+(isOnLune?3:1)+'&mission=3&eject=yes&cp='+cp_attacked;
@@ -1728,7 +1728,7 @@ function check_espionnage_finished() {
                         createCookie('last_start', time(), 1,'AA');
                         bonus = '&AA=OUI';
                     }
-                    setTimeout(function() {window.location.href = 'https://'+univers+'/game/index.php?page=messages&RG=OUI'+bonus;}, 5000);
+                    setTimeout(function(){window.location.href = 'https://'+univers+'/game/index.php?page=messages&RG=OUI'+bonus;}, 5000);
                 } else {
                        document.getElementById('rap_gene').innerHTML='&#9658; En attente du retour des sondes... (Il reste '+(xhr.responseText.split("https://gf3.geo.gfsrv.net/cdnb7/60a018ae3104b4c7e5af8b2bde5aee.gif").length-1)+' évènements d\'espionnage)' ;
                 }
@@ -1892,11 +1892,11 @@ function gestion_cook() {
             if (cooldownOK && gup('sephiScript') != '1') {
                 if(get_prev_data("page", i_gestion) !== gup('page'))  {
                     blit_message("Démarrage dans 5s de : "+get_prev_data("title", i_gestion).replace(/_esp_/g, ' '));
-                    setTimeout(function() {window.location.href = window.location.href.replace(gup('page'),get_prev_data("page", i_gestion));}, 5000);
+                    setTimeout(function(){window.location.href = window.location.href.replace(gup('page'),get_prev_data("page", i_gestion));}, 5000);
                     return;
                 }
                 
-                xhr.onreadystatechange  = function() { 
+                xhr.onreadystatechange  =function(){ 
                     if(xhr.readyState  == 4) {
                         if(xhr.status  == 200) {
                             $('#detail').html(xhr.responseText);
@@ -1934,11 +1934,11 @@ function gestion_cook() {
                                         if (parseInt(get_prev_data("form_number", i_gestion))-good_j >= 1) {
                                             just_dimin_number = true;
                                         }
-                                        setTimeout(function() {$("#number").val(good_j);}, 1000);
+                                        setTimeout(function(){$("#number").val(good_j);}, 1000);
                                     }
                                     
                                     blit_message('<span style="float: none;margin: 0;color:#109E18">Les ressources sont suffisantes</span> : démarrage dans 2 à 4 secondes.');
-                                    setTimeout(function() {
+                                    setTimeout(function(){
                                         if (just_dimin_number){
                                             set_prev_data("form_number", i_gestion, parseInt(get_prev_data("form_number", i_gestion))-good_j);
                                             set_prev_data("havetoprev", i_gestion, "yes");
@@ -2317,7 +2317,7 @@ function attack_cur() {
     if(GLOB_curAA_ID < GLOB_rgButins.length-1 && parseInt(GLOB_rgButins[GLOB_curAA_ID][0]) > parseInt(document.getElementById('butin_AA_RG').value) )  {
         encourstime = 0;
         if (!isFirstTry) encourstime = 1000;
-        setTimeout(function() {
+        setTimeout(function(){
             // GLOB_rgButins[GLOB_curAA_ID][2] = url dans source de l'iframe
             if ((isFirstTry && type_vaisseaux_AA == 1) || (!isFirstTry && type_vaisseaux_AA == 2) || type_vaisseaux_AA == 3) {setTimeout(function(){document.getElementById('ifr_AA').src = GLOB_rgButins[GLOB_curAA_ID][2];}, 1000);}
             else {setTimeout(function(){document.getElementById('ifr_AA').src = GLOB_rgButins[GLOB_curAA_ID][3];}, 1000);}
@@ -2335,7 +2335,7 @@ function attack_cur() {
             }
         }, encourstime);
         clearTimeout(AATimeout);
-        AATimeout = setTimeout(function() {
+        AATimeout = setTimeout(function(){
             elem = document.getElementById('rap_general_planet_name_'+GLOB_rgButins[GLOB_curAA_ID][1]);
             elem.style.color = 'darkred';
             if (!elem.innerHTML.match('Timeout') && !elem.innerHTML.match('Essai')) {
@@ -2443,6 +2443,7 @@ function countdownAA() {
     //Add condition to avoid error when countdownAA is null
     var countdownObj = $('#countdownAA');
     if (countdownObj.length > 0) {
+        debugger
         if (t>0 && !is_AA_blocked_by_time()) {
             countdownObj.html(get_cool_time(t/1000));
 
@@ -2459,7 +2460,7 @@ function countdownAA() {
             }
         } else {
             if (is_AA_blocked_by_time()) {
-                auto_attack_bar_text = '<span style="color:darkred">Rapport général désactivé car il est ' + (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + 'h' + date.getMinutes() + ' (reprise à '+parseInt('0'+readCookie('time_no_AA_h_end','AA'))+'h'+parseInt('0'+readCookie('time_no_AA_m_end','AA'))+').</span>';
+                auto_attack_bar_text = '<span style="color:darkred">Rapport général désactivé car il est ' + (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + 'h' + (date.getMinutes() < 10 ? '0' + date.getMinutes():date.getMinutes()) + ' (reprise à '+(readCookie('time_no_AA_h_end','AA') < 10 ? '0' + parseInt('0'+readCookie('time_no_AA_h_end','AA')):parseInt('0'+readCookie('time_no_AA_h_end','AA')))+'h'+(readCookie('time_no_AA_m_end','AA') < 10 ? '0' + parseInt('0'+readCookie('time_no_AA_m_end','AA')):parseInt('0'+readCookie('time_no_AA_m_end','AA')))+').</span>';
                 $('span#auto_attack_bar_text').html(auto_attack_bar_text);
                 //Si besoin d'une ejection durant la periode de désactivation des attaques
                 if (readCookie('time_no_AA_with_eject','AA') == 'oui' && (readCookie('time_no_AA_eject_done','AA') == 'non' || readCookie('time_no_AA_eject_done','AA') == null)) {
@@ -2514,7 +2515,7 @@ function add_auto_attack_bar() {
             var auto_attack_bar_text = '';
             if (is_AA_blocked_by_time_result) {
                 var date = new Date();
-                auto_attack_bar_text = '<span style="color:darkred">Rapport général désactivé car il est ' + (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + 'h' + date.getMinutes() + ' (reprise à '+parseInt('0'+readCookie('time_no_AA_h_end','AA'))+'h'+parseInt('0'+readCookie('time_no_AA_m_end','AA'))+').</span>';
+                auto_attack_bar_text = '<span style="color:darkred">Rapport général désactivé car il est ' + (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + 'h' + (date.getMinutes() < 10 ? '0' + date.getMinutes():date.getMinutes()) + ' (reprise à '+(readCookie('time_no_AA_h_end','AA') < 10 ? '0' + parseInt('0'+readCookie('time_no_AA_h_end','AA')):parseInt('0'+readCookie('time_no_AA_h_end','AA')))+'h'+(readCookie('time_no_AA_m_end','AA') < 10 ? '0' + parseInt('0'+readCookie('time_no_AA_m_end','AA')):parseInt('0'+readCookie('time_no_AA_m_end','AA')))+').</span>';
                 //Si besoin d'une ejection durant la periode de désactivation des attaques
                 if (readCookie('time_no_AA_with_eject','AA') == 'oui' && (readCookie('time_no_AA_eject_done','AA') == 'non' || readCookie('time_no_AA_eject_done','AA') == null)) {
                     createCookie('time_no_AA_eject_done','oui',1,'AA');
@@ -2703,7 +2704,7 @@ if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page')
     if (reportfini) {
         save_important_vars();
         blit_message('La liste de constructions à été mise à jour, actualisation.');
-        setTimeout(function() {location.href=location.href;}, 1000);
+        setTimeout(function(){location.href=location.href;}, 1000);
         exit(0);
     }
 }
@@ -2727,11 +2728,11 @@ if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page')
     $("#support_prev_block").height((count_progs*27)+"px");
 
     if (retard_AA_button) {
-        $('#retard_AA_button').on('click', function() {
+        $('#retard_AA_button').on('click',function(){
             new_prog_time = parseInt(readCookie('progTime','AA')) + 15*60*1000; // retarde de 15 min
             localStorage.setItem(cur_planet+'_AA_progTime', new_prog_time);
         });
-        $('#launch_AA_button').on('click', function() {
+        $('#launch_AA_button').on('click',function(){
             new_prog_time = time()+ 10*1000; // lancer dans 10 secondes
             localStorage.setItem(cur_planet+'_AA_progTime', new_prog_time);
         });
@@ -2807,7 +2808,7 @@ function update_prev_pos() {
 // Drag & Drop des planètes
 document.getElementById('countColonies').innerHTML += '<img style="cursor:pointer;width:18px;height:auto;position:relative;z-index:1000;left:150px;top:-23px;" id="dragplaActive" src="http://www.sephiogame.com/script/dragdrop.png" title="Activer le déplacement des planètes">';
 document.getElementById('countColonies').innerHTML += '<img style="cursor:pointer;width:18px;height:auto;position:relative;z-index:1000;left:154px;top:-22px;" id="dragplaReset" src="http://www.sephiogame.com/script/newsletter-close-button.png" title="Réinitialiser déplacement des planètes">';
-document.getElementById('dragplaActive').onclick = function () {
+document.getElementById('dragplaActive').onclick =function(){
     for (i=0 ; i<nb_planet ; i++) {
         e = document.getElementById('dragpla-'+planet_list[i]);
         if (e !== null) e.style.display = 'block';
@@ -2815,7 +2816,7 @@ document.getElementById('dragplaActive').onclick = function () {
     }
 };
 
-document.getElementById('dragplaReset').onclick = function () {
+document.getElementById('dragplaReset').onclick =function(){
     for (i=0 ; i<nb_planet ; i++) {
         plaPosX[i] = 0;
         plaPosY[i] = 0;
@@ -3018,7 +3019,7 @@ function getXmlHttp() {
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 function PostXMLHttpRequest(_url,_data,_callback){
     xmlhttp = getXmlHttp();
-    xmlhttp.onreadystatechange = function() {
+    xmlhttp.onreadystatechange =function(){
         if (xmlhttp.readyState==4) {
             _callback(xmlhttp.responseText);
         }
@@ -3236,8 +3237,8 @@ if (gup('page') == "movement" && readCookie('retour_auto', 'eject') == 'oui' && 
 if (gup('page') == "fleet1" && gup('setRecy') !== null && gup('setRecy') !== '') {
     nbRecy = parseInt(gup('setRecy'));
     document.getElementById('shipsChosen').action += "&recyclPLZ=oui";
-    setTimeout(function() {document.getElementById('button209').getElementsByTagName('a')[0].click();},100);
-    setTimeout(function() {document.getElementById('ship_209').value=nbRecy;},300);
+    setTimeout(function(){document.getElementById('button209').getElementsByTagName('a')[0].click();},100);
+    setTimeout(function(){document.getElementById('ship_209').value=nbRecy;},300);
 }
 if (gup('page') == "fleet2" && gup('recyclPLZ') == 'oui') {
     document.getElementById('dbutton').click();
@@ -3464,12 +3465,12 @@ if (gup('page') == 'messages') {
         var msgids = [];
         var index = 0;
         if(hasSubtabs > 0){
-            $('div[aria-labelledby="'+activeSubtabid+'"] .msg_new').each(function() {
+            $('div[aria-labelledby="'+activeSubtabid+'"] .msg_new').each(function(){
                 msgids[index] = $(this).data('msg-id');
                 index++;
             });
         } else {
-            $('div[aria-labelledby="'+activeTabid+'"] .msg_new').each(function() {
+            $('div[aria-labelledby="'+activeTabid+'"] .msg_new').each(function(){
                 msgids[index] = $(this).data('msg-id');
                 index++;
             });
@@ -3584,24 +3585,24 @@ if (gup('page') == 'messages') {
 
     });
 
-    document.getElementById('save_AA_butin').onclick = function (){
+    document.getElementById('save_AA_butin').onclick =function(){
         createCookie('AA_butin', document.getElementById('butin_AA_RG').value.match(/\d/g).join(""), 1, 'AA');
         this.innerHTML = 'ok';
         this.style.cursor = 'default';
     };
 
-    document.getElementById('rapport_gen').onclick = function() {
+    document.getElementById('rapport_gen').onclick =function(){
         document.getElementById('old_rapport_gen').style.display="none";
         start_rapport_general();
     };
 
-    if (readCookie('lastRap', 'AA') !== null) document.getElementById('old_rapport_gen').onclick = function() {
+    if (readCookie('lastRap', 'AA') !== null) document.getElementById('old_rapport_gen').onclick =function(){
         document.getElementById('old_rapport_gen_AA').style.display = 'block';
         document.getElementById('rapport_gen_place').innerHTML = '<iframe style="display:none;" id="ifr_AA" src="https://ready"></iframe><table id="rap_general_table" style="width:100%;position:relative;top:0px;left:0px;border: 1px solid #000000;color: #777;background:#0D1014;margin:auto;margin-bottom:0px;">'+readCookie('lastRap', 'AA')+'</table>';
         document.getElementById('old_rapport_gen').style.display="none";
         check_AA_feedback();
     };
-    if (readCookie('lastRap', 'AA') !== null) document.getElementById('old_rapport_gen_AA').onclick = function() {
+    if (readCookie('lastRap', 'AA') !== null) document.getElementById('old_rapport_gen_AA').onclick =function(){
         GLOB_rgButins = new Array();
         GLOB_rgID = 1;
         flotte_perso='';
@@ -3879,7 +3880,7 @@ if (gup('sephiScript') == '1') {
     // Lancement Auto-Attaque
     document.getElementById('spy_all').onclick = launch_spy;
     document.getElementById('rap_gene').onclick = launch_spy;
-    document.getElementById('auto_attack').onclick = function() {
+    document.getElementById('auto_attack').onclick =function(){
         if (document.getElementById('prog_AA').checked) {
             var progTime = time() + 60*60*1000*parseInt('0'+document.getElementById('time_AA_h').value) + 60*1000*parseInt('0'+document.getElementById('time_AA_m').value);
             createCookie('progTime', progTime, 1,'AA');
@@ -3890,14 +3891,14 @@ if (gup('sephiScript') == '1') {
         window.location.href = window.location.href;
     }
 
-    /*document.getElementById('prog_AA').onclick = function () {
+    /*document.getElementById('prog_AA').onclick =function(){
         //programmé oui démarrage direct, auquel cas : le prog time vaut le repeat time
         if (document.getElementById('prog_AA').checked) {
             $('#save_AA_prog').show(1500,function(){$('#save_AA_prog').hide();});
         }
     }*/
-    var update_repeat_AA_time = function(){
-        $('#repeat_AA').prop( "checked", true );
+    var update_repeat_AA_time =function(){
+        $('#repeat_AA').prop("checked", true );
         createCookie('repeat', 'oui', 1, 'AA');
         createCookie('repeat_AA_h', $('#repeat_AA_h').val(), 1,'AA');
         createCookie('repeat_AA_m', $('#repeat_AA_m').val(), 1,'AA');
@@ -3906,11 +3907,11 @@ if (gup('sephiScript') == '1') {
         if ($('#AA_repeat').length > 0) $('#AA_repeat').html(get_cool_time(readCookie('repeatTime','AA')/1000).replace('.00',''));
 
         $('#save_AA_repeatTime').show(1500,function(){$('#save_AA_repeatTime').hide();});
-    });
+    };
     $('#repeat_AA_h').on("change", update_repeat_AA_time);
     $('#repeat_AA_m').on("change", update_repeat_AA_time);
 
-    $('#repeat_AA').on("click", function() {
+    $('#repeat_AA').on("click",function(){
         if ($('#repeat_AA:checked').length > 0) {
             createCookie('repeat', 'oui', 1, 'AA');
             update_repeat_AA_time();
@@ -3921,7 +3922,7 @@ if (gup('sephiScript') == '1') {
     $('#repeat_AA_h').on("change", update_repeat_AA_time);
     $('#repeat_AA_m').on("change", update_repeat_AA_time);
 
-    document.getElementById('aa_enable').onclick = function () {
+    document.getElementById('aa_enable').onclick =function(){
         if (document.getElementById('aa_enable').checked) {
             createCookie('aa_enable', 'oui', 1,'AA');
             $('#is_AA_enable').html("avec");
@@ -3932,7 +3933,8 @@ if (gup('sephiScript') == '1') {
         $('#save_AA_enable').show(1500,function(){$('#save_AA_enable').hide();});
     }
 
-    var update_no_AA_time = function () {
+    var update_no_AA_time =function(){
+        debugger
         createCookie('time_no_AA_h_start', $('#time_no_AA_h_start').val(), 1,'AA');
         createCookie('time_no_AA_m_start', $('#time_no_AA_m_start').val(), 1,'AA');
         createCookie('time_no_AA_h_end', $('#time_no_AA_h_end').val(), 1,'AA');
@@ -3941,8 +3943,8 @@ if (gup('sephiScript') == '1') {
         createCookie('time_no_AA_start', 60*60*1000*parseInt('0'+readCookie('time_no_AA_h_start','AA')) + 60*1000*parseInt('0'+readCookie('time_no_AA_m_start','AA')), 1,'AA');
         createCookie('time_no_AA_end', 60*60*1000*parseInt('0'+readCookie('time_no_AA_h_end','AA')) + 60*1000*parseInt('0'+readCookie('time_no_AA_m_end','AA')), 1,'AA');
         $('#save_time_no_AA').show(1500,function(){$('#save_time_no_AA').hide();});
-    }
-    $('#time_no_AA').on("click", function () {
+    };
+    $('#time_no_AA').on("click",function(){
         if ($('#time_no_AA').length > 0) {
             createCookie('time_no_AA', 'oui', 1,'AA');
             update_no_AA_time();
@@ -3950,20 +3952,23 @@ if (gup('sephiScript') == '1') {
 
         $('#save_time_no_AA').show(1500,function(){$('#save_time_no_AA').hide();});
     });
-    document.getElementById('time_no_AA_h_start').onchange = update_no_AA_time;
-    document.getElementById('time_no_AA_m_start').onchange = update_no_AA_time;
-    document.getElementById('time_no_AA_h_end').onchange = update_no_AA_time;
-    document.getElementById('time_no_AA_m_end').onchange = update_no_AA_time;
+    $('#time_no_AA_h_start').on("change", update_no_AA_time);
+    $('#time_no_AA_m_start').on("change", update_no_AA_time);
+    $('#time_no_AA_h_end').on("change", update_no_AA_time);
+    $('#time_no_AA_m_end').on("change", update_no_AA_time);
 
-    $('#time_no_AA_eject_choice').on("change", function(){
+    $('#time_no_AA_eject_choice').on("change",function(){
         $('#time_no_AA_with_eject').css("display", ($(this).val() == 1)?"block":"none");
-        if ($(this).val() == 1) {createCookie('time_no_AA_with_eject', 'oui', 1,'AA');createCookie('time_no_AA_type_eject', $('#time_no_AA_with_eject').val(), 1,'AA');}
-        else {createCookie('time_no_AA_with_eject', 'non', 1,'AA');eraseCookie('time_no_AA_type_eject','AA');}
+        if ($(this).val() == 1) {
+            createCookie('time_no_AA_with_eject', 'oui', 1,'AA');createCookie('time_no_AA_type_eject', $('#time_no_AA_with_eject').val(), 1,'AA');
+        }else{
+            createCookie('time_no_AA_with_eject', 'non', 1,'AA');eraseCookie('time_no_AA_type_eject','AA');
+        }
 
         $('#save_time_no_AA_eject_choice').show(1500,function(){$('#save_time_no_AA_eject_choice').hide();});
 
     });
-    $('#time_no_AA_with_eject').on("change", function() {
+    $('#time_no_AA_with_eject').on("change",function(){
         createCookie('time_no_AA_type_eject', $('#time_no_AA_with_eject').val(), 1,'AA');
         $('#save_time_no_AA_eject_choice').show(1500,function(){$('#save_time_no_AA_eject_choice').hide();});
     });
@@ -3980,7 +3985,7 @@ if (gup('sephiScript') == '1') {
     }
 
     // Block Ejection
-    document.getElementById('eject_save_button').onclick = function () {
+    document.getElementById('eject_save_button').onclick =function(){
         eject_data = document.getElementById('eject_galaxy').value+':';
         eject_data += document.getElementById('eject_system').value+':';
         eject_data += document.getElementById('eject_planet').value+':';
@@ -4004,7 +4009,7 @@ if (gup('sephiScript') == '1') {
 
     // Block Sauvegarde
     document.getElementById('save_button').onclick = save_important_vars_in_cloud;
-    document.getElementById('load_button').onclick = function () {
+    document.getElementById('load_button').onclick =function(){
         $('#fileupload').click();
     };
     document.getElementById('fileupload').onchange = load_important_vars_in_cloud;
@@ -4018,19 +4023,19 @@ if (gup('sephiScript') == '1') {
 
         document.getElementById('authorize-div').style.display = 'none';
         document.getElementById('alertmail-div').style.display = 'inline';
-        document.getElementById('alert_mail_to').onblur = function() {
+        document.getElementById('alert_mail_to').onblur =function(){
             document.getElementById('save_alert_mail_to').innerHTML = save_alert_mail();
             $('#save_alert_mail_to').show(1500,function(){$('#save_alert_mail_to').hide();});
             /*document.getElementById('save_alert_mail_to').style.display = 'inline';
             setTimeout(function () {document.getElementById('save_alert_mail_to').style.display = 'none';},1000);*/
         }
-        document.getElementById('alert_mail_body').onblur = function() {
+        document.getElementById('alert_mail_body').onblur =function(){
             document.getElementById('save_alert_mail_body').innerHTML = save_alert_mail();
              $('#save_alert_mail_body').show(1500,function(){$('#save_alert_mail_body').hide();});
             /*document.getElementById('save_alert_mail_body').style.display = 'inline';
             setTimeout(function () {document.getElementById('save_alert_mail_body').style.display = 'none';},1000);  */
         }
-        document.getElementById('alert_mail_freq').onblur = function() {
+        document.getElementById('alert_mail_freq').onblur =function(){
             document.getElementById('save_alert_mail_freq').innerHTML = save_alert_mail();
             $('#save_alert_mail_freq').show(1500,function(){$('#save_alert_mail_freq').hide();});
             /*document.getElementById('save_alert_mail_freq').style.display = 'inline';
@@ -4043,20 +4048,20 @@ if (gup('sephiScript') == '1') {
     }
     if (checkmail(document.getElementById('alert_mail_to').value)) document.getElementById('test-mail').style.display="inline";
     document.getElementById('test-mail').onclick=function(){sendMessage(document.getElementById('alert_mail_to').value,'Hello,\r\n\r\nYou received this email to confirm you the good reception of mail during attack alert on OGame. This body will be sent on attack alert:\r\n"'+readCookie('alert_mail_body','all')+'"\r\n','https://'+univers+'/game/index.php?page=shipyard&sephiScript=1');};
-    document.getElementById('advertAttaker').onclick = function() {
+    document.getElementById('advertAttaker').onclick =function(){
         if (this.checked) createCookie('advertAttaker', 1, 1, 'all');
         else createCookie('advertAttaker', 0, 1, 'all');
         $('#save_advertAttaker').show(1500,function(){$('#save_advertAttaker').hide();});
         /*document.getElementById('save_advertAttaker').style.display = 'inline';
         setTimeout(function () {document.getElementById('save_advertAttaker').style.display = 'none';},1000);*/
     }
-    $("input[name^=msg_text]").change(function() {
+    $("input[name^=msg_text]").change(function(){
         createCookie("msg_text", JSON.stringify({"intro":[ $("input[name=msg_text\\[1\\]\\[1\\]]").val(),$("input[name=msg_text\\[2\\]\\[1\\]]").val(),$("input[name=msg_text\\[3\\]\\[1\\]]").val(),$("input[name=msg_text\\[4\\]\\[1\\]]").val() ],"corps":[[ $("input[name=msg_text\\[1\\]\\[2\\]]").val(),$("input[name=msg_text\\[2\\]\\[2\\]]").val(),$("input[name=msg_text\\[3\\]\\[2\\]]").val(),$("input[name=msg_text\\[4\\]\\[2\\]]").val() ],[ $("input[name=msg_text\\[1\\]\\[3\\]]").val(),$("input[name=msg_text\\[2\\]\\[3\\]]").val(),$("input[name=msg_text\\[3\\]\\[3\\]]").val(),$("input[name=msg_text\\[4\\]\\[3\\]]").val() ]],"politesse":[ $("input[name=msg_text\\[1\\]\\[4\\]]").val(),$("input[name=msg_text\\[2\\]\\[4\\]]").val(),$("input[name=msg_text\\[3\\]\\[4\\]]").val(),$("input[name=msg_text\\[4\\]\\[4\\]]").val() ],}), 1, 'all');
         $('#save_msg_text').show(1500,function(){$('#save_msg_text').hide();});
     });
 
     // Paramètres AA
-    document.getElementById('leave_slot_AA').onclick = function () {
+    document.getElementById('leave_slot_AA').onclick =function(){
         if (this.checked) createCookie('AA_leave_slot', 'oui', 1, 'AA');
         else createCookie('AA_leave_slot', 'non', 1, 'AA');
         $('#save_AA_slot').show(1500,function(){$('#save_AA_slot').hide();});
@@ -4064,30 +4069,30 @@ if (gup('sephiScript') == '1') {
         setTimeout(function () {document.getElementById('save_AA_slot').style.display = 'none';},1000);*/
     };
     //Imp2Toulouse- request to save the free slot number wished
-    document.getElementById('nb_slot_AA').onchange = function () {
+    document.getElementById('nb_slot_AA').onchange =function(){
         createCookie('AA_nb_slot', document.getElementById('nb_slot_AA').value.match(/\d/g).join(""), 1, 'AA');
         $('#save_AA_slot').show(1500,function(){$('#save_AA_slot').hide();});
         /*document.getElementById('save_AA_slot').style.display = 'inline';
         setTimeout(function () {document.getElementById('save_AA_slot').style.display = 'none';},1000);*/
     };
     ///////
-    document.getElementById('type_vaisseaux_AA').onclick = function () {
+    document.getElementById('type_vaisseaux_AA').onclick =function(){
         createCookie('type_vaisseaux', this.value, 1, 'AA');
     };
-    document.getElementById('force_AA').onclick = function () {
+    document.getElementById('force_AA').onclick =function(){
         if (this.checked) createCookie('force', 'oui', 1, 'AA');
         else createCookie('force', 'non', 1, 'AA');
         $('#save_AA_force').show(1500,function(){$('#save_AA_force').hide();});
         /*document.getElementById('save_AA_force').style.display = 'inline';
         setTimeout(function () {document.getElementById('save_AA_force').style.display = 'none';},1000);*/
     };
-    document.getElementById('butin_AA_RG').onchange = function (){
+    document.getElementById('butin_AA_RG').onchange =function(){
         createCookie('AA_butin', document.getElementById('butin_AA_RG').value.match(/\d/g).join(""), 1, 'AA');
         $('#save_AA_butin').show(1500,function(){$('#save_AA_butin').hide();});
         /*document.getElementById('save_AA_butin').style.display = 'inline';
         setTimeout(function () {document.getElementById('save_AA_butin').style.display = 'none';},1000);*/
     };
-    document.getElementById('do_exp_AA').onchange = function () {
+    document.getElementById('do_exp_AA').onchange =function(){
         if (document.getElementById('do_exp_AA').value != "perso") {
             $("#do_exp_AA_perso:input").val("");
             $("#do_exp_AA_perso:input").prop("disabled", true);
@@ -4110,38 +4115,38 @@ if (gup('sephiScript') == '1') {
 
         }
     }
-    document.getElementById('do_exp_AA_perso').onchange = function () {
+    document.getElementById('do_exp_AA_perso').onchange =function(){
         with_exped = document.getElementById('do_exp_AA_perso').value;
         createCookie('with_exped', with_exped, 1, 'AA');
         $('#save_AA_do_exp_perso').show(1500,function(){$('#save_AA_do_exp_perso').hide();});
     }
-    document.getElementById('do_exp_AA_perso_speed').onchange = function () {
+    document.getElementById('do_exp_AA_perso_speed').onchange =function(){
         with_exped_speed = document.getElementById('do_exp_AA_perso_speed').value;
         createCookie('with_exped_speed', with_exped_speed, 1, 'AA');
         $('#save_AA_do_exp_perso').show(1500,function(){$('#save_AA_do_exp_perso').hide();});
     }
-    document.getElementById('do_exp_AA_perso_temps').onchange = function () {
+    document.getElementById('do_exp_AA_perso_temps').onchange =function(){
         with_exped_time = document.getElementById('do_exp_AA_perso_temps').value;
         createCookie('with_exped_time', with_exped_time, 1, 'AA');
         $('#save_AA_do_exp_perso').show(1500,function(){$('#save_AA_do_exp_perso').hide();});
     }
 
     // Options script
-    document.getElementById('alarmeONOFF').onclick = function () {
+    document.getElementById('alarmeONOFF').onclick =function(){
         if (this.checked) createCookie('desactive_alarm', 'yes', 1, 'all');
         else createCookie('desactive_alarm', 'no', 1, 'all');
         $('#save_alarmeONOFF').show(1500,function(){$('#save_alarmeONOFF').hide();});
         /*document.getElementById('save_alarmeONOFF').style.display = 'inline';
         setTimeout(function () {document.getElementById('save_alarmeONOFF').style.display = 'none';},1000);*/
     };
-    document.getElementById('noplaplaChange').onclick = function () {
+    document.getElementById('noplaplaChange').onclick =function(){
         if (this.checked) createCookie('noplaplaChange', 'oui', 1, 'all');
         else createCookie('noplaplaChange', 'non', 1, 'all');
         $('#save_noplaplaChange').show(1500,function(){$('#save_noplaplaChange').hide();});
         /*document.getElementById('save_noplaplaChange').style.display = 'inline';
         setTimeout(function () {document.getElementById('save_noplaplaChange').style.display = 'none';},1000);*/
     };
-    document.getElementById('changeTime1').onchange = function () {
+    document.getElementById('changeTime1').onchange =function(){
         if (parseInt(this.value) > 1) {
             createCookie('plapla_change_time1', this.value, 1, 'all');
             $('#save_timechange').show(1500,function(){$('#save_timechange').hide();});
@@ -4149,7 +4154,7 @@ if (gup('sephiScript') == '1') {
             setTimeout(function () {document.getElementById('save_timechange').style.display = 'none';},1000);*/
         }
     };
-    document.getElementById('changeTime2').onchange = function () {
+    document.getElementById('changeTime2').onchange =function(){
         if (parseInt(this.value) > 1) {
             createCookie('plapla_change_time2', this.value, 1, 'all');
             $('#save_timechange').show(1500,function(){$('#save_timechange').hide();});
@@ -4158,7 +4163,7 @@ if (gup('sephiScript') == '1') {
         }
     };
     if (!cur_check_all_state) document.getElementById("check_all").checked = true;
-    document.getElementById("check_all").onclick = function () {
+    document.getElementById("check_all").onclick =function(){
         for (i=0;i<importvars["frigos"].length;i++) {
             document.getElementById("frig_ignore_"+i).checked = cur_check_all_state;
             importvars["frigos"][i][6] = cur_check_all_state ? '1' : '0';
@@ -4185,11 +4190,11 @@ if (lastActu !== null) {
     lastActu = time() - parseInt(lastActu);
     lastActuSecu = time() - parseInt(lastActuSecu);
     if (lastActu > 16*60*60*1000 && lastActuSecu>10*60*1000) {
-       $(document.body).on("click", function(){
+       $(document.body).on("click",function(){
             createCookie('lastActuTimeSecu', time(), 1, 'all');
             document.getElementById('menuTable').innerHTML += '<form id="actuSephiOgame" action="http://www.sephiogame.com/Actualites?curVer='+cur_version+'&serv='+univers+'#Infos" style="display:none" target="sephiogame" method="post"><input type="submit" id="submitpopup"></form>';
             document.getElementById('submitpopup').click();
-            $(document.body).on("click", function(){});
+            $(document.body).on("click",function(){});
             window.focus();
             setTimeout(function(){window.focus();},1000);
         });
@@ -4213,7 +4218,7 @@ function check_galaxy_frigs() {
                     if(is_frigo(importvars["frigos"],"["+GAL_check_cur_gal+":"+GAL_check_cur_sys+":"+position+"]") <0 ) {
                         b = $(this).find(('div#planet')+position);
                         if (b.length > 0) {
-                            ListLinks = '<li><a href="javascript:void(0);" onclick="localStorage.setItem(\'all_add_racc\', \''+position+'\');setTimeout(function() {$(\'#showbutton\').click();},500);this.onclick=null;" style="cursor:pointer;color:#A52592;font-weight:bold">Ajouter aux frigos</a>';
+                            ListLinks = '<li><a href="javascript:void(0);" onclick="localStorage.setItem(\'all_add_racc\', \''+position+'\');setTimeout(function(){$(\'#showbutton\').click();},500);this.onclick=null;" style="cursor:pointer;color:#A52592;font-weight:bold">Ajouter aux frigos</a>';
                             ListLinks += '<input type="hidden" id="raccourcis_name_sep'+position+'" value="'+b.find('.textNormal').html()+'">';
                             ListLinks += '<input type="hidden" id="galaxy'+position+'" value="'+b.find('.ListImage').html().match(/.*\[(.*):.*:.*\].*/)[1]+'">';
                             ListLinks += '<input type="hidden" id="system'+position+'" value="'+b.find('.ListImage').html().match(/.*\[.*:(.*):.*\].*/)[1]+'">';
@@ -4230,7 +4235,7 @@ function check_galaxy_frigs() {
 
                         b = $(this).find(('div#planet')+position);
                         if (b.length > 0) {
-                            ListLinks =  '<li><a href="javascript:void(0);" onclick="localStorage.setItem(\'all_del_racc\', \''+(b.find('ul.ListImage li span#pos-planet').html())+'\');setTimeout(function() {$(\'#showbutton\').click();},500);this.onclick=null;" style="cursor:pointer;color:#A52592;font-weight:bold">Supprimer des frigos</a>';
+                            ListLinks =  '<li><a href="javascript:void(0);" onclick="localStorage.setItem(\'all_del_racc\', \''+(b.find('ul.ListImage li span#pos-planet').html())+'\');setTimeout(function(){$(\'#showbutton\').click();},500);this.onclick=null;" style="cursor:pointer;color:#A52592;font-weight:bold">Supprimer des frigos</a>';
                             ListLinks += '<input type="hidden" id="raccourcis_name_sep'+(position)+'" value="'+b.find('.textNormal').html()+'">';
                             ListLinks += '<input type="hidden" id="galaxy'+(position)+'" value="'+b.find('ul.ListImage li span#pos-planet').html().match(/.*\[(.*):.*:.*\].*/)[1]+'">';
                             ListLinks += '<input type="hidden" id="system'+(position)+'" value="'+b.find('ul.ListImage li span#pos-planet').html().match(/.*\[.*:(.*):.*\].*/)[1]+'">';
@@ -4256,7 +4261,7 @@ if (gup('page') == "galaxy") setInterval(check_galaxy_frigs,100);
 
 // Fonction d'activation du pack
 if (enable_quick_pack) {
-    document.getElementById('startquickpack').onclick= function() {
+    document.getElementById('startquickpack').onclick=function(){
         if (!cur_planetIsLune) {
             //I2T: Ajout de la différence si premiere planete sur demande utilisateur pour optimiser l'obtention du premier PT(Merci Lucas Geng)
             if (nb_planet == 1) { //I2T: Si premiere planete
@@ -4383,7 +4388,7 @@ if (gup("page") == "preferences") {
         document.getElementById('prefs').innerHTML += '<input type="checkbox" name="fullSpioReport" checked>';
         document.getElementById('prefs').submit();
     }
-    $("div.content div#two div.fieldwrapper div.thefield input.textInput").on("change", function(){
+    $("div.content div#two div.fieldwrapper div.thefield input.textInput").on("change",function(){
         createCookie("nb_sondes",this.value,-1,"options");
     });
 }
