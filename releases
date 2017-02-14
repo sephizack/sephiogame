@@ -41,3 +41,12 @@
 //3.6.4.3:               * Fixes + prevent auto attack during period
 //         Imp2Toulouse- * Fixes / Optimizations
 //3.6.4.4:               * Many fixes
+//3.7.0: Voici les nouveautées de la version 3.7.0 :
+//         Integration de la version 6.0.5
+//         -Revue de l'integration de l'ensemble des frigos (depuis les messages)
+//         -Revue de l'ensemble du processus d'auto attaque (créneau de non attaque configurable)
+//         -Revue de l'envoi des expeditions
+//         -Revue du calcul du butin
+//         -Ajout de contrôles dans la gestion des frigos
+//         -Ajout de controles basés sur la flotte/defense de l'ennemie
+//         -Modification de la barre d'outil des messages (possibilité d'activer le nombre de sonde par frigo)
