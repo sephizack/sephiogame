@@ -621,7 +621,7 @@ function get_cool_title (cost_met,cost_crys,cost_deut,color1,color2,color3) {
 function get_cool_time(boss){
     temps_string='';
     
-    //if (Math.floor(boss/60/60) !== 0)
+    if (Math.floor(boss/60/60) >0)//!== 0)
         temps_string += Math.floor(boss/60/60)+'h';
     
     tmp=Math.floor(boss/60 - Math.floor(boss/60/60)*60);
@@ -1896,7 +1896,7 @@ function gestion_cook() {
                     return;
                 }
                 
-                xhr.onreadystatechange  =function(){ 
+                xhr.onreadystatechange=function(){ 
                     if(xhr.readyState  == 4) {
                         if(xhr.status  == 200) {
                             $('#detail').html(xhr.responseText);
