@@ -65,10 +65,25 @@
 //3.6.4.3:               * Fixes + prevent auto attack during period
 //         Imp2Toulouse- * Fixes / Optimizations
 //3.6.4.4:               * Many fixes
+//3.7.0: Nouveautés de la version 3.7.0 :
+//         Integration de la version 6.0.5
+//         -Revue de l'integration de l'ensemble des frigos (depuis les messages)
+//         -Revue de l'ensemble du processus d'auto attaque (créneau de non attaque configurable)
+//         -Revue de l'envoi des expeditions
+//         -Revue du calcul du butin
+//         -Ajout de contrôles dans la gestion des frigos
+//         -Ajout de controles basés sur la flotte/defense de l'ennemie
+//         -Modification de la barre d'outil des messages (possibilité d'activer le nombre de sonde par frigo)
+//3.7.1: Main evolution
+//         -Multiple kind of auto ejection on AA desactivation
+//         -Add (configuration and manage) priority of ressource ejected regarding the global fleets transport capacity
+//       Bug corrections/Improvements
+//         - Improvement of nb_slot configuration saving
+//         - Improvement of fleets specification on ejection (new function get_fleets_capacity)
 
 antiBugTimeout = setTimeout(function(){location.href=location.href;}, 5*60*1000);
 
-cur_version = '3.7.0';
+cur_version = '3.7.1';
 univers = window.location.href.split('/')[2];
 
 // Multi langues
@@ -550,6 +565,12 @@ eject_gal = 'Galaxie';
 eject_sys = 'Système';
 eject_pla = 'Planète';
 eject_auto = 'never';
+
+//default priority
+ress_priority_metal=1;
+ress_priority_crystal=2;
+ress_priority_deut=3;
+
 eject_all = false;
 eject_onLune = false;
 eject_type='';
@@ -561,10 +582,13 @@ if (data !== null && data.split(":").length > 2) {
     if (data.match('5mins')) eject_auto = '5mins';
     if (data.match('10mins')) eject_auto = '10mins';
     if (data.match('20mins')) eject_auto = '20mins';
-    
+
+    if (data.match('ress_priority_metal')) [,ress_priority_metal,ress_priority_crystal,ress_priority_deut]=data.match(/:ress_priority_metal\|(\d):ress_priority_crystal\|(\d):ress_priority_deut\|(\d):/);
+
     eject_all = data.match('ALL');
     eject_onLune = data.match('OnLune');
     eject_type = data.match('Type');
+
     //Imp2Toulouse- Preset the type of mission if the moon is used
     eject_url = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+eject_gal+'&system='+eject_sys+'&position='+eject_pla
     eject_url+= '&type='+((eject_onLune)?3:1)+'&mission=3&cp='+(planet_list[planame_list.indexOf(cur_planame)])+'&eject=yes';
@@ -789,15 +813,17 @@ function change_actions_tab(action_tab){
             var api_num = $(this).attr("title").replace(/^.*input value='(.*)' readonly.*$/m, '$1');
             if (api_num.match(/^sr-.*$/)) api_param="SR_KEY=".concat(api_num);
             if (api_num.match(/^cr-.*$/)) api_param="CR_KEY=".concat(api_num);
+            if (api_num.match(/^rr-.*$/)) api_param="RR_KEY=".concat(api_num);
 
-            parent.replaceWith(function () {
-                return $('<a/>', {
-                    href: "http://topraider.eu/index.php?langue=fr&simulator=speedsim&".concat(api_param),
-                    target: '_blank',
-                    class: "icon_nf_link fleft",
-                    html: this.innerHTML
-                })
-            });
+            if (api_param != "" && api_param != null)
+                parent.replaceWith(function () {
+                    return $('<a/>', {
+                        href: "http://topraider.eu/index.php?langue=fr&simulator=speedsim&".concat(api_param),
+                        target: '_blank',
+                        class: "icon_nf_link fleft",
+                        html: this.innerHTML
+                    })
+                });
         }
         var parent=null;
     });
@@ -1561,7 +1587,7 @@ function save_alert_mail() {
 }
 
 function send_alert_mail(cp_attacked,coords,isOnLune,time_attack) {
-    sendMessage(readCookie('alert_mail_to','all'),readCookie('alert_mail_body','all').replace("[CP_NAME]",cp_attacked).replace("[CP_COORDS]",coords).replace("[CP_ISLUNE]",(isOnLune)?"Lune":"Planet").replace("[CP_IMPACTTIME]",getFormatedTime(time_attack).replace(/:/," hours, ").replace(/:/, " minutes and ")+ " seconds"),'https://'+univers+'/game/index.php?page=shipyard&sephiScript=1');
+    sendMessage(readCookie('alert_mail_to','all'),'Ogame Attack Alert',readCookie('alert_mail_body','all').replace("[CP_NAME]",cp_attacked).replace("[CP_COORDS]",coords).replace("[CP_ISLUNE]",(isOnLune)?"Lune":"Planet").replace("[CP_IMPACTTIME]",getFormatedTime(time_attack).replace(/:/," hours, ").replace(/:/, " minutes and ")+ " seconds"),'https://'+univers+'/game/index.php?page=shipyard&sephiScript=1');
     createCookie('attack_advert', time(), 1, 'all');
 }
 
@@ -1717,8 +1743,7 @@ function is_AA_blocked_by_time() {
 }
 
 function check_espionnage_finished() {
-    xhr.onreadystatechange = function() 
-    { 
+    xhr.onreadystatechange = function(){
         if(xhr.readyState  == 4)
         {
             if(xhr.status  == 200) {
@@ -1741,6 +1766,19 @@ function check_espionnage_finished() {
     xhr.send(); 
     
     setTimeout(check_espionnage_finished,rand(4,8)*1000);
+}
+
+function get_fleets_capacity(outType="array", obj) {
+    if ($(obj).length > 0) {
+        var temp_fleets_volume=[];
+        var temp_ships_volume="";
+        $(obj).each(function(){
+            temp_fleets_volume[$(this)[0].id] = $(this).find('a span.ecke span.level').html().match(/<\/span>(.*)$/)[1];
+            temp_ships_volume+=$(this)[0].id.replace("button","am") +"="+ $(this).find('a span.ecke span.level').html().match(/<\/span>(.*)$/)[1] +"&";
+        });
+        return ((outType == "array")?temp_fleets_volume:temp_ships_volume.substr(0,temp_ships_volume.length-1));
+        var temp_fleets_volume=null;temp_ships_volume=null;
+    }
 }
 
 function check_attack_reload() {
@@ -2443,7 +2481,6 @@ function countdownAA() {
     //Add condition to avoid error when countdownAA is null
     var countdownObj = $('#countdownAA');
     if (countdownObj.length > 0) {
-        debugger
         if (t>0 && !is_AA_blocked_by_time()) {
             countdownObj.html(get_cool_time(t/1000));
 
@@ -3196,12 +3233,75 @@ if (gup('page') == "fleet1" && gup('eject') == 'yes') {
     
     var params; 
     sephi_opt="eject=yes";
-    
-    params=JSON.parse('{ "url": "'+"https://"+univers+"/game/index.php"+'", "page": "page=fleet1", "from": "'+"cp="+planet_list[planame_list.indexOf(cur_planame)]+'", "to": "'+"galaxy="+(importvars['eject'].split(':')[0])+"&system="+(importvars['eject'].split(':')[1])+"&position="+(importvars['eject'].split(':')[2])+'", "type_mission": "'+"type="+((eject_onLune)?"3":"1")+"&mission=4"+'", "fleets": "'+"speed=1&am204=99999&am205=99999&am206=99999&am207=99999&am215=99999&am211=99999&am213=99999&am214=99999"+((eject_all)?"&am202=99999&am203=99999&am208=99999&am209=99999&am210=99999":"")+'", "ressources": "'+"metal=999999999&crystal=999999999&deuterium=999999999&prioMetal=1&prioCrystal=2&prioDeuterium=3"+'", "fleets_opts": "'+"union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0"+'", "token": "'+"token="+'", "step": "'+1+'", "sephi_opt":"'+sephi_opt+'"}');
+    //Allow to get EXACT battleships and civilships
+    var fleets_volume_battleships=get_fleets_capacity("list",$('div#buttonz div.content form#shipsChosen div#battleships li'));
+    var fleets_volume_civilships=get_fleets_capacity("list",$('div#buttonz div.content form#shipsChosen div#civilships li'));
+
+    //Define global ressources
+    ress_metal=parseInt($('#resources_metal').text().replace(/\./g,""));
+    ress_crystal=parseInt($('#resources_crystal').text().replace(/\./g,""));
+    ress_deuterium=parseInt($('#resources_deuterium').text().replace(/\./g,""));
+
+    //Calculate global fleet ressources transport and adapt the ressource priority on DEUT in FIRST
+    [,PT,GT]=fleets_volume_civilships.match(/am202=(\d+).*am203=(\d+).*/);
+    global_fleets_capacity=(PT*5000)+(GT*25000);
+
+    //define ressources priorities params
+    ress_priority="prioMetal="+ress_priority_metal+"&prioCrystal="+ress_priority_crystal+"&prioDeuterium="+ress_priority_deut;
+    function ressources_by_priority(full_capacity,prio_metal,prio_crystal,prio_deut,metal,crystal,deut){
+        var capa_metal=0, capa_crystal=0, capa_deut=0;
+        if (prio_metal == 1) {//si p1=metal alors
+            capa_metal= (metal <= full_capacity) ? metal : full_capacity ; //capa_metal= si ress_metal <= global_capa alors ress_metal sinon global_capa ;
+            if (prio_crystal == 2) //si p2=chrystal alors
+                capa_crystal= (crystal <= (full_capacity-metal)) ? crystal : (full_capacity-metal); //capa_chrystal= si ress_crystal <= (global_capa-ress_metal) alors ress_crystal sinon (global_capa-ress_metal)
+            if (prio_deut == 2) //si p2=deut alors
+                capa_deut= (deut <= (full_capacity-metal)) ? deut : (full_capacity-metal); //capa_deut= si ress_deut <= (global_capa-ress_metal) alors ress_deut sinon (global_capa-ress_metal)
+            if (prio_crystal == 3) //si p3=chrystal alors
+                capa_chrystal= (crystal <= (full_capacity-metal-deut)) ? crystal : (full_capacity-metal-deut); //capa_chrystal= si ress_crystal <= (global_capa-ress_metal-ress_deut) alors ress_crystal sinon (global_capa-ress_metal-ress_deut)
+            if (prio_deut == 3) // si p3=deut alors
+                capa_deut= (deut <= (full_capacity-metal-crystal)) ? deut : (full_capacity-metal-crystal); //capa_deut= si ress_deut <= (global_capa-ress_metal-ress_crystal) alors ress_deut sinon (global_capa-ress_metal-ress_crystal)
+        }
+        if (prio_crystal == 1) { //si p1=crystal alors
+            capa_crystal= (crystal <= full_capacity) ? crystal : full_capacity ; //capa_chrystal= si ress_crystal <= global_capa alors ress_crystal sinon global_capa ;
+            if (prio_metal == 2) //si p2=metal alors
+                capa_metal= (metal <= (full_capacity-crystal)) ? metal : (full_capacity-crystal); //capa_metal= si ress_metal <= (global_capa-ress_crystal) alors ress_metal sinon (global_capa-ress_crystal)
+            if (prio_deut == 2) // si p2=deut alors
+                capa_deut= (deut <= (full_capacity-crystal)) ? deut : (full_capacity-crystal); //capa_deut= si ress_deut <= (global_capa-ress_crystal) alors ress_deut sinon (global_capa-ress_crystal)
+            if (prio_metal == 3) //si p3=metal alors
+                capa_metal= (metal <= (full_capacity-crystal-deut)) ? metal : (full_capacity-crystal-deut); //capa_metal= si ress_metal <= (global_capa-ress_crystal-ress_deut) alors ress_metal sinon (global_capa-ress_crystal-ress_deut)
+            if (prio_deut == 3) // si p3=deut alors
+                capa_deut= (deut <= (full_capacity-crystal-metal)) ? deut : (full_capacity-crystal-metal); //capa_deut= si ress_deut <= (global_capa-ress_crystal-ress_metal) alors ress_deut sinon (global_capa-ress_crystal-ress_metal)
+        }
+        if (prio_deut == 1) {  //si p1=deut alors
+            capa_deut= (deut <= full_capacity) ? deut : full_capacity ; //capa_deut= si ress_deut <= global_capa alors ress_deut sinon global_capa ;
+            if (prio_metal == 2) //si p2=metal alors
+                capa_metal= (metal <= (full_capacity-deut)) ? metal : (full_capacity-deut); // capa_metal= si ress_metal <= (global_capa-ress_deut) alors ress_metal sinon (global_capa-ress_deut)
+            if (prio_crystal == 2) //si p2=crystal alors
+                capa_crystal= (crystal <= (full_capacity-deut)) ? crystal : (full_capacity-deut); //capa_chrystal= si ress_chrystal <= (global_capa-ress_deut) alors ress_chrystal sinon (global_capa-ress_deut)
+            if (prio_metal == 3) //si p3=metal alors
+                capa_metal= (metal <= (full_capacity-deut-crystal)) ? metal : (full_capacity-deut-crystal); //capa_metal= si ress_metal <= (global_capa-ress_crystal-ress_deut) alors ress_metal sinon (global_capa-ress_crystal-ress_deut)
+            if (prio_crystal == 3) //si p3=chrystal alors
+                capa_crystal= (crystal <= (full_capacity-deut-metal)) ? crystal : (full_capacity-deut-metal); //capa_chrystal= si ress_chrystal <= (global_capa-ress_deut-ress_metal) alors ress_chrystal sinon (global_capa-ress_deut-ress_metal)
+        }
+        //return positive value or 0
+        return ([parseInt((capa_metal>=0)?capa_metal:0),parseInt((capa_crystal>0)?capa_crystal:0),parseInt((capa_deut>0)?capa_deut:0)]);
+    }
+    [capa_metal,capa_crystal,capa_deuterium]=ressources_by_priority(global_fleets_capacity,ress_priority_metal,ress_priority_crystal,ress_priority_deut,ress_metal,ress_crystal,ress_deuterium);
+    //Define miss transporter to transport all ressource
+    miss_ressources=(ress_metal-capa_metal)+(ress_crystal-capa_crystal)+(ress_deuterium-capa_deuterium);
+    if (miss_ressources > 0) {
+        mesg_miss_ressources="Il manque "+(miss_ressources<=25000?Math.ceil(miss_ressources/5000)+"PT":Math.ceil(miss_ressources/25000)+"GT")+" pour transporter toutes vos ressources depuis "+cur_planame+".";
+        setTimeout(function(){blit_message_time("<b style='color:red'>Ressources à quai:</b>"+mesg_miss_ressources,5000)}, 5000);
+        setTimeout(function(){sendMessage(readCookie('alert_mail_to','all'),"Fleets and ressources ejection from your planet "+cur_planame,"Hello,\r\n\r\n"+"Ressources à quai: "+mesg_miss_ressources,"");}, 5000);
+    }
+    //Define ressources capacities params
+    ressources="metal="+parseInt(capa_metal)+"&crystal="+parseInt(capa_crystal)+"&deuterium="+parseInt(capa_deuterium);
+
+    params=JSON.parse('{ "url": "'+"https://"+univers+"/game/index.php"+'", "page": "page=fleet1", "from": "'+"cp="+planet_list[planame_list.indexOf(cur_planame)]+'", "to": "'+"galaxy="+(importvars['eject'].split(':')[0])+"&system="+(importvars['eject'].split(':')[1])+"&position="+(importvars['eject'].split(':')[2])+'", "type_mission": "'+"type="+((eject_onLune)?"3":"1")+"&mission=4"+'", "fleets": "'+"speed=1&"+((eject_all)?fleets_volume_civilships+"&"+fleets_volume_battleships:fleets_volume_civilships)+'", "ressources": "'+ressources+'&'+ress_priority+'", "fleets_opts": "'+"union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0"+'", "token": "'+"token="+'", "step": "'+1+'", "sephi_opt":"'+sephi_opt+'"}');
     createCookie('data',JSON.stringify(params), 1, 'form');
     PostXMLHttpRequest(params.url+"?"+params.page+"&"+params.from,"",SendFleet);
 //    console.log("Request:"+params.url+"?"+params.page+"&"+params.from);
-    params=null;
+    params=null;ressources=null;fleets_volume_battleships=null;fleets_volume_civilships=null,ress_priority=null,ressources=null,capa_metal=null,capa_crystal=null,capa_deuterium=null;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3283,16 +3383,12 @@ if (gup('page') == "fleet1" && gup('auto') == 'yes') {
             nbGT = supGT + nbGT;
         }
     }
-
-    var tmp = document.getElementsByClassName('fleft')[0].firstElementChild.innerText.split(' : ')[1].split('/');
-    var cur_nb_flotte = parseInt(tmp[0]);
-    var max_nb_flotte = parseInt(tmp[1]);
+    [,cur_nb_flotte,max_nb_flotte] = $('.fleft span').first().html().match(/<\/span> (\d+)\/(\d+)/);
     var hasEnoughFleets = true;
-
     // Calcule si le lancement d'une flotte est possible en fonction des slots disponibles
     if (readCookie('AA_leave_slot','AA') == 'oui') {
         //add Imp2Toulouse- Read nb of leave slot
-        nb_slot_leave=(readCookie('AA_nb_slot','AA') == '' || readCookie('AA_nb_slot','AA') == null) ? 0:parseInt(readCookie('AA_nb_slot','AA'));
+        nb_slot_leave=(readCookie('AA_nb_slot','AA') == '' || readCookie('AA_nb_slot','AA') == null) ? defaut_AA_nb_slot:parseInt(readCookie('AA_nb_slot','AA'));
         // Replace by the number read
         if ((max_nb_flotte - cur_nb_flotte) <= nb_slot_leave) hasEnoughFleets = false;
     }
@@ -3853,6 +3949,7 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='           Le script vous permet de faire décoller tout vos vaisseaux civils et vos ressources en un instant, vous devez cependant lui spécifier les coordonnées vers lesquelles vous souhaitez décoller pour pouvoir utiliser cette fonction. (Une mission de transport sera alors lancée vers la planète en question)<br><br><i>Vous pouvez également demander au script de faire décoller automatiquement vos vaisseaux avec vos ressources 5 minutes avant de subir une attaque.</i><br><br><br/>';
     sephi_frigos_data+='           <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Ejecter les vaisseaux civils de cette planète : <select id="auto_eject" style="visibility: visible;"><option value="never" '+(eject_auto == 'never' ? 'selected':'')+'>Jamais</option><option value="5mins" '+(eject_auto == '5mins' ? 'selected':'')+'>5 minutes avant l\'attaque ennemie</option><option value="10mins" '+(eject_auto == '10mins' ? 'selected':'')+'>10 minutes avant l\'attaque ennemie</option><option value="20mins" '+(eject_auto == '20mins' ? 'selected':'')+'>20 minutes avant l\'attaque ennemie</option></select></span><br/>';
     sephi_frigos_data+='           <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Ejecter également les vaisseaux de combat : <input '+(eject_all ? 'checked' : '')+' type="checkbox" id="eject_all" style="position:relative;top:2px;"/></span><br>';
+    sephi_frigos_data+='           <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Prioriser les ressources Métal: <select id="ress_priority_metal" style="visibility: visible;"><option value="1" '+(ress_priority_metal == '1' ? 'selected':'')+'>Priority 1</option><option value="2" '+(ress_priority_metal == '2' ? 'selected':'')+'>Priority 2</option><option value="3" '+(ress_priority_metal == '3' ? 'selected':'')+'>Priority 3</option></select>&nbsp;Crystal: <select id="ress_priority_crystal" style="visibility: visible;"><option value="1" '+(ress_priority_crystal == '1' ? 'selected':'')+'>Priority 1</option><option value="2" '+(ress_priority_crystal == '2' ? 'selected':'')+'>Priority 2</option><option value="3" '+(ress_priority_crystal == '3' ? 'selected':'')+'>Priority 3</option></select>&nbsp;Deut: <select id="ress_priority_deut" style="visibility: visible;"><option value="1" '+(ress_priority_deut == '1' ? 'selected':'')+'>Priority 1</option><option value="2" '+(ress_priority_deut == '2' ? 'selected':'')+'>Priority 2</option><option value="3" '+(ress_priority_deut == '3' ? 'selected':'')+'>Priority 3</option></select></span><br/>';
     sephi_frigos_data+='           <table style="width:507px;color:#6f9fc8;"><tr>';
     sephi_frigos_data+='             <th style="width:700px;text-align:left;"><input type="text" style="width: 65px;position:relative;margin-left:30px;text-align:center;" value="'+eject_gal+'" title="Galaxie" id="eject_galaxy" onclick="if (this.value == \'Galaxie\') this.value=\'\';"/><input type="text" style="width: 65px;position:relative;margin-left:5px;text-align:center;" value="'+eject_sys+'" title="Système" id="eject_system" onclick="if (this.value == \'Système\') this.value=\'\';"/><input type="text" style="width: 65px;position:relative;margin-left:5px;text-align:center;" value="'+eject_pla+'" title="Planète" id="eject_planet" onclick="if (this.value == \'Planète\') this.value=\'\';"/><span style="position:relative;left:20px"><input type="checkbox" id="ejectLune" title="Si vous cochez cette case, l\'ejecion se fera sur la lune des coordonnées demandées." style="position:relative;top:2px;" '+(eject_onLune?'checked':'')+'/> Lune</span></th>';
     sephi_frigos_data+='             <th style="width:300px;text-align:right;position:relative;left:-20px;top:0px;"><span class="factorbutton"><input class="btn_blue" id="eject_save_button" style="" type="button" value="Enregistrer"></span></th>';
@@ -3934,7 +4031,6 @@ if (gup('sephiScript') == '1') {
     }
 
     var update_no_AA_time =function(){
-        debugger
         createCookie('time_no_AA_h_start', $('#time_no_AA_h_start').val(), 1,'AA');
         createCookie('time_no_AA_m_start', $('#time_no_AA_m_start').val(), 1,'AA');
         createCookie('time_no_AA_h_end', $('#time_no_AA_h_end').val(), 1,'AA');
@@ -3995,6 +4091,10 @@ if (gup('sephiScript') == '1') {
         if (document.getElementById('auto_eject').value == '10mins') eject_data += '10mins:';
         if (document.getElementById('auto_eject').value == '20mins') eject_data += '20mins:';
 
+        if ($("#ress_priority_metal").length > 0) eject_data+= 'ress_priority_metal|'+$("#ress_priority_metal").val()+':';
+        if ($("#ress_priority_crystal").length > 0) eject_data+= 'ress_priority_crystal|'+$("#ress_priority_crystal").val()+':';
+        if ($("#ress_priority_deut").length > 0) eject_data+= 'ress_priority_deut|'+$("#ress_priority_deut").val()+':';
+
         if (document.getElementById('eject_all').checked) eject_data += 'ALL:';
 
         if (document.getElementById('ejectLune').checked) eject_data += 'OnLune';
@@ -4047,7 +4147,7 @@ if (gup('sephiScript') == '1') {
         document.getElementById('authorize-button').onclick=function(){checkAuth_NEW(event);};
     }
     if (checkmail(document.getElementById('alert_mail_to').value)) document.getElementById('test-mail').style.display="inline";
-    document.getElementById('test-mail').onclick=function(){sendMessage(document.getElementById('alert_mail_to').value,'Hello,\r\n\r\nYou received this email to confirm you the good reception of mail during attack alert on OGame. This body will be sent on attack alert:\r\n"'+readCookie('alert_mail_body','all')+'"\r\n','https://'+univers+'/game/index.php?page=shipyard&sephiScript=1');};
+    document.getElementById('test-mail').onclick=function(){sendMessage(document.getElementById('alert_mail_to').value,'Ogame TEST Notification "Attack Alert"','Hello,\r\n\r\nYou received this email to confirm you the good reception of mail during attack alert on OGame. This body will be sent on attack alert:\r\n"'+readCookie('alert_mail_body','all')+'"\r\n','https://'+univers+'/game/index.php?page=shipyard&sephiScript=1');};
     document.getElementById('advertAttaker').onclick =function(){
         if (this.checked) createCookie('advertAttaker', 1, 1, 'all');
         else createCookie('advertAttaker', 0, 1, 'all');
@@ -4055,27 +4155,25 @@ if (gup('sephiScript') == '1') {
         /*document.getElementById('save_advertAttaker').style.display = 'inline';
         setTimeout(function () {document.getElementById('save_advertAttaker').style.display = 'none';},1000);*/
     }
-    $("input[name^=msg_text]").change(function(){
+    $("input[name^=msg_text]").on("change", function(){
         createCookie("msg_text", JSON.stringify({"intro":[ $("input[name=msg_text\\[1\\]\\[1\\]]").val(),$("input[name=msg_text\\[2\\]\\[1\\]]").val(),$("input[name=msg_text\\[3\\]\\[1\\]]").val(),$("input[name=msg_text\\[4\\]\\[1\\]]").val() ],"corps":[[ $("input[name=msg_text\\[1\\]\\[2\\]]").val(),$("input[name=msg_text\\[2\\]\\[2\\]]").val(),$("input[name=msg_text\\[3\\]\\[2\\]]").val(),$("input[name=msg_text\\[4\\]\\[2\\]]").val() ],[ $("input[name=msg_text\\[1\\]\\[3\\]]").val(),$("input[name=msg_text\\[2\\]\\[3\\]]").val(),$("input[name=msg_text\\[3\\]\\[3\\]]").val(),$("input[name=msg_text\\[4\\]\\[3\\]]").val() ]],"politesse":[ $("input[name=msg_text\\[1\\]\\[4\\]]").val(),$("input[name=msg_text\\[2\\]\\[4\\]]").val(),$("input[name=msg_text\\[3\\]\\[4\\]]").val(),$("input[name=msg_text\\[4\\]\\[4\\]]").val() ],}), 1, 'all');
         $('#save_msg_text').show(1500,function(){$('#save_msg_text').hide();});
     });
 
     // Paramètres AA
-    document.getElementById('leave_slot_AA').onclick =function(){
-        if (this.checked) createCookie('AA_leave_slot', 'oui', 1, 'AA');
-        else createCookie('AA_leave_slot', 'non', 1, 'AA');
+    var slot_AA_Management=function(){
+        if ($('#leave_slot_AA:checked').length > 0)
+            createCookie('AA_leave_slot', 'oui', 1, 'AA');
+        else
+            createCookie('AA_leave_slot', 'non', 1, 'AA');
+
+        createCookie('AA_nb_slot', $('#nb_slot_AA').val().match(/\d/g).join(""), 1, 'AA');
         $('#save_AA_slot').show(1500,function(){$('#save_AA_slot').hide();});
-        /*document.getElementById('save_AA_slot').style.display = 'inline';
-        setTimeout(function () {document.getElementById('save_AA_slot').style.display = 'none';},1000);*/
     };
-    //Imp2Toulouse- request to save the free slot number wished
-    document.getElementById('nb_slot_AA').onchange =function(){
-        createCookie('AA_nb_slot', document.getElementById('nb_slot_AA').value.match(/\d/g).join(""), 1, 'AA');
-        $('#save_AA_slot').show(1500,function(){$('#save_AA_slot').hide();});
-        /*document.getElementById('save_AA_slot').style.display = 'inline';
-        setTimeout(function () {document.getElementById('save_AA_slot').style.display = 'none';},1000);*/
-    };
+    $('#leave_slot_AA').on("click", slot_AA_Management);
+    $('#nb_slot_AA').on("change", slot_AA_Management);
     ///////
+    
     document.getElementById('type_vaisseaux_AA').onclick =function(){
         createCookie('type_vaisseaux', this.value, 1, 'AA');
     };
