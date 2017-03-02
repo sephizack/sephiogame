@@ -85,6 +85,7 @@
 antiBugTimeout = setTimeout(function(){location.href=location.href;}, 5*60*1000);
 
 cur_version = '3.7.1';
+
 univers = window.location.href.split('/')[2];
 
 // Multi langues
