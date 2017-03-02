@@ -3584,8 +3584,10 @@ if (gup('page') == "fleet1" && gup('eject') == 'yes') {
     ress_deuterium = parseInt($('#resources_deuterium').text().replace(/\./g, ""));
 
     //Calculate global fleet ressources transport and adapt the ressource priority on DEUT in FIRST
-    [, PT, GT] = fleets_volume_civilships.match(/am202=(\d+).*am203=(\d+).*/);
-    global_fleets_capacity = (PT * 5000) + (GT * 25000);
+    if (fleets_volume_civilships != null) {
+        [, PT, GT] = fleets_volume_civilships.match(/am202=(\d+).*am203=(\d+).*/);
+        global_fleets_capacity = (PT * 5000) + (GT * 25000);
+    } else global_fleets_capacity=0;
 
     //define ressources priorities params
     ress_priority = "prioMetal=" + ress_priority_metal + "&prioCrystal=" + ress_priority_crystal + "&prioDeuterium=" + ress_priority_deut;
@@ -3596,11 +3598,11 @@ if (gup('page') == "fleet1" && gup('eject') == 'yes') {
     if (miss_ressources > 0) {
         mesg_miss_ressources = "Il manque " + (miss_ressources <= 25000 ? Math.ceil(miss_ressources / 5000) + "PT" : Math.ceil(miss_ressources / 25000) + "GT") + " pour transporter toutes vos ressources depuis " + cur_planame + ".";
         setTimeout(function () {
-            blit_message_time("<b style='color:red'>Ressources à quai:</b>" + mesg_miss_ressources, 5000)
+            blit_message_time("<b style='color:red'>Ressources à quai:</b>" + mesg_miss_ressources, 4000)
         }, 1000);
         setTimeout(function () {
             sendMessage(readCookie('alert_mail_to', 'all'), "Fleets and ressources ejection from your planet " + cur_planame, "Hello,\r\n\r\n" + "Ressources à quai: " + mesg_miss_ressources, "");
-        }, 5000);
+        }, 6000);
     }
 
     //Define ressources capacities params
