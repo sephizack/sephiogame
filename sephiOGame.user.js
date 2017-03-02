@@ -75,6 +75,7 @@
 //         -Ajout de controles basés sur la flotte/defense de l'ennemie
 //         -Modification de la barre d'outil des messages (possibilité d'activer le nombre de sonde par frigo)
 //3.7.1: Main evolution
+//         -Retructuration of the script
 //         -Multiple kind of auto ejection on AA desactivation
 //         -Add (configuration and manage) priority of ressource ejected regarding the global fleets transport capacity
 //       Bug corrections/Improvements
