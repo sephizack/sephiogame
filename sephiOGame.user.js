@@ -1777,13 +1777,16 @@ function read_rapports_and_create_table() {
                 console.log("   no message found on this page ....");
             } else console.log("   "+elems.length+" message(s) found on this page ....");
 
-            $(elems).each(function(){
+            $(elems).each(function(index){
                 //Stop point if all message read
                 if (stopMail == true) return;
                 if (document.getElementById('with_readed_RG').checked && count_esp>=nb_limit*2) return;
 
-                if ($(this).find("span.msg_title").text().match("Rapport d`espionnage de")) {
+                console.log("Message n°"+index+" title="+$(this).find("span.msg_title").text());
+                console.log("  --> action=reading");
+                if ($(this).find("span.msg_title").text().match(/Rapport d`espionnage de.*\[\d+:\d+:\d+\]/) != null) {
 
+                    console.log("  --> action=checking ok, treat this message");
                     no_more_new_esp = false;
                     [,planame,galaxy,system,planet]=$(this).find("span.msg_title a").text().trim().match(/(.*) \[(\d+):(\d+):(\d+)\]/);
                     coord = '['+galaxy+":"+system+":"+planet+']';
@@ -1801,20 +1804,20 @@ function read_rapports_and_create_table() {
                         if ($(this).html().match('status_abbr_longinactive')) color='color:#4F4F4F;';
 
                         var flottes = null, defense = null;
-                        if ($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').length > 0) {
+                        if ($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').length > 0 && idFrig >=0) {
                             flottes = parseInt($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').html().match(/\d/g).join(""));
                             if ($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').html().match('M')) flottes*=1000000;
                             if ($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').html().match(',')) flottes/=100;
                             importvars['frigos'][idFrig][9]=flottes;
                         }
-                        if ($(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').length > 0) {
+                        if ($(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').length > 0 && idFrig >=0) {
                             defense = parseInt($(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').html().match(/\d/g).join(""));
                             if ($(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').html().match('M')) defense*=1000000;
                             if ($(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').html().match(',')) defense/=100;
                             importvars['frigos'][idFrig][10]=defense;
                         }
 
-                        if ($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').length > 0 || $(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').length > 0) save_important_vars();
+                        if (idFrig >= 0 && ($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').length > 0 || $(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').length > 0)) save_important_vars();
 
                         data += '<tr id="rap_general_line_'+count_esp+'"><td id="rap_general_coord_'+count_esp+'" style="border: 1px solid #303030;padding: 5px 8px;text-align:center;height: 28px;">'+coord+'</td>';
                         data += '<td style="border: 1px solid #303030;padding: 5px 8px;"><a target=_blank style="text-decoration:none;'+color+'" href="https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1" onclick="this.style.textDecoration=\'line-through\'"><span id="rap_general_planet_name_'+count_esp+'">'+planame+'</span></a><span id="url_rap_esp_'+count_esp+'" style="display:none;">'+url+'</span></td>';
@@ -1827,8 +1830,17 @@ function read_rapports_and_create_table() {
                         data += '<td id="rap_general_butin_'+count_esp+'" style="border: 1px solid #303030;padding: 5px 8px;text-align:center;font-weight:bold;color:#FF9600;">-</td>';
                         data += '<td id="rap_general_attack_'+count_esp+'" style="border: 1px solid #303030;padding: 5px 8px;text-align: center;">Veuillez Patienter...</td>';
                         data += '</tr>';
-                        if ($(this).find('.msg_head .fright .js_actionKill')) delete_msg($(this).attr("data-msg-id"));
+                        console.log("  --> action=treating ok");
                     }
+                }
+            });
+            $(elems).each(function(index) {
+                if (stopMail == true) return;
+                if (document.getElementById('with_readed_RG').checked && count_esp>=nb_limit*2) return;
+                console.log("Message n°"+index+" title="+$(this).find("span.msg_title").text());
+                if ($(this).find('.msg_head .fright .js_actionKill')) {
+                    delete_msg($(this).attr("data-msg-id"));
+                    console.log("  --> action=deleting");
                 }
             });
             if (document.getElementById('with_readed_RG').checked && count_esp>=nb_limit*2) {
