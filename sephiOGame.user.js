@@ -400,7 +400,7 @@ function get_cost(data, type) {
     return parseInt(res);
 }
 
-function add_programnation_button() {
+function add_programmation_button() {
     if (gup('page') !== 'premium' && $("#content").length >0 && $("#content").children()[0].tagName == 'H2') {
         title=$("#content").children()[0].innerText;
         if (title !== cur_title) {
@@ -495,7 +495,7 @@ function add_programnation_button() {
         //set down info_prog
         $('#info_prog').css("top",parseInt(($("div#detail").css('display') !== 'none')?$('#detail').height():$('#detail').height()-30)+'px');
     }
-    setTimeout(add_programnation_button, 500);
+    setTimeout(add_programmation_button, 500);
 }
 
 /***************************************
@@ -3544,10 +3544,14 @@ if (nb_planet>1 && (readCookie("change_planet", 'all') == "yes" || gup('page') =
         // On prévoit le changement de planète
         setTimeout(function(){
             createCookie("just_to_update_prod", "yes", 1, 'all');
+
             if (gup('cp') == "") {url = window.location.href+'&cp='+planet_list[(cur_planet_id+1)%nb_planet];}
             else url = window.location.href.replace(gup('cp'), planet_list[(cur_planet_id+1)%nb_planet]);
-            
-            if (!dont_boudge) window.location.href = url;
+
+            if (!dont_boudge) {
+                if (gup('page') == "overview" && (gup('startAA') == 1 || gup('RG') == 'OUI' || gup('AA') == 'OUI')) url = 'https://'+univers+'/game/index.php?page=overview&cp='+planet_list[(cur_planet_id+1)%nb_planet];
+                window.location.href = url;
+            }
             if (dont_boudge && gup('page') !== 'overview') window.location.href = window.location.href.replace(gup('page'), 'overview');
         }, attente*1000);
     } else {
@@ -4027,7 +4031,7 @@ if (gup('page') == 'messages') {
 }
 // END - Rapport général
 
-add_programnation_button();
+add_programmation_button();
 //setInterval(function(){if ($("#content") > 0 && cur_title !== '') {cur_title = ''}}, 100);
 save_list_in_cookies();
 update_timers();
