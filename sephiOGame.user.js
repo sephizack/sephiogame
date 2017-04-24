@@ -81,7 +81,7 @@
 //       Bug corrections/Improvements
 //         - Improvement of nb_slot configuration saving
 //         - Improvement of fleets specification on ejection (new function get_fleets_capacity)
-//3.7.2:               * Fixed Save/Load
+//3.7.2:               * Fixed Save/Load 
 
 antiBugTimeout = setTimeout(function(){location.href=location.href;}, 5*60*1000);
 
@@ -224,18 +224,33 @@ function save_important_vars(data_cloud) {
     if (!data_cloud) dataimp = make_important_vars_data();
     else dataimp = data_cloud;
 
-    createCookie("saved_vars", dataimp, 1, 'dump');
+    createCookie("saved_vars_v2", dataimp, 1, 'dump');
     return;
 }
 
 function load_important_vars() {
+    dataimp = readCookie("saved_vars_v2", 'dump');
+    if (dataimp !== null) {
+        // Migrated 
+        try {
+            persistedData = JSON.parse(dataimp);
+        } catch(e) {
+            blit_message('<span style="color:red">Unable to load saved data</span>')
+            console.log(e)
+            throw e
+        }
+        return;
+    }
+
+    // Not migrated
     dataimp = readCookie("saved_vars", 'dump');
-    if (dataimp !== null && dataimp !== 'que dalle'){
+    if (dataimp !== null && dataimp !== 'que dalle') {
         try {
             persistedData = JSON.parse(dataimp);
         } catch(e) {
             try {
                 // Must support old format for compatibility reasons. Can be removed after a long time :/
+                dataimp = readCookie("saved_vars", 'dump');
                 dataimp = dataimp.replace(/_Ar1_/g, '\n');
                 dataimp = dataimp.split('/_/_/');
                 for (i=0 ; i<dataimp.length-1 ; i++) {
@@ -263,7 +278,7 @@ function load_important_vars() {
                     persistedData["listPrev"][i]['original_id'] = i;
                 }
             } catch (e) {
-                blit_message('<span style="color:red">Unable to load saved data: </span>')
+                blit_message('<span style="color:red">Unable to load saved data</span>')
                 console.log(e)
                 throw e
             }
