@@ -582,11 +582,12 @@ function change_actions_tab(action_tab){
                         (defense > 0) ? defenseActive = true : defenseActive = false;
                     }
                     //END DETECTION
+                    //Detection type frigo
+                    typeFrigo=($(this).find('.msg_head .msg_title a.txt_link figure.moon').length >0)?"moon":"planet";
                 }
                 if (planame && coord) {
                     [,galaxy,system,planet] = coord.match(/\[(.*):(.*):(.*)\]/);
 
-                    // Recherche d'un frigo avec ces coordonnées
                     // Recherche d'un frigo avec ces coordonnées
                     //Imp2Toulouse- Factorize with is_frigo fonction
                     num_frigo=is_frigo(importvars["frigos"],coord);
@@ -628,7 +629,7 @@ function change_actions_tab(action_tab){
                         // dans message espionnage
                         if ($(this).find('.msg_head .msg_title').html().match(/figure/)) {
 
-                            [frigo_name, frigo_galaxy, frigo_system, frigo_position, frigo_sonde, frigo_flotte_perso, frigo_ignore, frigo_flotte, frigo_defense] = get_frigo_data(num_frigo);
+                            [frigo_name, frigo_galaxy, frigo_system, frigo_position, frigo_sonde, frigo_flotte_perso, frigo_ignore, frigo_flotte, frigo_defense, frigo_sonde, frigo_cur_flotte, frigo_cur_def, frigo_sonde, frigo_type] = get_frigo_data(num_frigo);
                             //if flotte detected ==> update frigo with current flottes
                             if (flottesDetected) importvars["frigos"][num_frigo][9] = flottes;
                             //if frigo_flotte null or undefined
@@ -638,6 +639,7 @@ function change_actions_tab(action_tab){
                             //if frigo_defense null or undefined or defense_saved > defense
                             if ((frigo_defense == null || frigo_defense == "undefined" || frigo_defense == "" || parseInt(frigo_defense) > defense) && defense !== null) importvars["frigos"][num_frigo][8] = defense;
 
+                            if (frigo_type == null || frigo_type == "undefined" || frigo_type == "") importvars["frigos"][num_frigo][12] = typeFrigo;
                             img_addon = ((!flottesDetected || (flottesDetected && flottesActive && parseInt(frigo_flotte) < flottes)) || (!defenseDetected || (defenseDetected && defenseActive && parseInt(frigo_defense) < defense)))?'http://www.sephiogame.com/images/warning.png':null;
                             var img_surcharge=(img_addon != null)?'<img src="'+(img_addon)+'" style="height:10px;width:10px;position:relative;top:-3px;left: -17px" />':'';
 
@@ -645,7 +647,6 @@ function change_actions_tab(action_tab){
                             var text_action="</span>Frigo \'"+coord+" "+planame+"\' de "+cur_planame+"<hr/><u>Status:</u> Frigo actif"+(frigo_status)+"<br><u>Actions:</u> <a href=\'javascript:void(0)\' onclick=\'"+(action)+"\'>Retirer ce frigos</a><br><u>Options:</u> Utiliser <input style=\'width:10px;height:10px;\' type=\'text\' value=\'"+((parseInt(importvars["frigos"][num_frigo][11])>0)?parseInt(importvars["frigos"][num_frigo][11]):nb_sonde_default)+"\' onchange=\'$(&quot;#sondes"+(index+1)+"&quot;).val(this.value);localStorage.setItem(&quot;all_updt_racc&quot;, &quot;"+(index+1)+","+num_frigo+"&quot;);\'> sondes sur ce frigo.";
                         }
                     }
-
                     frigData = '<a id="name_sep'+(index+1)+'" href="javascript:void(0)" >';
                     frigData +='<span id="icon_frigo" class="js_hideTipOnMobile tooltipCustom tooltip-width:400" title="'+text_action+'"><img id="img'+(index+1)+'" src="'+(img)+'" height="26px" width="26px" />'+(img_surcharge);
                     frigData +='<input type="hidden" id="raccourcis_name_sep'+(index+1)+'" value="'+planame+'">';
@@ -655,6 +656,7 @@ function change_actions_tab(action_tab){
                     frigData +='<input type="hidden" id="flottes'+(index+1)+'" value="'+(flottes)+'">';
                     frigData +='<input type="hidden" id="defense'+(index+1)+'" value="'+(defense)+'">';
                     frigData +='<input type="hidden" id="sondes'+(index+1)+'" value="'+((num_frigo>0&&parseInt(importvars["frigos"][num_frigo][11])>0)?parseInt(importvars["frigos"][num_frigo][11]):nb_sonde_default)+'">';
+                    frigData +='<input type="hidden" id="type'+(index+1)+'" value="'+(typeFrigo)+'">';
                     frigData +='</span></a>';
                     //Add the object built
                     $($(this).find('.msg_action_link.overlay')).before(frigData);
@@ -874,19 +876,37 @@ function save_list_in_cookies() {
 
             cur_nb=importvars["frigos"].length;
             importvars["frigos"][cur_nb] = new Array();
+            //Nom du frigo
             importvars["frigos"][cur_nb][0] = $('#raccourcis_name_sep'+messageID).val().replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
+            //Galaxy
             importvars["frigos"][cur_nb][1] = $('#galaxy'+messageID).val().replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
+            //System
             importvars["frigos"][cur_nb][2] = $('#system'+messageID).val().replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
+            //Position
             importvars["frigos"][cur_nb][3] = $('#position'+messageID).val().replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
+            //Checked or not checked
             importvars["frigos"][cur_nb][4] = '1';
+            //Flotte_Perso
             importvars["frigos"][cur_nb][5] = '';
+            //Ignore
             importvars["frigos"][cur_nb][6] = '0';
             if (gup('page') == 'messages') {
+                //Flottes
                 ($('#flottes' + messageID).length > 0) ? importvars["frigos"][cur_nb][7] = $('#flottes' + messageID).val().replace(/__/g, '').replace(/'/g, '').replace(/"/g, '') : null;
+                //Defenses
                 ($('#defenses' + messageID).length > 0) ? importvars["frigos"][cur_nb][8] = $('#defense' + messageID).val().replace(/__/g, '').replace(/'/g, '').replace(/"/g, ''): null;
             }
+            //Flotte en cours
+            importvars["frigos"][cur_nb][9] = '0';
+            //defense en cours
+            importvars["frigos"][cur_nb][10] = '0';
+            //Nb sonde
+            importvars["frigos"][cur_nb][11] = '1';
+            //Type frigo
+            importvars["frigos"][cur_nb][12] = $('#type'+messageID).val().replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
+
             save_important_vars();
-            blit_message(importvars["frigos"][cur_nb][0]+' a été <span style="float: none;margin: 0;color:#109E18">ajouté à vos frigos</span> !');
+            blit_message(importvars["frigos"][cur_nb][0]+'('+importvars["frigos"][cur_nb][12]+') a été <span style="float: none;margin: 0;color:#109E18">ajouté à vos frigos</span> !');
 
             messageID=null;
             if (gup('page') == 'messages') setTimeout(function(){window.location.href = window.location.href;}, 500);
@@ -1461,8 +1481,8 @@ function get_fleets_capacity(outType="array", obj) {
         var temp_fleets_volume=[];
         var temp_ships_volume="";
         $(obj).each(function(){
-            temp_fleets_volume[$(this)[0].id] = $(this).find('a span.ecke span.level').html().match(/<\/span>(.*)$/)[1];
-            temp_ships_volume+=$(this)[0].id.replace("button","am") +"="+ $(this).find('a span.ecke span.level').html().match(/<\/span>(.*)$/)[1] +"&";
+            temp_fleets_volume[$(this)[0].id] = $(this).find('a span.ecke span.level').html().match(/<\/span>(.*)$/)[1].replace('.','');
+            temp_ships_volume+=$(this)[0].id.replace("button","am") +"="+ $(this).find('a span.ecke span.level').html().match(/<\/span>(.*)$/)[1].replace('.','') +"&";
         });
         return ((outType == "array")?temp_fleets_volume:temp_ships_volume.substr(0,temp_ships_volume.length-1));
         var temp_fleets_volume=null;temp_ships_volume=null;
@@ -4102,7 +4122,7 @@ if (gup('sephiScript') == '1') {
         checkouPAS = '';
         if (importvars["frigos"][i][6] == '1') checkouPAS = 'checked';
         sephi_frigos_data+='<th style="text-align:left;width:20px;"><input type="checkbox" style="width:20px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" id="frig_ignore_'+i+'" '+checkouPAS+' /></th>';
-        sephi_frigos_data+='<th style="text-align:left;width:55px;"><input type="text" style="width:55px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" id="frig_name_'+i+'" value="'+importvars["frigos"][i][0]+'" /></th>';
+        sephi_frigos_data+='<th style="text-align:left;width:55px;"><figure class="planetIcon '+((importvars["frigos"][i][12] != "moon" && importvars["frigos"][i][12] != "planet")?'planet':importvars["frigos"][i][12])+' tooltip js_hideTipOnMobile" title=""></figure><input type="text" style="width:55px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" id="frig_name_'+i+'" value="'+importvars["frigos"][i][0]+'" /></th>';
         sephi_frigos_data+='<th style="text-align:right;width:12px;"><input type="text" style="width:12px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" id="frig_sondes_'+i+'" title="Importance du frigo" value="'+importvars["frigos"][i][4]+'" /></th>';
         sephi_frigos_data+='<th style="text-align:left;width:30px;"><span style="font-size:x-small;position:relative;margin-left:5px;left:0px;">&nbsp;</span></th>';
         sephi_frigos_data+='<th style="text-align:right;width:70px;"><input type="text" style="width:70px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" id="frig_flotte_perso_'+i+'" title="Flotte personalisée" placeholder="Flottes militaire" value="'+importvars["frigos"][i][5]+'" /></th>';
