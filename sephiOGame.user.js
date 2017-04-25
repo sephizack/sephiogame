@@ -94,6 +94,7 @@
 //3.7.5
 //         - Migrate starter packs to JSON data
 
+
 antiBugTimeout = setTimeout(function(){location.href=location.href;}, 5*60*1000);
 
 cur_version = '3.7.5';
