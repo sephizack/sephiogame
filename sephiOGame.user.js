@@ -85,6 +85,7 @@
 //         - Change match regex to improve detection of old spy report on detroyed planet
 //3.7.2:               * Fixed Save/Load 
 
+
 antiBugTimeout = setTimeout(function(){location.href=location.href;}, 5*60*1000);
 
 cur_version = '3.7.2';
