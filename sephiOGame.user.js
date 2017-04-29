@@ -229,7 +229,6 @@ function save_important_vars(data_cloud) {
 }
 
 function load_important_vars() {
-    console.log('truc')
     dataimp = readCookie("saved_vars_v2", 'dump');
     if (dataimp !== null) {
         // Migrated 
@@ -246,10 +245,8 @@ function load_important_vars() {
 
     // Not migrated
     dataimp = readCookie("saved_vars", 'dump');
-    console.log(dataimp)
     if (dataimp !== null && dataimp !== 'que dalle') {
         try {
-            console.log('merde')
             persistedData = JSON.parse(dataimp);
         } catch(e) {
             console.log('No JSON found, using old algorithm')
