@@ -250,7 +250,6 @@ function load_important_vars() {
         } catch(e) {
             try {
                 // Must support old format for compatibility reasons. Can be removed after a long time :/
-                dataimp = readCookie("saved_vars", 'dump');
                 dataimp = dataimp.replace(/_Ar1_/g, '\n');
                 dataimp = dataimp.split('/_/_/');
                 for (i=0 ; i<dataimp.length-1 ; i++) {
