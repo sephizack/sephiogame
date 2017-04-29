@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.7.2
+// @version     3.7.3
 // @description Script Ogame
 // @author      Sephizack
 // @include     http://s*.ogame.gameforge.com/game/*
@@ -85,7 +85,7 @@
 
 antiBugTimeout = setTimeout(function(){location.href=location.href;}, 5*60*1000);
 
-cur_version = '3.7.2';
+cur_version = '3.7.3';
 
 univers = window.location.href.split('/')[2];
 
@@ -229,6 +229,7 @@ function save_important_vars(data_cloud) {
 }
 
 function load_important_vars() {
+    console.log('truc')
     dataimp = readCookie("saved_vars_v2", 'dump');
     if (dataimp !== null) {
         // Migrated 
@@ -239,15 +240,19 @@ function load_important_vars() {
             console.log(e)
             throw e
         }
+        console.log('JSON persisted data retrieved')
         return;
     }
 
     // Not migrated
     dataimp = readCookie("saved_vars", 'dump');
+    console.log(dataimp)
     if (dataimp !== null && dataimp !== 'que dalle') {
         try {
+            console.log('merde')
             persistedData = JSON.parse(dataimp);
         } catch(e) {
+            console.log('No JSON found, using old algorithm')
             try {
                 // Must support old format for compatibility reasons. Can be removed after a long time :/
                 dataimp = dataimp.replace(/_Ar1_/g, '\n');
@@ -269,9 +274,10 @@ function load_important_vars() {
                     
                 }
                 
-                for (dataName in persistedData) {
+                var importvars_textID = new Array("listPrev", "prods", "frigos", "eject"); 
+                for (i=0 ; i<importvars_textID.length ; i++) {
                     if (dataimp[i] == 'null' || dataimp[i] == 'undefinied') dataimp[i]=null;
-                    persistedData[dataName] = dataimp[i];
+                    persistedData[importvars_textID[i]] = dataimp[i];
                 }
                 for (i=0 ; i<persistedData["listPrev"].length ; i++) {
                     persistedData["listPrev"][i]['original_id'] = i;
