@@ -1,9 +1,10 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.7.3
+// @version     3.7.4
 // @description Script Ogame
 // @author      Sephizack
+// @exclude     http://www.sephiogame.com/Actualites?curVer=3.7.4&serv=*
 // @include     http://s*.ogame.gameforge.com/game/*
 // @include     https://s*.ogame.gameforge.com/game/*
 // @include     http://fr.ogame.gameforge.com/
@@ -85,10 +86,13 @@
 //3.7.3
 //         - Correction "Report general" when spy report on planet was not a frigo
 //         - Change match regex to improve detection of old spy report on detroyed planet
+//3.7.4
+//         - Correction "add frigo" on galaxy view
+//         - Correction auto-eject bug on attack
 
 antiBugTimeout = setTimeout(function(){location.href=location.href;}, 5*60*1000);
 
-cur_version = '3.7.3';
+cur_version = '3.7.4';
 
 univers = window.location.href.split('/')[2];
 
@@ -580,13 +584,20 @@ function change_actions_tab(action_tab){
             if ($(this).find('.msg_head .msg_title').length >0) {
                 var planame = null, coord = null;
                 // dans message espionnage
-                if ($(this).find('.msg_head .msg_title').html().match(/figure/))
+				
+				//I2T: Prévision de correction
+                //if ($(this).find('.msg_head .msg_title').html().match(/Rapport d`espionnage/))
+				if ($(this).find('.msg_head .msg_title').html().match(/figure/))
                     [, planame, coord] = $(this).find('.msg_head .msg_title .txt_link').html().match(/<\/figure>(.*) (.*)$/);
                 // dans message Rapport de combat
+                if ($(this).find('.msg_head .msg_title').html().match(/middlemark/))
+                    [, planame, coord] = $(this).find('.msg_head .msg_title span.middlemark').html().match(/Rapport de combat (.*) <figure.* class="txt_link">(.*)<\/a>.*$/);
                 if ($(this).find('.msg_head .msg_title').html().match(/undermark/)) // Successfull fight
                     [, planame, coord] = $(this).find('.msg_head .msg_title span.undermark').html().match(/Rapport de combat (.*) <a.*>(.*)<\/a>/);
                 if ($(this).find('.msg_head .msg_title').html().match(/overmark/))  // Failled fight
-                    [, planame, coord] = $(this).find('.msg_head .msg_title span.overmark').html().match(/Rapport de combat (.*) <a.*>(.*)<\/a>/);
+                [, planame, coord] = $(this).find('.msg_head .msg_title span.overmark').html().match(/Rapport de combat (.*) <a.*>(.*)<\/a>/);
+				//I2T: Prévision de correction
+				//[, planame, coord] = $(this).find('.msg_head .msg_title span.overmark').html().match(/Rapport de combat (.*) <figure.* class="txt_link">(.*)<\/a>.*$/);
 
                 // dans message espionnage
                 if ($(this).find('.msg_head .msg_title').html().match(/figure/)) {
@@ -893,7 +904,6 @@ function save_list_in_cookies() {
             || (readCookie('del_racc','all') != null && readCookie('del_racc','all').match(':'))
         )
        ) {
-        
         if (readCookie('add_racc','all') != null && parseInt(readCookie('add_racc','all')) > 0) {
             messageID = parseInt(readCookie('add_racc','all'));
             createCookie('add_racc', 0, 1, 'all');
@@ -928,9 +938,8 @@ function save_list_in_cookies() {
             persistedData["frigos"][cur_nb][10] = '0';
             //Nb sonde
             persistedData["frigos"][cur_nb][11] = '1';
-            //Type frigo
-            persistedData["frigos"][cur_nb][12] = $('#type'+messageID).val().replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
-
+			//Type frigo
+			persistedData["frigos"][cur_nb][12] = $('#type'+messageID).val().replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
             save_important_vars();
             blit_message(persistedData["frigos"][cur_nb][0]+'('+persistedData["frigos"][cur_nb][12]+') a été <span style="float: none;margin: 0;color:#109E18">ajouté à vos frigos</span> !');
 
@@ -2504,7 +2513,7 @@ function SmartCut(source,prefix,suffix){
             return r;
         }else return false;
     };
-};
+}   ;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function Info(text){
     var txt="";
@@ -2531,7 +2540,7 @@ function SendFleet(response){
             }
             break;
         case 'fleet2':
-            //Info('Response >',response,'<');
+			//Info('Response >',response,'<');
             if (params.step ==2){ //If second step
                 var token=SmartCut(response,["token'","='"],"'");
                 params.step++;
@@ -2569,8 +2578,7 @@ function SendFleet(response){
                 //Info('Token >',token,'<');
                 params.step++;
                 params.page=params.page.replace(page,"movement"); // Replace for next movement page
-
-                if ((params.sephi_opt.match('auto=yes') || params.sephi_opt.match('eject=yes')) && params.sephi_opt.match(/ID=(\w+)/)[1] == 'Exped') {
+                if ((params.sephi_opt.match('auto=yes') || params.sephi_opt.match('eject=yes')) && params.sephi_opt.match(/ID=(\w+)/) != null && params.sephi_opt.match(/ID=(\w+)/)[1] == 'Exped') {
                     params.type_mission.replace(/mission=\d+/, "mission=15");
                     if (params.sephi_opt.match(/exped_speed=(\w+)/) !== null ) params.fleets=params.fleets.replace(/speed=\d+/,"speed="+params.sephi_opt.match(/exped_speed=(\w+)/)[1]);
                     if (params.sephi_opt.match(/exped_time=(\w+)/) !== null ) params.fleets_opts=params.fleets_opts.replace(/expeditiontime=\d+/,"expeditiontime="+params.sephi_opt.match(/exped_time=(\w+)/)[1]);
@@ -2718,6 +2726,7 @@ function check_galaxy_frigs() {
                             ListLinks += '<input type="hidden" id="galaxy'+position+'" value="'+b.find('.ListImage').html().match(/.*\[(.*):.*:.*\].*/)[1]+'">';
                             ListLinks += '<input type="hidden" id="system'+position+'" value="'+b.find('.ListImage').html().match(/.*\[.*:(.*):.*\].*/)[1]+'">';
                             ListLinks += '<input type="hidden" id="position'+position+'" value="'+b.find('.ListImage').html().match(/.*\[.*:.*:(.*)\].*/)[1]+'"></li>';
+							ListLinks += '<input type="hidden" id="type'+position+'" value="planet">';
                             b.find('ul.ListLinks').append(ListLinks);
                         }
                     } else {
@@ -2735,6 +2744,7 @@ function check_galaxy_frigs() {
                             ListLinks += '<input type="hidden" id="galaxy'+(position)+'" value="'+b.find('ul.ListImage li span#pos-planet').html().match(/.*\[(.*):.*:.*\].*/)[1]+'">';
                             ListLinks += '<input type="hidden" id="system'+(position)+'" value="'+b.find('ul.ListImage li span#pos-planet').html().match(/.*\[.*:(.*):.*\].*/)[1]+'">';
                             ListLinks += '<input type="hidden" id="position'+(position)+'" value="'+b.find('ul.ListImage li span#pos-planet').html().match(/.*\[.*:.*:(.*)\].*/)[1]+'"></li>';
+							ListLinks += '<input type="hidden" id="type'+position+'" value="planet">';
                             b.find('ul.ListLinks').append(ListLinks);
                         }
                     }
@@ -3638,7 +3648,6 @@ if (gup('page') == "fleet3") {
 
 if (gup('page') == "fleet1" && gup('eject') == 'yes') {
     var params;
-
     //Allow to get EXACT battleships and civilships
     var fleets_volume_battleships = get_fleets_capacity("list", $('div#buttonz div.content form#shipsChosen div#battleships li'));
     var fleets_volume_civilships = get_fleets_capacity("list", $('div#buttonz div.content form#shipsChosen div#civilships li'));
@@ -4268,7 +4277,7 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='           <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Ejecter également les vaisseaux de combat : <input '+(eject_all ? 'checked' : '')+' type="checkbox" id="eject_all" style="position:relative;top:2px;"/></span><br>';
     sephi_frigos_data+='           <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Prioriser les ressources Métal: <select id="ress_priority_metal" style="visibility: visible;"><option value="1" '+(ress_priority_metal == '1' ? 'selected':'')+'>Priority 1</option><option value="2" '+(ress_priority_metal == '2' ? 'selected':'')+'>Priority 2</option><option value="3" '+(ress_priority_metal == '3' ? 'selected':'')+'>Priority 3</option></select>&nbsp;Crystal: <select id="ress_priority_crystal" style="visibility: visible;"><option value="1" '+(ress_priority_crystal == '1' ? 'selected':'')+'>Priority 1</option><option value="2" '+(ress_priority_crystal == '2' ? 'selected':'')+'>Priority 2</option><option value="3" '+(ress_priority_crystal == '3' ? 'selected':'')+'>Priority 3</option></select>&nbsp;Deut: <select id="ress_priority_deut" style="visibility: visible;"><option value="1" '+(ress_priority_deut == '1' ? 'selected':'')+'>Priority 1</option><option value="2" '+(ress_priority_deut == '2' ? 'selected':'')+'>Priority 2</option><option value="3" '+(ress_priority_deut == '3' ? 'selected':'')+'>Priority 3</option></select></span><br/>';
     sephi_frigos_data+='           <table style="width:507px;color:#6f9fc8;"><tr>';
-    sephi_frigos_data+='             <th style="width:700px;text-align:center;"><span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Coords planet d\'éjection <input type="text" style="width: 25px;position:relative;margin-left:30px;text-align:center;" value="'+eject_gal+'" title="Galaxie" id="eject_galaxy" onclick="if (this.value == \'Galaxie\') this.value=\'\';"/><input type="text" style="width: 25px;position:relative;margin-left:5px;text-align:center;" value="'+eject_sys+'" title="Système" id="eject_system" onclick="if (this.value == \'Système\') this.value=\'\';"/><input type="text" style="width: 25px;position:relative;margin-left:5px;text-align:center;" value="'+eject_pla+'" title="Planète" id="eject_planet" onclick="if (this.value == \'Planète\') this.value=\'\';"/></span><br><span style="position:relative;left:20px"><input type="checkbox" id="ejectLune" title="Si vous cochez cette case, l\'éjection se fera sur la lune des coordonnées demandées." style="position:relative;top:2px;" '+(eject_onLune?'checked':'')+'/> Ejecter depuis sa lune</span></th>';
+    sephi_frigos_data+='             <th style="width:700px;text-align:center;"><span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Coords planet d\'éjection <input type="text" style="width: 25px;position:relative;margin-left:30px;text-align:center;" value="'+eject_gal+'" title="Galaxie" id="eject_galaxy" onclick="if (this.value == \'Galaxie\') this.value=\'\';"/><input type="text" style="width: 25px;position:relative;margin-left:5px;text-align:center;" value="'+eject_sys+'" title="Système" id="eject_system" onclick="if (this.value == \'Système\') this.value=\'\';"/><input type="text" style="width: 25px;position:relative;margin-left:5px;text-align:center;" value="'+eject_pla+'" title="Planète" id="eject_planet" onclick="if (this.value == \'Planète\') this.value=\'\';"/></span><br><span style="position:relative;left:20px"><input type="checkbox" id="ejectLune" title="Si vous cochez cette case, l\'éjection se fera sur la lune des coordonnées demandées." style="position:relative;top:2px;" '+(eject_onLune?'checked':'')+'/> Ejecter vers sa lune</span></th>';
     sephi_frigos_data+='             <th style="width:300px;text-align:right;position:relative;left:-20px;top:0px;"><span class="factorbutton"><input class="btn_blue" id="eject_save_button" style="" type="button" value="Enregistrer"></span></th>';
     sephi_frigos_data+='           </tr></table>';
     sephi_frigos_data+='        </p><br>';
