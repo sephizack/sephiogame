@@ -938,8 +938,8 @@ function save_list_in_cookies() {
             persistedData["frigos"][cur_nb][10] = '0';
             //Nb sonde
             persistedData["frigos"][cur_nb][11] = '1';
-			//Type frigo
-			persistedData["frigos"][cur_nb][12] = $('#type'+messageID).val().replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
+            //Type frigo
+            persistedData["frigos"][cur_nb][12] = $('#type'+messageID).val().replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
             save_important_vars();
             blit_message(persistedData["frigos"][cur_nb][0]+'('+persistedData["frigos"][cur_nb][12]+') a été <span style="float: none;margin: 0;color:#109E18">ajouté à vos frigos</span> !');
 
