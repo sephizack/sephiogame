@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.7.2
+// @version     3.7.3
 // @description Script Ogame
 // @author      Sephizack
 // @include     http://s*.ogame.gameforge.com/game/*
@@ -81,13 +81,14 @@
 //       Bug corrections/Improvements
 //         - Improvement of nb_slot configuration saving
 //         - Improvement of fleets specification on ejection (new function get_fleets_capacity)
+//3.7.2:               * Fixed Save/Load 
+//3.7.3
 //         - Correction "Report general" when spy report on planet was not a frigo
 //         - Change match regex to improve detection of old spy report on detroyed planet
-//3.7.2:               * Fixed Save/Load 
 
 antiBugTimeout = setTimeout(function(){location.href=location.href;}, 5*60*1000);
 
-cur_version = '3.7.2';
+cur_version = '3.7.3';
 
 univers = window.location.href.split('/')[2];
 
@@ -241,6 +242,7 @@ function load_important_vars() {
             console.log(e)
             throw e
         }
+        console.log('JSON persisted data retrieved')
         return;
     }
 
@@ -250,9 +252,9 @@ function load_important_vars() {
         try {
             persistedData = JSON.parse(dataimp);
         } catch(e) {
+            console.log('No JSON found, using old algorithm')
             try {
                 // Must support old format for compatibility reasons. Can be removed after a long time :/
-                dataimp = readCookie("saved_vars", 'dump');
                 dataimp = dataimp.replace(/_Ar1_/g, '\n');
                 dataimp = dataimp.split('/_/_/');
                 for (i=0 ; i<dataimp.length-1 ; i++) {
@@ -272,9 +274,10 @@ function load_important_vars() {
                     
                 }
                 
-                for (dataName in persistedData) {
+                var importvars_textID = new Array("listPrev", "prods", "frigos", "eject"); 
+                for (i=0 ; i<importvars_textID.length ; i++) {
                     if (dataimp[i] == 'null' || dataimp[i] == 'undefinied') dataimp[i]=null;
-                    persistedData[dataName] = dataimp[i];
+                    persistedData[importvars_textID[i]] = dataimp[i];
                 }
                 for (i=0 ; i<persistedData["listPrev"].length ; i++) {
                     persistedData["listPrev"][i]['original_id'] = i;
@@ -661,7 +664,7 @@ function change_actions_tab(action_tab){
                             //if frigo_defense null or undefined or defense_saved > defense
                             if ((frigo_defense == null || frigo_defense == "undefined" || frigo_defense == "" || parseInt(frigo_defense) > defense) && defense !== null) persistedData["frigos"][num_frigo][8] = defense;
 
-                            if (frigo_type == null || frigo_type == "undefined" || frigo_type == "") importvars["frigos"][num_frigo][12] = typeFrigo;
+                            if (frigo_type == null || frigo_type == "undefined" || frigo_type == "") persistedData["frigos"][num_frigo][12] = typeFrigo;
                             img_addon = ((!flottesDetected || (flottesDetected && flottesActive && parseInt(frigo_flotte) < flottes)) || (!defenseDetected || (defenseDetected && defenseActive && parseInt(frigo_defense) < defense)))?'http://www.sephiogame.com/images/warning.png':null;
                             var img_surcharge=(img_addon != null)?'<img src="'+(img_addon)+'" style="height:10px;width:10px;position:relative;top:-3px;left: -17px" />':'';
 
@@ -898,6 +901,7 @@ function save_list_in_cookies() {
 
             cur_nb=persistedData["frigos"].length;
             persistedData["frigos"][cur_nb] = new Array();
+
             //Nom du frigo
             persistedData["frigos"][cur_nb][0] = $('#raccourcis_name_sep'+messageID).val().replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
             //Galaxy
@@ -919,13 +923,13 @@ function save_list_in_cookies() {
                 ($('#defenses' + messageID).length > 0) ? persistedData["frigos"][cur_nb][8] = $('#defense' + messageID).val().replace(/__/g, '').replace(/'/g, '').replace(/"/g, ''): null;
             }
             //Flotte en cours
-            importvars["frigos"][cur_nb][9] = '0';
+            persistedData["frigos"][cur_nb][9] = '0';
             //defense en cours
-            importvars["frigos"][cur_nb][10] = '0';
+            persistedData["frigos"][cur_nb][10] = '0';
             //Nb sonde
-            importvars["frigos"][cur_nb][11] = '1';
+            persistedData["frigos"][cur_nb][11] = '1';
             //Type frigo
-            importvars["frigos"][cur_nb][12] = $('#type'+messageID).val().replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
+            persistedData["frigos"][cur_nb][12] = $('#type'+messageID).val().replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
 
             save_important_vars();
             blit_message(persistedData["frigos"][cur_nb][0]+'('+persistedData["frigos"][cur_nb][12]+') a été <span style="float: none;margin: 0;color:#109E18">ajouté à vos frigos</span> !');
