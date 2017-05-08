@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.7.4
+// @version     3.7.5
 // @description Script Ogame
 // @author      Sephizack
 // @exclude     http://www.sephiogame.com/Actualites?curVer=3.7.4&serv=*
@@ -83,7 +83,7 @@
 //         - Improvement of nb_slot configuration saving
 //         - Improvement of fleets specification on ejection (new function get_fleets_capacity)
 //3.7.2:               * Fixed Save/Load 
-//3.7.3
+//3.7.4
 //         - Correction "Report general" when spy report on planet was not a frigo
 //         - Change match regex to improve detection of old spy report on detroyed planet
 //3.7.4
