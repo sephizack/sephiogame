@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.7.3
+// @version     3.7.4
 // @description Script Ogame
 // @author      Sephizack
 // @include     http://s*.ogame.gameforge.com/game/*
@@ -85,10 +85,12 @@
 //3.7.3
 //         - Correction "Report general" when spy report on planet was not a frigo
 //         - Change match regex to improve detection of old spy report on detroyed planet
+//3.7.4
+//         - Migrate starter packs to JSON data
 
 antiBugTimeout = setTimeout(function(){location.href=location.href;}, 5*60*1000);
 
-cur_version = '3.7.3';
+cur_version = '3.7.4';
 
 univers = window.location.href.split('/')[2];
 
@@ -216,7 +218,7 @@ function make_important_vars_data() {
 }
 
 function init_vars(){
-    save_important_vars('que dalle');
+    save_important_vars('');
     blit_message('Vos données de cette planète <span style="float: none; margin: 0; color:#109E18">ont bien été réinitialisées</span>.');
     setTimeout(function(){
         window.location.href = window.location.href;
@@ -255,33 +257,7 @@ function load_important_vars() {
             console.log('No JSON found, using old algorithm')
             try {
                 // Must support old format for compatibility reasons. Can be removed after a long time :/
-                dataimp = dataimp.replace(/_Ar1_/g, '\n');
-                dataimp = dataimp.split('/_/_/');
-                for (i=0 ; i<dataimp.length-1 ; i++) {
-                    if (dataimp[i] !== null && dataimp[i].replace('\n','') !== dataimp[i]) {
-                        dataimp[i] = dataimp[i].split('\n');
-                        dataimp[i] = dataimp[i].slice(0,dataimp[i].length-1);
-                        for (j=0 ; j<dataimp[i].length ; j++) {
-                            if (dataimp[i][j] !== null &&  dataimp[i][j].replace('_Ar2_','') !== dataimp[i][j]) {
-                                dataimp[i][j] = dataimp[i][j].split('_Ar2_');
-                                dataimp[i][j] = dataimp[i][j].slice(0,dataimp[i][j].length-1);
-                                if (dataimp[i][j] == 'null' || dataimp[i][j] == 'undefinied') dataimp[i][j]=null;
-                                
-                                for (k=0 ; k<dataimp[i][j].length ; k++) if (dataimp[i][j][k] == 'null' || dataimp[i][j][k] == 'undefinied') dataimp[i][j][k]=null;
-                            }
-                        }
-                    }
-                    
-                }
-                
-                var importvars_textID = new Array("listPrev", "prods", "frigos", "eject"); 
-                for (i=0 ; i<importvars_textID.length ; i++) {
-                    if (dataimp[i] == 'null' || dataimp[i] == 'undefinied') dataimp[i]=null;
-                    persistedData[importvars_textID[i]] = dataimp[i];
-                }
-                for (i=0 ; i<persistedData["listPrev"].length ; i++) {
-                    persistedData["listPrev"][i]['original_id'] = i;
-                }
+                persistedData = load_persisted_data_deprecated(dataimp)
             } catch (e) {
                 blit_message('<span style="color:red">Unable to load saved data</span>')
                 console.log(e)
@@ -289,6 +265,39 @@ function load_important_vars() {
             }
         }
     }
+}
+
+function load_persisted_data_deprecated(dataimp) {
+    var result = { "listPrev" : null, "prods" : null, "frigos" : null, "eject" : null };
+    dataimp = dataimp.replace(/_Ar1_/g, '\n');
+    dataimp = dataimp.split('/_/_/');
+    for (i=0 ; i<dataimp.length-1 ; i++) {
+        if (dataimp[i] !== null && dataimp[i].replace('\n','') !== dataimp[i]) {
+            dataimp[i] = dataimp[i].split('\n');
+            dataimp[i] = dataimp[i].slice(0,dataimp[i].length-1);
+            for (j=0 ; j<dataimp[i].length ; j++) {
+                if (dataimp[i][j] !== null &&  dataimp[i][j].replace('_Ar2_','') !== dataimp[i][j]) {
+                    dataimp[i][j] = dataimp[i][j].split('_Ar2_');
+                    dataimp[i][j] = dataimp[i][j].slice(0,dataimp[i][j].length-1);
+                    if (dataimp[i][j] == 'null' || dataimp[i][j] == 'undefinied') dataimp[i][j]=null;
+                    
+                    for (k=0 ; k<dataimp[i][j].length ; k++) if (dataimp[i][j][k] == 'null' || dataimp[i][j][k] == 'undefinied') dataimp[i][j][k]=null;
+                }
+            }
+        }
+        
+    }
+    
+    var importvars_textID = new Array("listPrev", "prods", "frigos", "eject"); 
+    for (i=0 ; i<importvars_textID.length ; i++) {
+        if (dataimp[i] == 'null' || dataimp[i] == 'undefinied') dataimp[i]=null;
+        result[importvars_textID[i]] = dataimp[i];
+    }
+    for (i=0 ; i<result["listPrev"].length ; i++) {
+        result["listPrev"][i]['original_id'] = i;
+    }
+
+    return result;
 }
 
 function save_important_vars_in_cloud() {
@@ -3358,10 +3367,7 @@ if ((gup('page') == "resources" && !cur_planetIsLune) || (gup('page') == "statio
         info_button2=null;
     } 
     
-    if (persistedData["listPrev"].length == 0 && (
-            (!cur_planetIsLune && lvlMineMetal <= 1 && lvlMineCris <= 1 && lvlSolar <= 1) || (cur_planetIsLune && lvlBaseLunaire==0)
-        )
-       ){
+    if (persistedData["listPrev"].length == 0 && ((!cur_planetIsLune && lvlMineMetal <= 1 && lvlMineCris <= 1 && lvlSolar <= 1) || (cur_planetIsLune && lvlBaseLunaire==0))) {
         blit_message_time("<b>Pack de démarrage rapide</b> disponible pour votre nouvelle "+(cur_planetIsLune ? 'lune' : 'planète')+" !", 6000);
         enable_quick_pack = true;
         count_progs++;
@@ -4647,116 +4653,118 @@ if (enable_quick_pack) {
         if (!cur_planetIsLune) {
             //I2T: Ajout de la différence si premiere planete sur demande utilisateur pour optimiser l'obtention du premier PT(Merci Lucas Geng)
             if (nb_planet == 1) { //I2T: Si premiere planete
-                dataPack = '';
-                dataPack += 'yes_Ar2_no_Ar2_75_Ar2_30_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';                      // Centrale Solaire 1
-                dataPack += '\n'+'yes_Ar2_no_Ar2_60_Ar2_15_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                               // Mine de métal 1
-                dataPack += '\n'+'yes_Ar2_no_Ar2_90_Ar2_22_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                               // Mine de métal 2
-                dataPack += '\n'+'yes_Ar2_no_Ar2_112_Ar2_45_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';                // Centrale Solaire 2
-                dataPack += '\n'+'yes_Ar2_no_Ar2_135_Ar2_33_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                              // Mine de métal 3
-                dataPack += '\n'+'yes_Ar2_no_Ar2_202_Ar2_50_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                              // Mine de métal 4
-                dataPack += '\n'+'yes_Ar2_no_Ar2_168_Ar2_67_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';                // Centrale Solaire 3
-                dataPack += '\n'+'yes_Ar2_no_Ar2_303_Ar2_75_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                              // Mine de métal 5
-                dataPack += '\n'+'yes_Ar2_no_Ar2_253_Ar2_101_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';               // Centrale Solaire 4
-                dataPack += '\n'+'yes_Ar2_no_Ar2_48_Ar2_24_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                             // Mine de cristal 1
-                dataPack += '\n'+'yes_Ar2_no_Ar2_76_Ar2_38_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                             // Mine de cristal 2
-                dataPack += '\n'+'yes_Ar2_no_Ar2_122_Ar2_61_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                            // Mine de cristal 3
-                dataPack += '\n'+'yes_Ar2_no_Ar2_379_Ar2_151_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';               // Centrale Solaire 5
-                dataPack += '\n'+'yes_Ar2_no_Ar2_455_Ar2_113_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                             // Mine de métal 6
-                dataPack += '\n'+'yes_Ar2_no_Ar2_196_Ar2_98_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                            // Mine de cristal 4
-                dataPack += '\n'+'yes_Ar2_no_Ar2_569_Ar2_227_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';               // Centrale Solaire 6
-                dataPack += '\n'+'yes_Ar2_no_Ar2_225_Ar2_75_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                  // Synthétiseur de Deut 1
-                dataPack += '\n'+'yes_Ar2_no_Ar2_337_Ar2_112_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                 // Synthétiseur de Deut 2
-                dataPack += '\n'+'yes_Ar2_no_Ar2_506_Ar2_168_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                 // Synthétiseur de Deut 3
-                dataPack += '\n'+'yes_Ar2_no_Ar2_854_Ar2_341_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';               // Centrale Solaire 7
-                dataPack += '\n'+'yes_Ar2_no_Ar2_759_Ar2_253_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                 // Synthétiseur de Deut 4
-                dataPack += '\n'+'yes_Ar2_no_Ar2_1139_Ar2_379_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                // Synthétiseur de Deut 5
-                dataPack += '\n'+'yes_Ar2_no_Ar2_1281_Ar2_512_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';              // Centrale Solaire 8
-                dataPack += '\n'+'yes_Ar2_no_Ar2_314_Ar2_157_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                           // Mine de cristal 5
-                dataPack += '\n'+'yes_Ar2_no_Ar2_503_Ar2_251_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                           // Mine de cristal 6
-                dataPack += '\n'+'yes_Ar2_no_Ar2_400_Ar2_120_Ar2_200_Ar2_station_Ar2_1_Ar2_14_Ar2__Ar2__Ar2_Usine_esp_de_esp_robots_Ar2_';                          // Usine de robots 1
-                dataPack += '\n'+'yes_Ar2_no_Ar2_800_Ar2_240_Ar2_200_Ar2_station_Ar2_1_Ar2_14_Ar2__Ar2__Ar2_Usine_esp_de_esp_robots_Ar2_';                          // Usine de robots 2
-                dataPack += '\n'+'yes_Ar2_no_Ar2_200_Ar2_400_Ar2_200_Ar2_station_Ar2_1_Ar2_31_Ar2__Ar2__Ar2_Laboratoire_esp_de_esp_recherche_Ar2_';                 // Labo 1
-                dataPack += '\n'+'yes_Ar2_no_Ar2_0_Ar2_800_Ar2_400_Ar2_research_Ar2_1_Ar2_113_Ar2__Ar2__Ar2_Technologie_esp_énergétique_Ar2_';                      // Techno Energie 1
-                dataPack += '\n'+'yes_Ar2_no_Ar2_400_Ar2_0_Ar2_600_Ar2_research_Ar2_1_Ar2_115_Ar2__Ar2__Ar2_Réacteur_esp_à_esp_combustion_Ar2_';                    // Reacteur Combustion 1
-                dataPack += '\n'+'yes_Ar2_no_Ar2_400_Ar2_0_Ar2_600_Ar2_research_Ar2_1_Ar2_115_Ar2__Ar2__Ar2_Réacteur_esp_à_esp_combustion_Ar2_';                    // Reacteur Combustion 2
-                dataPack += '\n'+'yes_Ar2_no_Ar2_400_Ar2_200_Ar2_100_Ar2_station_Ar2_1_Ar2_21_Ar2__Ar2__Ar2_Chantier_esp_spatial_Ar2_';                             // Chantier Spatial 1
-                dataPack += '\n'+'yes_Ar2_no_Ar2_800_Ar2_400_Ar2_200_Ar2_station_Ar2_1_Ar2_21_Ar2__Ar2__Ar2_Chantier_esp_spatial_Ar2_';                             // Chantier Spatial 2
-                dataPack += '\n'+'yes_Ar2_no_Ar2_2000_Ar2_2000_Ar2_0_Ar2_shipyard_Ar2_1_Ar2_202_Ar2_1_Ar2_1_Ar2_Petit_esp_transporteur_Ar2_';                       // PT
-                dataPack += '\n'+'yes_Ar2_no_Ar2_1922_Ar2_768_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';              // Centrale Solaire 9
-                dataPack += '\n'+'yes_Ar2_no_Ar2_1025_Ar2_256_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                            // Mine de métal 8
-                dataPack += '\n'+'yes_Ar2_no_Ar2_1537_Ar2_384_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                            // Mine de métal 9
-                dataPack += '\n'+'yes_Ar2_no_Ar2_805_Ar2_402_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                           // Mine de cristal 7
-                dataPack += '\n'+'yes_Ar2_no_Ar2_2883_Ar2_1153_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';             // Centrale Solaire 10
-                dataPack += '\n'+'yes_Ar2_no_Ar2_400_Ar2_800_Ar2_200_Ar2_station_Ar2_1_Ar2_31_Ar2__Ar2__Ar2_Laboratoire_esp_de_esp_recherche_Ar2_';                 // Labo 2
-                dataPack += '\n'+'yes_Ar2_no_Ar2_1600_Ar2_800_Ar2_400_Ar2_station_Ar2_1_Ar2_21_Ar2__Ar2__Ar2_Chantier_esp_spatial_Ar2_';                            // Chantier Spatial 3
-                dataPack += '\n'+'yes_Ar2_no_Ar2_200_Ar2_1000_Ar2_200_Ar2_research_Ar2_1_Ar2_106_Ar2__Ar2__Ar2_Technologie_esp_Espionnage_Ar2_';                    // Techno Espionnage 1
-                dataPack += '\n'+'yes_Ar2_no_Ar2_1600_Ar2_0_Ar2_2400_Ar2_research_Ar2_1_Ar2_115_Ar2__Ar2__Ar2_Réacteur_esp_à_esp_combustion_Ar2_';                  // Reacteur Combustion 3
-                dataPack += '\n'+'yes_Ar2_no_Ar2_400_Ar2_2000_Ar2_400_Ar2_research_Ar2_1_Ar2_106_Ar2__Ar2__Ar2_Technologie_esp_Espionnage_Ar2_';                    // Techno Espionnage 2
-                dataPack += '\n'+'yes_Ar2_no_Ar2_0_Ar2_1000_Ar2_0_Ar2_shipyard_Ar2_1_Ar2_210_Ar2_1_Ar2_1_Ar2_Sonde_esp_d`espionnage_Ar2_';                          // Sonde
-                dataPack += '\n'+'yes_Ar2_no_Ar2_4324_Ar2_1729_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';             // Centrale Solaire 11
-                dataPack += '\n';
+                dataPackJson = `{
+                  "listPrev": [
+                    ["yes", "no", "75", "30", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+                    ["yes", "no", "60", "15", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+                    ["yes", "no", "90", "22", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+                    ["yes", "no", "112", "45", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+                    ["yes", "no", "135", "33", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+                    ["yes", "no", "202", "50", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+                    ["yes", "no", "168", "67", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+                    ["yes", "no", "303", "75", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+                    ["yes", "no", "253", "101", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+                    ["yes", "no", "48", "24", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+                    ["yes", "no", "76", "38", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+                    ["yes", "no", "122", "61", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+                    ["yes", "no", "379", "151", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+                    ["yes", "no", "455", "113", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+                    ["yes", "no", "196", "98", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+                    ["yes", "no", "569", "227", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+                    ["yes", "no", "225", "75", "0", "resources", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
+                    ["yes", "no", "337", "112", "0", "resources", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
+                    ["yes", "no", "506", "168", "0", "resources", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
+                    ["yes", "no", "854", "341", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+                    ["yes", "no", "759", "253", "0", "resources", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
+                    ["yes", "no", "1139", "379", "0", "resources", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
+                    ["yes", "no", "1281", "512", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+                    ["yes", "no", "314", "157", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+                    ["yes", "no", "503", "251", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+                    ["yes", "no", "400", "120", "200", "station", "1", "14", "", "", "Usine_esp_de_esp_robots"],
+                    ["yes", "no", "800", "240", "200", "station", "1", "14", "", "", "Usine_esp_de_esp_robots"],
+                    ["yes", "no", "200", "400", "200", "station", "1", "31", "", "", "Laboratoire_esp_de_esp_recherche"],
+                    ["yes", "no", "0", "800", "400", "research", "1", "113", "", "", "Technologie_esp_énergétique"],
+                    ["yes", "no", "400", "0", "600", "research", "1", "115", "", "", "Réacteur_esp_à_esp_combustion"],
+                    ["yes", "no", "400", "0", "600", "research", "1", "115", "", "", "Réacteur_esp_à_esp_combustion"],
+                    ["yes", "no", "400", "200", "100", "station", "1", "21", "", "", "Chantier_esp_spatial"],
+                    ["yes", "no", "800", "400", "200", "station", "1", "21", "", "", "Chantier_esp_spatial"],
+                    ["yes", "no", "2000", "2000", "0", "shipyard", "1", "202", "1", "1", "Petit_esp_transporteur"],
+                    ["yes", "no", "1922", "768", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+                    ["yes", "no", "1025", "256", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+                    ["yes", "no", "1537", "384", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+                    ["yes", "no", "805", "402", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+                    ["yes", "no", "2883", "1153", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+                    ["yes", "no", "400", "800", "200", "station", "1", "31", "", "", "Laboratoire_esp_de_esp_recherche"],
+                    ["yes", "no", "1600", "800", "400", "station", "1", "21", "", "", "Chantier_esp_spatial"],
+                    ["yes", "no", "200", "1000", "200", "research", "1", "106", "", "", "Technologie_esp_Espionnage"],
+                    ["yes", "no", "1600", "0", "2400", "research", "1", "115", "", "", "Réacteur_esp_à_esp_combustion"],
+                    ["yes", "no", "400", "2000", "400", "research", "1", "106", "", "", "Technologie_esp_Espionnage"],
+                    ["yes", "no", "0", "1000", "0", "shipyard", "1", "210", "1", "1", "Sonde_esp_d\`espionnage"],
+                    ["yes", "no", "4324", "1729", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"]
+                  ]
+                }`;
             } else { //I2T: Si plusieurs planetes acquises
-                dataPack = '';
-                dataPack += 'yes_Ar2_no_Ar2_75_Ar2_30_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';                      // Centrale Solaire 1
-                dataPack += '\n'+'yes_Ar2_no_Ar2_60_Ar2_15_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                               // Mine de métal 1
-                dataPack += '\n'+'yes_Ar2_no_Ar2_90_Ar2_22_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                               // Mine de métal 2
-                dataPack += '\n'+'yes_Ar2_no_Ar2_112_Ar2_45_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';                // Centrale Solaire 2
-                dataPack += '\n'+'yes_Ar2_no_Ar2_135_Ar2_33_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                              // Mine de métal 3
-                dataPack += '\n'+'yes_Ar2_no_Ar2_202_Ar2_50_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                              // Mine de métal 4
-                dataPack += '\n'+'yes_Ar2_no_Ar2_168_Ar2_67_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';                // Centrale Solaire 3
-                dataPack += '\n'+'yes_Ar2_no_Ar2_48_Ar2_24_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                             // Mine de cristal 1
-                dataPack += '\n'+'yes_Ar2_no_Ar2_253_Ar2_101_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';               // Centrale Solaire 4
-                dataPack += '\n'+'yes_Ar2_no_Ar2_303_Ar2_75_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                              // Mine de métal 5
-                dataPack += '\n'+'yes_Ar2_no_Ar2_76_Ar2_38_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                             // Mine de cristal 2
-                dataPack += '\n'+'yes_Ar2_no_Ar2_122_Ar2_61_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                            // Mine de cristal 3
-                dataPack += '\n'+'yes_Ar2_no_Ar2_379_Ar2_151_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';               // Centrale Solaire 5
-                dataPack += '\n'+'yes_Ar2_no_Ar2_225_Ar2_75_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                  // Synthétiseur de Deut 1
-                dataPack += '\n'+'yes_Ar2_no_Ar2_196_Ar2_98_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                            // Mine de cristal 4
-                dataPack += '\n'+'yes_Ar2_no_Ar2_569_Ar2_227_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';               // Centrale Solaire 6
-                dataPack += '\n'+'yes_Ar2_no_Ar2_455_Ar2_113_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                             // Mine de métal 6
-                dataPack += '\n'+'yes_Ar2_no_Ar2_683_Ar2_170_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                             // Mine de métal 7
-                dataPack += '\n'+'yes_Ar2_no_Ar2_854_Ar2_341_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';               // Centrale Solaire 7
-                dataPack += '\n'+'yes_Ar2_no_Ar2_314_Ar2_157_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                           // Mine de cristal 5
-                dataPack += '\n'+'yes_Ar2_no_Ar2_337_Ar2_112_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                 // Synthétiseur de Deut 2
-                dataPack += '\n'+'yes_Ar2_no_Ar2_1281_Ar2_512_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';              // Centrale Solaire 8
-                dataPack += '\n'+'yes_Ar2_no_Ar2_506_Ar2_168_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                 // Synthétiseur de Deut 3
-                dataPack += '\n'+'yes_Ar2_no_Ar2_759_Ar2_253_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                 // Synthétiseur de Deut 4
-                dataPack += '\n'+'yes_Ar2_no_Ar2_1922_Ar2_768_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';              // Centrale Solaire 9
-                dataPack += '\n'+'yes_Ar2_no_Ar2_1139_Ar2_379_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                // Synthétiseur de Deut 5
-                dataPack += '\n'+'yes_Ar2_no_Ar2_400_Ar2_120_Ar2_200_Ar2_station_Ar2_1_Ar2_14_Ar2__Ar2__Ar2_Usine_esp_de_esp_robots_Ar2_';                          // Usine de robots 1
-                dataPack += '\n'+'yes_Ar2_no_Ar2_800_Ar2_240_Ar2_200_Ar2_station_Ar2_1_Ar2_14_Ar2__Ar2__Ar2_Usine_esp_de_esp_robots_Ar2_';                          // Usine de robots 2
-                dataPack += '\n'+'yes_Ar2_no_Ar2_503_Ar2_251_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                           // Mine de cristal 6
-                dataPack += '\n'+'yes_Ar2_no_Ar2_400_Ar2_200_Ar2_100_Ar2_station_Ar2_1_Ar2_21_Ar2__Ar2__Ar2_Chantier_esp_spatial_Ar2_';                             // Chantier Spatial 1
-                dataPack += '\n'+'yes_Ar2_no_Ar2_2883_Ar2_1153_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';             // Centrale Solaire 10
-                //dataPack += '\n'+'yes_Ar2_no_Ar2_1708_Ar2_569_Ar2_0_Ar2_resources_Ar2_1_Ar2_3_Ar2__Ar2__Ar2_Synthétiseur_esp_de_esp_deutérium_Ar2_';                // Synthétiseur de Deut 6
-                dataPack += '\n'+'yes_Ar2_no_Ar2_1025_Ar2_256_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                            // Mine de métal 8
-                dataPack += '\n'+'yes_Ar2_no_Ar2_800_Ar2_400_Ar2_200_Ar2_station_Ar2_1_Ar2_21_Ar2__Ar2__Ar2_Chantier_esp_spatial_Ar2_';                             // Chantier Spatial 2
-                dataPack += '\n'+'yes_Ar2_no_Ar2_2000_Ar2_2000_Ar2_0_Ar2_shipyard_Ar2_1_Ar2_202_Ar2_1_Ar2_1_Ar2_Petit_esp_transporteur_Ar2_';                       // PT
-                dataPack += '\n'+'yes_Ar2_no_Ar2_4324_Ar2_1729_Ar2_0_Ar2_resources_Ar2_1_Ar2_4_Ar2__Ar2__Ar2_Centrale_esp_électrique_esp_solaire_Ar2_';             // Centrale Solaire 11
-                dataPack += '\n'+'yes_Ar2_no_Ar2_805_Ar2_402_Ar2_0_Ar2_resources_Ar2_1_Ar2_2_Ar2__Ar2__Ar2_Mine_esp_de_esp_cristal_Ar2_';                           // Mine de cristal 7
-                dataPack += '\n'+'yes_Ar2_no_Ar2_1537_Ar2_384_Ar2_0_Ar2_resources_Ar2_1_Ar2_1_Ar2__Ar2__Ar2_Mine_esp_de_esp_métal_Ar2_';                            // Mine de métal 9
-                dataPack += '\n'+'yes_Ar2_no_Ar2_1600_Ar2_800_Ar2_400_Ar2_station_Ar2_1_Ar2_21_Ar2__Ar2__Ar2_Chantier_esp_spatial_Ar2_';                            // Chantier Spatial 3
-                dataPack += '\n'+'yes_Ar2_no_Ar2_0_Ar2_1000_Ar2_0_Ar2_shipyard_Ar2_1_Ar2_210_Ar2_1_Ar2_1_Ar2_Sonde_esp_d`espionnage_Ar2_';                          // Sonde
-                dataPack += '\n';
+                dataPackJson = `{
+                  "listPrev": [
+                    ["yes", "no", "75", "30", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+                    ["yes", "no", "60", "15", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+                    ["yes", "no", "90", "22", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+                    ["yes", "no", "112", "45", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+                    ["yes", "no", "135", "33", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+                    ["yes", "no", "202", "50", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+                    ["yes", "no", "168", "67", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+                    ["yes", "no", "48", "24", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+                    ["yes", "no", "253", "101", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+                    ["yes", "no", "303", "75", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+                    ["yes", "no", "76", "38", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+                    ["yes", "no", "122", "61", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+                    ["yes", "no", "379", "151", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+                    ["yes", "no", "225", "75", "0", "resources", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
+                    ["yes", "no", "196", "98", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+                    ["yes", "no", "569", "227", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+                    ["yes", "no", "455", "113", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+                    ["yes", "no", "683", "170", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+                    ["yes", "no", "854", "341", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+                    ["yes", "no", "314", "157", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+                    ["yes", "no", "337", "112", "0", "resources", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
+                    ["yes", "no", "1281", "512", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+                    ["yes", "no", "506", "168", "0", "resources", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
+                    ["yes", "no", "759", "253", "0", "resources", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
+                    ["yes", "no", "1922", "768", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+                    ["yes", "no", "1139", "379", "0", "resources", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
+                    ["yes", "no", "400", "120", "200", "station", "1", "14", "", "", "Usine_esp_de_esp_robots"],
+                    ["yes", "no", "800", "240", "200", "station", "1", "14", "", "", "Usine_esp_de_esp_robots"],
+                    ["yes", "no", "503", "251", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+                    ["yes", "no", "400", "200", "100", "station", "1", "21", "", "", "Chantier_esp_spatial"],
+                    ["yes", "no", "2883", "1153", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+                    ["yes", "no", "1025", "256", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+                    ["yes", "no", "800", "400", "200", "station", "1", "21", "", "", "Chantier_esp_spatial"],
+                    ["yes", "no", "2000", "2000", "0", "shipyard", "1", "202", "1", "1", "Petit_esp_transporteur"],
+                    ["yes", "no", "4324", "1729", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+                    ["yes", "no", "805", "402", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+                    ["yes", "no", "1537", "384", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+                    ["yes", "no", "1600", "800", "400", "station", "1", "21", "", "", "Chantier_esp_spatial"],
+                    ["yes", "no", "0", "1000", "0", "shipyard", "1", "210", "1", "1", "Sonde_esp_d\`espionnage"]
+                  ]
+                }`;
             }
         } else {
-            dataPack = '';
-            dataPack += 'yes_Ar2_no_Ar2_20000_Ar2_40000_Ar2_20000_Ar2_station_Ar2_1_Ar2_41_Ar2__Ar2__Ar2_Base_esp_lunaire_Ar2_';                                                     // Base Lunaire 1
-            dataPack += '\n'+'yes_Ar2_no_Ar2_400_Ar2_120_Ar2_200_Ar2_station_Ar2_1_Ar2_14_Ar2__Ar2__Ar2_Usine_esp_de_esp_robots_Ar2_';                                              // Usine de robots 1
-            dataPack += '\n'+'yes_Ar2_no_Ar2_800_Ar2_240_Ar2_200_Ar2_station_Ar2_1_Ar2_14_Ar2__Ar2__Ar2_Usine_esp_de_esp_robots_Ar2_';                                              // Usine de robots 2
-            dataPack += '\n'+'yes_Ar2_no_Ar2_40000_Ar2_80000_Ar2_40000_Ar2_station_Ar2_1_Ar2_41_Ar2__Ar2__Ar2_Base_esp_lunaire_Ar2_';                                                // Base Lunaire 2
-            dataPack += '\n'+'yes_Ar2_no_Ar2_1600_Ar2_480_Ar2_400_Ar2_station_Ar2_1_Ar2_14_Ar2__Ar2__Ar2_Usine_esp_de_esp_robots_Ar2_';                                             // Usine de robots 3
-            dataPack += '\n'+'yes_Ar2_no_Ar2_80000_Ar2_160000_Ar2_80000_Ar2_station_Ar2_1_Ar2_41_Ar2__Ar2__Ar2_Base_esp_lunaire_Ar2_';                                               // Base Lunaire 3
-            dataPack += '\n'+'yes_Ar2_no_Ar2_20000_Ar2_40000_Ar2_20000_Ar2_station_Ar2_1_Ar2_42_Ar2__Ar2__Ar2_Phalange_esp_de_esp_capteur_Ar2_';                                     // Phalange de capteur 1
-            dataPack += '\n';
+            // Lune
+            dataPackJson = `{
+              "listPrev": [
+                ["yes", "no", "20000", "40000", "20000", "station", "1", "41", "", "", "Base_esp_lunaire"],
+                ["yes", "no", "400", "120", "200", "station", "1", "14", "", "", "Usine_esp_de_esp_robots"],
+                ["yes", "no", "800", "240", "200", "station", "1", "14", "", "", "Usine_esp_de_esp_robots"],
+                ["yes", "no", "40000", "80000", "40000", "station", "1", "41", "", "", "Base_esp_lunaire"],
+                ["yes", "no", "1600", "480", "400", "station", "1", "14", "", "", "Usine_esp_de_esp_robots"],
+                ["yes", "no", "80000", "160000", "80000", "station", "1", "41", "", "", "Base_esp_lunaire"],
+                ["yes", "no", "20000", "40000", "20000", "station", "1", "42", "", "", "Phalange_esp_de_esp_capteur"]
+              ]
+            }`
         }
 
-        curd = make_important_vars_data();
-        curd = curd.split('/_/_/');
-        curd[0] = dataPack;
-        newd = curd.join('/_/_/');
-
-        save_important_vars(newd);
+        persistedData['listPrev'] = JSON.parse(dataPackJson)['listPrev'];
+        save_important_vars();
         location.href = location.href;
     };
 }
