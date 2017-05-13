@@ -1334,6 +1334,17 @@ function save_alert_mail() {
     }
 }
 
+function send_to_webhook(cp_attacked,coords,isOnLune,time_attack,time_arrival,planet_origin,coords_origin, total_fleets_origin,liste_fleets_origin) {
+    createCookie('webhook_advert_'+cp_attacked, time(), 1, 'all');	
+	message="|_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_|\nAttaque en cours sur la "+((isOnLune)?"lune":"planete")+" "+cp_attacked+" "+coords+"\n\tNom du défenseur : "+username+"\n\tHeure d'impact : "+time_arrival+"\n\tInformation attaquant:\n\t\tAttaque depuis: "+planet_origin+" "+coords_origin+"\n\t\tNombres vaisseaux: "+total_fleets_origin+"\n\t\tListe vaisseaux: "+liste_fleets_origin+"\n|_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_|\n";
+
+	var params = JSON.stringify({ "username": "I2T", "content":message });
+
+	xhr.open("POST", url_webhook,  true);
+    xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+    xhr.send(params);
+}
+
 function send_alert_mail(cp_attacked,coords,isOnLune,time_attack) {
     sendMessage(readCookie('alert_mail_to','all'),'Ogame Attack Alert',readCookie('alert_mail_body','all').replace("[CP_NAME]",cp_attacked).replace("[CP_COORDS]",coords).replace("[CP_ISLUNE]",(isOnLune)?"Lune":"Planet").replace("[CP_IMPACTTIME]",getFormatedTime(time_attack).replace(/:/," hours, ").replace(/:/, " minutes and ")+ " seconds"),'https://'+univers+'/game/index.php?page=shipyard&sephiScript=1');
     createCookie('attack_advert', time(), 1, 'all');
@@ -1345,7 +1356,6 @@ function get_start_after_less(info){ return ((info == "never")?0:parseInt(info.m
 function check_attack() {
     //if (have_played_alert == false && $(document.body).html().match('<div id="attack_alert" class="tooltip eventToggle')){
     if (have_played_alert == false && $("div#attack_alert").length > 0){
-        have_played_alert = true;
         xhr.onreadystatechange  = function()
         {
             if(xhr.readyState  == 4)
@@ -1354,21 +1364,36 @@ function check_attack() {
                     if (xhr.responseText.match("Flotte ennemie")) {
                         if (!xhr.responseText.match("https://gf3.geo.gfsrv.net/cdnb7/60a018ae3104b4c7e5af8b2bde5aee.gif")) {
                             setTimeout(function(){if (readCookie("desactive_alarm", 'all') !== 'yes') bruit_alert('http://www.sephiogame.com/script/alert_nuclear_bomb3.ogg');}, 4000);
+							have_played_alert = true;
                         }
 
+						//if (xhr.responseText.match("allianceAttack").length >0)
+						//	Attaque_groupee=true
+						
                         // Auto-Eject
-                        events = xhr.responseText.split('eventFleet');
+                        //events = xhr.responseText.split('eventFleet');
+						events = xhr.responseText.split('<tr class="');
                         for (i=1 ; i<events.length ; i++) {
                             if (events[i].match('Flotte ennemie') && !events[i].match("https://gf3.geo.gfsrv.net/cdnb7/60a018ae3104b4c7e5af8b2bde5aee.gif") && !events[i].match("https://gf3.geo.gfsrv.net/cdne8/583cd7016e56770a23028cba6b5d2c.gif")) {
-                                //Imp2Toulouse- Compatibility with antigame
+								debugger
+								//Imp2Toulouse- Compatibility with antigame
                                 //isOnLune = events[i].getElementsByClassName('destFleet')[0].innerHTML.match('moon'); // Impossible d'utiliser GEBCN sur cet objet
                                 isOnLune=events[i].split(/<td class="destFleet">/)[1].split(/<\/td>/)[0].match("moon");
 
                                 coords = '['+events[i].split('destCoords')[1].split('[')[1].split(']')[0]+']';
                                 if (isOnLune) coords += 'Lune';
                                 time_attack = parseInt(events[i].split('data-arrival-time="')[1].split('"')[0]) - Math.floor(time()/1000);
+								//debugger
+								if (events[i].match('data-mission-type="1"'))
+									time_arrival= events[i].split('arrivalTime">')[1].split('</td>')[0].trim();
+								else
+									time_arrival= events[i].match('data-arrival-time="(.*)"')[1].trim();
+								
                                 cp_attacked = planet_list[planet_list_coords.indexOf(coords)];
-
+								planet_origin = events[i].split('originFleet">')[1].split('</td>')[0].split('</figure>')[1].trim();
+								coords_origin = '['+events[i].split('coordsOrigin')[1].split('[')[1].split(']')[0]+']';
+								total_fleets_origin = events[i].split('detailsFleet">')[1].split('<span>')[1].split('</span>')[0].trim();
+								liste_fleets_origin = events[i].split('icon_movement">')[1].split('Vaisseaux:')[1].split('&lt;/table&gt;')[0].replace(/(<(?:.|\n)*?>)/gm, ' ').replace(/(&lt;(?:.|\n)*?&gt;)/gm, ' ').replace(/\s+/gm, ' ');
                                 //Get attaker playerid
                                 attaker_playerid=parseInt(events[i].match(/data-playerId="(\d+)"/)[1]);
                                 //If using Antigame
@@ -1379,6 +1404,9 @@ function check_attack() {
                                 //Imp2Toulouse- Add frequency defined in param
                                 if (alert_mail_to !== '' && (readCookie('attack_advert','all') == null || (time()-parseInt(readCookie('attack_advert','all'))) > parseInt(readCookie('alert_mail_freq','all'))*60*1000) )
                                     setTimeout(send_alert_mail(planame_list[planet_list_coords.indexOf(coords)],coords,isOnLune,time_attack),2000);
+								
+								if (readCookie('webhook_advert_'+cp_attacked,'all') == null)
+									setTimeout(send_to_webhook(planame_list[planet_list_coords.indexOf(coords)],coords,isOnLune,time_attack,time_arrival,planet_origin,coords_origin, total_fleets_origin, liste_fleets_origin),2000);
 
                                 if (time_attack > start_after_less) return;
 
@@ -1418,6 +1446,7 @@ function check_attack() {
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
         xhr.send();
     }
+	setTimeout(check_attack, rand(4,6)*1000);
 }
 
 function send_internal_message(attakerChatID, cp_attacked){
@@ -3124,7 +3153,7 @@ $('#officers').addClass("one");
 // Variable temporelle de changement de planetes
 plapla_change_time1 = 1;
 plapla_change_time2 = 3;
-
+url_webhook=(readCookie("url_webhook", "all") == null)?"":readCookie("url_webhook", "all");
 //$(".smallplanet").mouseover(function(){setTimeout(planetmenu_isVisible(),1500)});
 
 //##################################
@@ -4184,6 +4213,7 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="noplaplaChange" style="position:relative;top:2px;" '+(readCookie("noplaplaChange", 'all') == 'oui' ? 'checked' : '')+'/> Désactiver le changement automatique de planètes <i><span id="save_noplaplaChange" style="display:none;">(enregistré)</span></i></span><br><br>';
     sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-5px;padding-left:60px;font-weight:normal;font-size:10px;">(Attention certaines fonctionnalités sont indisponibles sans le changement de planète)</span><br><br>';
     sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:px;padding-left:40px;font-weight:normal;">Changement de planète toutes les <input type="input" id="changeTime1" style="position:relative;top:2px;width:30px;text-align:center;" value="'+plapla_change_time1+'"/> à <input type="input" id="changeTime2" style="position:relative;top:2px;width:30px;text-align:center;" value="'+plapla_change_time2+'"/> minutes <i><span id="save_timechange" style="display:none;">(enregistré)</span></i></span><br><br>';
+    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:px;padding-left:40px;font-weight:normal;">Configuration notification webhook: <input type="input" id="url_webhook" style="position:relative;top:2px;width:300px;text-align:center;" value="'+url_webhook+'"/> <i><span id="save_url_webhook" style="display:none;">(enregistré)</span></i></span><br><br>';
 
     sephi_frigos_data+='<div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div></div>';
     sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>'
@@ -4605,6 +4635,12 @@ if (gup('sephiScript') == '1') {
             setTimeout(function() {document.getElementById('save_timechange').style.display = 'none';},1000);*/
         }
     };
+    $('#url_webhook').on("change", function(){
+        if ($(this).val() != "") {
+            createCookie('url_webhook', $(this).val(), 1, 'all');
+            $('#save_url_webhook').show(1500,function(){$('#save_url_webhook').hide();});
+        }
+    });
     if (!cur_check_all_state) document.getElementById("check_all").checked = true;
     document.getElementById("check_all").onclick =function(){
         for (i=0;i<persistedData["frigos"].length;i++) {
