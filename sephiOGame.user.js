@@ -1183,7 +1183,10 @@ function launch_spy(self, override_id){
     }
     if (spy_id == persistedData["frigos"].length) {
         $('#spy_all').css("color", 'darkred');
-        $('#spy_all').html('&#9658; Aucun frigo à espionner');
+        $('#spy_all').html('&#9658; Aucun frigo à espionner, retour à l\'overview dans 5 secs.');
+		setTimeout(function(){
+			window.location.href = window.location.href.replace(gup('page'), 'overview').replace('&startAA', '').replace('&sephiScript=1', '');
+		}, 5*1000);
         return;
     }
 
