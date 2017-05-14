@@ -5,7 +5,7 @@
  *  By Imperator2Toulouse
  *  License: sephiOGame collaborator
  */
-
+ 
  
 /**
    * auth init
