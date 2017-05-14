@@ -95,7 +95,8 @@
 //         - Correction auto-eject bug on attack
 //3.7.5
 //         - Migrate starter packs to JSON data
-
+//		   - Bug correction regarding frigo icons on fight report
+//		   - Add webhook functionnality (to announce attack in webhookapps like discord)
 
 antiBugTimeout = setTimeout(function(){location.href=location.href;}, 5*60*1000);
 
