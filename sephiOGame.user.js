@@ -597,24 +597,22 @@ function change_actions_tab(action_tab){
         action_tab.parent().each(function (index) {
             if ($(this).find('.msg_head .msg_title').length >0) {
                 var planame = null, coord = null;
-                // dans message espionnage
-				
-				//I2T: Prévision de correction
-                //if ($(this).find('.msg_head .msg_title').html().match(/Rapport d`espionnage/))
-				if ($(this).find('.msg_head .msg_title').html().match(/figure/))
-                    [, planame, coord] = $(this).find('.msg_head .msg_title .txt_link').html().match(/<\/figure>(.*) (.*)$/);
-                // dans message Rapport de combat
-                if ($(this).find('.msg_head .msg_title').html().match(/middlemark/))
-                    [, planame, coord] = $(this).find('.msg_head .msg_title span.middlemark').html().match(/Rapport de combat (.*) <figure.* class="txt_link">(.*)<\/a>.*$/);
-                if ($(this).find('.msg_head .msg_title').html().match(/undermark/)) // Successfull fight
-                    [, planame, coord] = $(this).find('.msg_head .msg_title span.undermark').html().match(/Rapport de combat (.*) <a.*>(.*)<\/a>/);
-                if ($(this).find('.msg_head .msg_title').html().match(/overmark/))  // Failled fight
-                [, planame, coord] = $(this).find('.msg_head .msg_title span.overmark').html().match(/Rapport de combat (.*) <a.*>(.*)<\/a>/);
-				//I2T: Prévision de correction
-				//[, planame, coord] = $(this).find('.msg_head .msg_title span.overmark').html().match(/Rapport de combat (.*) <figure.* class="txt_link">(.*)<\/a>.*$/);
-
-                // dans message espionnage
-                if ($(this).find('.msg_head .msg_title').html().match(/figure/)) {
+                // dans message rapport de combat
+               if ($(this).find('.msg_head .msg_title').html().match(/Rapport de combat/)){
+					// dans message Rapport de combat
+					if ($(this).find('.msg_head .msg_title').html().match(/middlemark/))
+						[, planame, coord] = $(this).find('.msg_head .msg_title span.middlemark').html().match(/Rapport de combat (.*) <figure.* class="txt_link">(.*)<\/a>.*$/);
+					if ($(this).find('.msg_head .msg_title').html().match(/undermark/)) // Successfull fight
+						[, planame, coord] = $(this).find('.msg_head .msg_title span.undermark').html().match(/Rapport de combat (.*) <figure.*<a.*>(.*)<\/a>/);
+					if ($(this).find('.msg_head .msg_title').html().match(/overmark/))  // Failled fight
+						[, planame, coord] = $(this).find('.msg_head .msg_title span.overmark').html().match(/Rapport de combat (.*) <figure.*<a.*>(.*)<\/a>/);
+					//I2T: Prévision de correction
+					//[, planame, coord] = $(this).find('.msg_head .msg_title span.overmark').html().match(/Rapport de combat (.*) <figure.* class="txt_link">(.*)<\/a>.*$/);
+				}
+                // dans message rapport d'espionnage
+                if ($(this).find('.msg_head .msg_title').html().match(/Rapport d`espionnage/)){
+					if ($(this).find('.msg_head .msg_title').html().match(/figure/))
+						[, planame, coord] = $(this).find('.msg_head .msg_title .txt_link').html().match(/<\/figure>(.*) (.*)$/);
                     //DETECTION DEF/FLOTTE
                     var flottes = null, flottesActive = false, defense = null, defenseActive = false, flottesDetected = false, defenseDetected = false;
                     if ($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').length > 0) {
@@ -632,9 +630,9 @@ function change_actions_tab(action_tab){
                         (defense > 0) ? defenseActive = true : defenseActive = false;
                     }
                     //END DETECTION
-                    //Detection type frigo
-                    typeFrigo=($(this).find('.msg_head .msg_title a.txt_link figure.moon').length >0)?"moon":"planet";
                 }
+				//Detection type frigo
+				typeFrigo=($(this).find('.msg_head .msg_title figure.moon').length >0)?"moon":"planet";
                 if (planame && coord) {
                     [,galaxy,system,planet] = coord.match(/\[(.*):(.*):(.*)\]/);
 
@@ -642,6 +640,8 @@ function change_actions_tab(action_tab){
                     //Imp2Toulouse- Factorize with is_frigo fonction
                     num_frigo=is_frigo(persistedData["frigos"],coord);
                     infrig=(num_frigo>=0)?'yes':'no';
+					//If coord is ours return
+					if ($.inArray(coord,planet_list_coords) >=0) return;
                     ////
                     //nb sonde config dans option
                     var nb_sonde_default=parseInt(readCookie("nb_sondes","options"));
@@ -660,7 +660,7 @@ function change_actions_tab(action_tab){
                         var text_action="</span>Integration de \'"+coord+" "+planame+"\' dans "+cur_planame+"?<hr/><u>Status:</u> Frigo potentiel"+frigo_status+"<br><u>Actions:</u> <a href=\'javascript:void(0)\' onclick=\'"+(action)+"\'>Ajouter ce frigos</a>";
                         var img='http://www.sephiogame.com/images/frigoOff.png';
                         // dans message espionnage
-                        if ($(this).find('.msg_head .msg_title').html().match(/figure/)) {
+                        if ($(this).find('.msg_head .msg_title').html().match(/Rapport d`espionnage/)) {
                             var message_res_action=((flottesDetected && !flottesActive) || (defenseDetected && !defenseActive))?'Bienvenue dans les frigos !':'Bienvenue dans les frigos ! <b>Attention</b>, il faudra prévoir une flotte personnalisée adaptée.';
                             var text_action="</span>Integration de \'"+coord+" "+planame+"\' dans "+cur_planame+"?<hr/><u>Status:</u> Frigo libre"+(frigo_status)+"<br><u>Actions:</u> <a href=\'javascript:void(0)\' onclick=\'"+(action)+"\'>Ajouter ce frigos</a>";
                             var img_addon=((flottesDetected && !flottesActive) && (defenseDetected && !defenseActive))?'http://www.sephiogame.com/images/data-ok.png':'http://www.sephiogame.com/images/no-data.png';
@@ -677,7 +677,7 @@ function change_actions_tab(action_tab){
                         var style_rep='cursor: "default";color: "#10E010";';
 
                         // dans message espionnage
-                        if ($(this).find('.msg_head .msg_title').html().match(/figure/)) {
+                        if ($(this).find('.msg_head .msg_title').html().match(/Rapport d`espionnage/)) {
 
                             [frigo_name, frigo_galaxy, frigo_system, frigo_position, frigo_sonde, frigo_flotte_perso, frigo_ignore, frigo_flotte, frigo_defense, frigo_sonde, frigo_cur_flotte, frigo_cur_def, frigo_sonde, frigo_type] = get_frigo_data(num_frigo);
                             //if flotte detected ==> update frigo with current flottes
