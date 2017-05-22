@@ -1183,10 +1183,10 @@ function launch_spy(self, override_id){
     }
     if (spy_id == persistedData["frigos"].length) {
         $('#spy_all').css("color", 'darkred');
-        $('#spy_all').html('&#9658; Aucun frigo à espionner, retour à l\'overview dans 5 secs.');
+        $('#spy_all').html('&#9658; Aucun frigo à espionner, retour à l\'overview dans 30 secs.');
 		setTimeout(function(){
 			window.location.href = window.location.href.replace(gup('page'), 'overview').replace('&startAA=1', '').replace('&sephiScript=1', '');
-		}, 5*1000);
+		}, 30*1000);
         return;
     }
 
@@ -1393,7 +1393,6 @@ function check_attack() {
 						events = xhr.responseText.split('<tr class="');
                         for (i=1 ; i<events.length ; i++) {
                             if (events[i].match('Flotte ennemie') && !events[i].match("https://gf3.geo.gfsrv.net/cdnb7/60a018ae3104b4c7e5af8b2bde5aee.gif") && !events[i].match("https://gf3.geo.gfsrv.net/cdne8/583cd7016e56770a23028cba6b5d2c.gif")) {
-								debugger
 								//Imp2Toulouse- Compatibility with antigame
                                 //isOnLune = events[i].getElementsByClassName('destFleet')[0].innerHTML.match('moon'); // Impossible d'utiliser GEBCN sur cet objet
                                 isOnLune=events[i].split(/<td class="destFleet">/)[1].split(/<\/td>/)[0].match("moon");
@@ -1401,12 +1400,8 @@ function check_attack() {
                                 coords = '['+events[i].split('destCoords')[1].split('[')[1].split(']')[0]+']';
                                 if (isOnLune) coords += 'Lune';
                                 time_attack = parseInt(events[i].split('data-arrival-time="')[1].split('"')[0]) - Math.floor(time()/1000);
-								//debugger
-								if (events[i].match('data-mission-type="1"'))
-									time_arrival= events[i].split('arrivalTime">')[1].split('</td>')[0].trim();
-								else
-									time_arrival= events[i].match('data-arrival-time="(.*)"')[1].trim();
-								
+								time_arrival= events[i].split('arrivalTime">')[1].split('</td>')[0].trim();
+
                                 cp_attacked = planet_list[planet_list_coords.indexOf(coords)];
 								planet_origin = events[i].split('originFleet">')[1].split('</td>')[0].split('</figure>')[1].trim();
 								coords_origin = '['+events[i].split('coordsOrigin')[1].split('[')[1].split(']')[0]+']';
@@ -2137,7 +2132,7 @@ function fill_rapport_general() {
 
 function clean_name(txt) {return txt.replace('[En Cours] ','').replace('[Abandon] ','').replace('[Essai 2] ','').replace('[Essai 3] ','').replace('[Essai 4] ','').replace('[Timeout 1] ','').replace('[Timeout 2] ','').replace('[Timeout 3] ','').replace('[Butin] ','').replace('<span title="Flotte envoyée">[OK]</span> ','').replace('<span title="Vous n\'avez plus assez de deuterium pour envoyer cette flotte">? [Deut]</span> ','').replace('<span title="Vous n\'avez plus de slots de flotte disponible">? [Flotte]</span> ','').replace('<span title="Votre flotte personnalisée est irréalisable">? [Perso]</span>','').replace('<span title="Vous manquez de petits transporteurs, cliquez sur \'\'forcer\'\' pour envoyer tout ceux que vous avez">? [PT]</span> ','').replace('<span title="Vous manquez de grands transporteurs, cliquez sur \'\'forcer\'\' pour envoyer tout ceux que vous avez">? [GT]</span> ','');}
 function attack_cur() {
-    if(GLOB_curAA_ID < GLOB_rgButins.length-1 && parseInt(GLOB_rgButins[GLOB_curAA_ID][0]) > parseInt(document.getElementById('butin_AA_RG').value) )  {
+    if(GLOB_curAA_ID < GLOB_rgButins.length-1 && parseInt(GLOB_rgButins[GLOB_curAA_ID][0]) > parseInt(document.getElementById('butin_AA_RG').value) && (readCookie('AA_remain_slot', 'all') == "true" || readCookie('AA_remain_slot', 'all') == null))  {
         encourstime = 0;
         if (!isFirstTry) encourstime = 1000;
         setTimeout(function(){
@@ -2179,14 +2174,20 @@ function attack_cur() {
         }, 25000);
     } else {
         launchAA=false;
+		if (readCookie('AA_remain_slot', 'all') == "false") reason='[Flotte] ';
+		else if (GLOB_curAA_ID > GLOB_rgButins.length-1 || parseInt(GLOB_rgButins[GLOB_curAA_ID][0]) < parseInt(document.getElementById('butin_AA_RG').value)) reason='[Butin] ';
+		else reason='[Butin] ';
+		
         for (tmp =GLOB_curAA_ID; tmp<GLOB_rgButins.length-1 ; tmp++) {
             document.getElementById('rap_general_planet_name_'+GLOB_rgButins[tmp][1]).style.color = 'darkred';
-            document.getElementById('rap_general_planet_name_'+GLOB_rgButins[tmp][1]).innerHTML = '[Butin] ' +  clean_name(document.getElementById('rap_general_planet_name_'+GLOB_rgButins[tmp][1]).innerHTML);
+            document.getElementById('rap_general_planet_name_'+GLOB_rgButins[tmp][1]).innerHTML = reason +  clean_name(document.getElementById('rap_general_planet_name_'+GLOB_rgButins[tmp][1]).innerHTML);
         }
 
         blit_message("Auto attaque terminée, retour à la vue d'ensemble dans 30 secondes");
+		eraseCookie('AA_remain_slot','all');
+
         setTimeout(function(){
-            window.location.href = window.location.href.replace(gup('page'), 'overview').replace('&sephiScript=1', '');
+            window.location.href = window.location.href.replace(gup('page'), 'overview').replace('&sephiScript=1', '').replace('&startAA=1','');
         }, 30*1000);
     }
 }
@@ -2856,7 +2857,7 @@ function planetmenu_isVisible() {
             $(this).find(".t_Shadow").height(height);
             $(this).find(".t_Skin").height(height);
             $(this).find("canvas").height(height);
-            //debugger
+
             [, cur_galaxy, cur_system] = $(this).find(".t_ContentContainer").html().match(/\[(\d+)\:(\d+)\:\d+\]/);
             sephi_opt = "&eject=yes&ID=Exped&galaxy=" + cur_galaxy + "&system=" + cur_system + "&position=16&type=1&mission=15";
             with_exped = readCookie('with_exped', 'AA');
@@ -2869,6 +2870,21 @@ function planetmenu_isVisible() {
         }
     });
 };
+
+//return if slot free
+function hasEnoughSlots(){
+	hasEnoughSlots=true;
+	[,cur_nb_flotte,max_nb_flotte] = $('.fleft span').first().html().match(/<\/span> (\d+)\/(\d+)/);
+	// Calcule si le lancement d'une flotte est possible en fonction des slots disponibles
+	if (readCookie('AA_leave_slot','AA') == 'oui') {
+		//add Imp2Toulouse- Read nb of leave slot
+		nb_slot_leave=(readCookie('AA_nb_slot','AA') == '' || readCookie('AA_nb_slot','AA') == null) ? defaut_AA_nb_slot:parseInt(readCookie('AA_nb_slot','AA'));
+		// Replace by the number read
+		if ((max_nb_flotte - cur_nb_flotte) <= nb_slot_leave) hasEnoughSlots=false;
+	}
+	createCookie('AA_remain_slot', hasEnoughSlots, 1,'all');
+	return(hasEnoughSlots);
+}
 
 //######################################################################################
 // End functions
@@ -3518,7 +3534,7 @@ if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page')
 
     $('#'+id_prev).append('<div id="info_prog" style="position:relative;top:'+decalTop+'px;">'+data+'</div>');
     $('#'+id_prev).height(head_height+(count_progs*27-5) +"px");
-   // debugger
+
     if (gup('page') == "overview") {$("#overviewBottom").css("margin-top", (count_progs*27) + "px");}
     $("#support_prev_block").height((count_progs*27)+"px");
 
@@ -3830,20 +3846,11 @@ if (gup('page') == "fleet1" && gup('auto') == 'yes') {
             nbGT = supGT + nbGT;
         }
     }
-    [,cur_nb_flotte,max_nb_flotte] = $('.fleft span').first().html().match(/<\/span> (\d+)\/(\d+)/);
-    var hasEnoughFleets = true;
-    // Calcule si le lancement d'une flotte est possible en fonction des slots disponibles
-    if (readCookie('AA_leave_slot','AA') == 'oui') {
-        //add Imp2Toulouse- Read nb of leave slot
-        nb_slot_leave=(readCookie('AA_nb_slot','AA') == '' || readCookie('AA_nb_slot','AA') == null) ? defaut_AA_nb_slot:parseInt(readCookie('AA_nb_slot','AA'));
-        // Replace by the number read
-        if ((max_nb_flotte - cur_nb_flotte) <= nb_slot_leave) hasEnoughFleets = false;
-    }
 
     idcook = 'AA_feed';
     if (gup('ID') == 'Exped') idcook = 'AA_Exp';
-    if (!hasEnoughFleets) {
-        document.title = 'Pas assez de flottes disponible';
+    if (!hasEnoughSlots()) {
+        document.title = 'Pas assez de slots disponible';
         //Imperator2Toulouse- In case of single auto attack
         if (gup('ID') == 0) {
             if (gup('Referer') != "") {
