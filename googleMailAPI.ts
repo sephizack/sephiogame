@@ -12,7 +12,11 @@
    *
    * @param {}
    */
-function checkAuth() {if (!is_token_valide()){blit_message('Authentification expirée, reconnexion!');gapi.auth.authorize({'client_id': '4911713620-3podd31sn547c21h1mvidibmaiiupmug.apps.googleusercontent.com','scope': ['https://www.googleapis.com/auth/gmail.send'],'approval_prompt': 'force','immediate': false},Auth_Load_Save_info);}return false;} 
+function checkAuth() {if (!is_token_valide()){
+   blit_message('Authentification expirée, reconnexion!');
+   gapi.auth.authorize({'client_id': '4911713620-3podd31sn547c21h1mvidibmaiiupmug.apps.googleusercontent.com','scope': ['https://www.googleapis.com/auth/gmail.send'],'approval_prompt': 'force','immediate': false},Auth_Load_Save_info);}
+   return false;
+} 
 
 /**
    * Manage auth result
@@ -41,7 +45,7 @@ function appendResults(output,text) {output.appendChild(document.createElement('
    * @param {}
    * @Return {boolean}
    */
-function is_token_valide(){return( ((readCookie('gapi_token','all') != "" && readCookie('gapi_auth','all')>0) && (parseInt(time()-readCookie('gapi_auth','all')) > parseInt(readCookie('gapi_expires_in','all'))))?1:0);}
+function is_token_valide(){return( ((readData('gapi_token','all') != "" && readData('gapi_auth','all')>0) && (parseInt(time()-readData('gapi_auth','all')) > parseInt(readData('gapi_expires_in','all'))))?1:0);}
 
 /**
    * Check the gmail API load
@@ -49,13 +53,13 @@ function is_token_valide(){return( ((readCookie('gapi_token','all') != "" && rea
    * @param {}
    * @Return {boolean}
    */
-function is_gmail_loaded(){return(readCookie('gapi_gmail_loaded','all'));}
+function is_gmail_loaded(){return(readData('gapi_gmail_loaded','all'));}
 
 /**
    * Load Gmail API client library. List labels once client library
    * is loaded.
    */
-function loadGmailApi() {createCookie('gapi_gmail_loaded',0,1,'all');gapi.client.load('gmail', 'v1').then(function(){createCookie('gapi_gmail_loaded',1,1,'all');},function(){createCookie('gapi_gmail_loaded',0,1,'all');});}
+function loadGmailApi() {storeData('gapi_gmail_loaded',0,1,'all');gapi.client.load('gmail', 'v1').then(function(){storeData('gapi_gmail_loaded',1,1,'all');},function(){storeData('gapi_gmail_loaded',0,1,'all');});}
 
 /**
  * Send Message.
@@ -72,4 +76,4 @@ function sendMessage(userId, subject, body, callback) {if (!is_gmail_loaded()) l
  *
  * @param  {Events} Events linked with this call
  */
-function checkAuth_NEW(event) {if (is_token_valide()){var temps_restant=get_Time_Remain(readCookie('gapi_auth','all'));appendResults(document.getElementById('output'),(isFR)?'Votre authentification est valide depuis '+temps_restant+' minutes.':'Your authentication is alive since '+temps_restant+' minutes yet.');temps_restant=null;if (!is_gmail_loaded()) loadGmailApi();} else {blit_message('Authentification expirée, reconnexion!');gapi.auth.authorize({'client_id': '4911713620-3podd31sn547c21h1mvidibmaiiupmug.apps.googleusercontent.com','scope': ['https://www.googleapis.com/auth/gmail.send'],'approval_prompt': 'force','immediate': false},Auth_Load_Save_info);}return false; }
+function checkAuth_NEW(event) {if (is_token_valide()){var temps_restant=get_Time_Remain(readData('gapi_auth','all'));appendResults(document.getElementById('output'),(isFR)?'Votre authentification est valide depuis '+temps_restant+' minutes.':'Your authentication is alive since '+temps_restant+' minutes yet.');temps_restant=null;if (!is_gmail_loaded()) loadGmailApi();} else {blit_message('Authentification expirée, reconnexion!');gapi.auth.authorize({'client_id': '4911713620-3podd31sn547c21h1mvidibmaiiupmug.apps.googleusercontent.com','scope': ['https://www.googleapis.com/auth/gmail.send'],'approval_prompt': 'force','immediate': false},Auth_Load_Save_info);}return false; }
