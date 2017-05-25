@@ -1,0 +1,22 @@
+Fonctionnalitées:
+- Ajoute/retire les frigos (planete seulement) depuis les messages et/ou la vue galaxy.
+- Activation ou désactivation d'une alerte sonore sur attaque
+- Activation ou désactivation de la rotation des planetes.
+- Sauvegarde/chargement des données en JSON (avec prise en compte ancien système de format de données)
+- Programmation pack sur nouvelle ou existante planete ou Lune
+- Auto ejection sur attaque configurable (ejection avant 5, 10,15mins)
+- Add capability to set the leave slot
+- Ajoute une notification interne vers l'attaquant (configurable en 4 questions de quatre parties)
+- Ajouter l'envoi d'un mail sur attaque (configurable) 
+- Envoi une Expedition lors de l'auto attaque (configurable speed et temps de recherche)
+- Integration d'un lien vers topraider dans les Rapports d'Espionnage et d'Attaque
+- Lance un raid en attaque directement depuis le rapport d'espionnage
+- Modifie la barre d'outil dans les messages:
+  + Ajout de contrôles dans la gestion des frigos (si une flotte ou def existe l'attaque n'est plus auto si une flotte perso n'est pas spécifiée)
+  + Ajout de controles basés sur la flotte/defense de l'ennemie
+  + Ajout dans la barre d'outil des messages la possibilité d'activer le nombre de sonde par frigo
+- Ajoute la possibilité de désactiver les auto attaques durant une periode (heure début et heure fin)
+- Ajoute de multiple type d'auto ejection lors de la désactivation des Auto Attaques
+- Ajoute dans la configuration la priorité des ressources lors d'une ejection au regard de la capacité globale de transport
+- Correction "Report general" when spy report on planet was not a frigo
+- Ajoute la possibilité de webhook permettant de spécifier une attaque (sur discord par exemple)

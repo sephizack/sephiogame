@@ -88,10 +88,6 @@
 //3.7.3
 //         - Correction "Report general" when spy report on planet was not a frigo
 //         - Change match regex to improve detection of old spy report on detroyed planet
-//3.7.2:               * Fixed Save/Load 
-//3.7.4
-//         - Correction "Report general" when spy report on planet was not a frigo
-//         - Change match regex to improve detection of old spy report on detroyed planet
 //3.7.4
 //         - Correction "add frigo" on galaxy view
 //         - Correction auto-eject bug on attack
