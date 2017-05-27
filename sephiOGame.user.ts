@@ -2591,6 +2591,7 @@ function SendFleet(response){
             break;
         case 'fleet2':
 			//Info('Response >',response,'<');
+            debugger;
             if (params.step ==2){ //If second step
                 var token=SmartCut(response,["token'","='"],"'");
                 params.step++;
@@ -3011,7 +3012,7 @@ var isDragingPrev=false;
 //######################
 // Declaration variables
 //######################
-
+debugger;
 //##############################
 // Process autologin and Authent
 //##############################
