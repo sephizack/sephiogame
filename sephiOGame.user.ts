@@ -1,21 +1,18 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.7.5
+// @version     3.7.6
 // @description Script Ogame
 // @author      Sephizack
-// @include     http://s*.ogame.gameforge.com/game/*
-// @include     https://s*.ogame.gameforge.com/game/*
-// @include     http://fr.ogame.gameforge.com/
-// @include     https://fr.ogame.gameforge.com/
-// @exclude     http://s*.ogame.gameforge.com/feed/*
-// @exclude     https://s*.ogame.gameforge.com/feed/*
-// @exclude     https://*.ogame.gameforge.com/board*
-// @exclude     http://www.*
-// @exclude     https://www.*
-// @exclude     http://www.sephiogame.com*
-// @exclude     http://*ajax=1*
-// @exclude     https://*ajax=1*
+
+// @exclude     /^(http|https)://s.*\.ogame\.gameforge\.com/feed/.*$/
+// @exclude     /^(http|https)://s.*\.ogame\.gameforge\.com/board/.*$/
+// @exclude     /^(http|https)://www\.sephiogame\.com/.*$/
+// @exclude     /^(http|https)://www.*$/
+// @exclude     /^(http|https)://.*ajax=1.*$/
+// @include     /^(http|https)://s.*\.ogame\.gameforge\.com/game/index.php.*$/
+// @include     /^(http|https)://fr\.ogame\.gameforge\.com/$/
+
 // @copyright   2012+, You
 // @updateURL   http://www.sephiogame.com/script/sephiOGame.user.js
 // @require     http://code.jquery.com/jquery-1.9.1.min.js
