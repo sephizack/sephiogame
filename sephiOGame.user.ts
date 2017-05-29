@@ -1066,6 +1066,8 @@ function get_info_button(button){
         value=($("#"+button+" :input:text").val() != "")?parseInt($("#"+button+" :input:text").val().match(/\d+/g).join("")):0;
     }
     return([current_level,evol_level,value]);
+
+    current_level=null;evol_level=null;value=null;
 }
 function set_info_button(button, value){
     if ($("#"+button+" :input:text").length > 0)
@@ -1422,8 +1424,8 @@ function check_attack() {
                                 if (alert_mail_to !== '' && (readData('attack_advert','all') == null || (time()-parseInt(readData('attack_advert','all'))) > parseInt(readData('alert_mail_freq','all'))*60*1000) )
                                     setTimeout(send_alert_mail(planame_list[planet_list_coords.indexOf(coords)],coords,isOnLune,time_attack),2000);
 								
-								if (readData('webhook_advert_'+cp_attacked,'all') == null)
-									setTimeout(send_to_webhook(planame_list[planet_list_coords.indexOf(coords)],coords,isOnLune,time_attack,time_arrival,planet_origin,coords_origin, total_fleets_origin, liste_fleets_origin),2000);
+								if (readData('webhook_advert_'+cp_attacked,'all') == null && (url_webhook != null || url_webhook.trim() != ""))
+                                    setTimeout(send_to_webhook(planame_list[planet_list_coords.indexOf(coords)],coords,isOnLune,time_attack,time_arrival,planet_origin,coords_origin, total_fleets_origin, liste_fleets_origin),2000);
 
                                 if (time_attack > start_after_less) return;
 
@@ -1566,6 +1568,7 @@ function get_fleets_capacity(outType="array", obj) {
             temp_ships_volume+=$(this)[0].id.replace("button","am") +"="+ $(this).find('a span.ecke span.level').html().match(/<\/span>(.*)$/)[1].replace('.','') +"&";
         });
         return ((outType == "array")?temp_fleets_volume:temp_ships_volume.substr(0,temp_ships_volume.length-1));
+        var temp_fleets_volume=null;temp_ships_volume=null;
     }
 }
 
@@ -2591,7 +2594,6 @@ function SendFleet(response){
             break;
         case 'fleet2':
 			//Info('Response >',response,'<');
-            debugger;
             if (params.step ==2){ //If second step
                 var token=SmartCut(response,["token'","='"],"'");
                 params.step++;
@@ -2880,6 +2882,7 @@ function build_login_data(){
     data += '        </form>';
     data += '        </div>';
     return(data);
+    data=null;
 }
 
 //add "Lance Full expedition" action into the planet menu when displayed
@@ -3012,7 +3015,7 @@ var isDragingPrev=false;
 //######################
 // Declaration variables
 //######################
-debugger;
+
 //##############################
 // Process autologin and Authent
 //##############################
@@ -3221,7 +3224,7 @@ $('#officers').addClass("one");
 // Variable temporelle de changement de planetes
 plapla_change_time1 = 1;
 plapla_change_time2 = 3;
-url_webhook=(readData("url_webhook", "all") == null)?"":readData("url_webhook", "all");
+url_webhook=(readData("url_webhook", "all") == null || readData("url_webhook", "all").trim() == "")?"":readData("url_webhook", "all");
 //$(".smallplanet").mouseover(function(){setTimeout(planetmenu_isVisible(),1500)});
 
 //##################################
@@ -4354,7 +4357,7 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='           <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Ejecter également les vaisseaux de combat : <input '+(eject_all ? 'checked' : '')+' type="checkbox" id="eject_all" style="position:relative;top:2px;"/></span><br>';
     sephi_frigos_data+='           <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Prioriser les ressources Métal: <select id="ress_priority_metal" style="visibility: visible;"><option value="1" '+(ress_priority_metal == '1' ? 'selected':'')+'>Priority 1</option><option value="2" '+(ress_priority_metal == '2' ? 'selected':'')+'>Priority 2</option><option value="3" '+(ress_priority_metal == '3' ? 'selected':'')+'>Priority 3</option></select>&nbsp;Crystal: <select id="ress_priority_crystal" style="visibility: visible;"><option value="1" '+(ress_priority_crystal == '1' ? 'selected':'')+'>Priority 1</option><option value="2" '+(ress_priority_crystal == '2' ? 'selected':'')+'>Priority 2</option><option value="3" '+(ress_priority_crystal == '3' ? 'selected':'')+'>Priority 3</option></select>&nbsp;Deut: <select id="ress_priority_deut" style="visibility: visible;"><option value="1" '+(ress_priority_deut == '1' ? 'selected':'')+'>Priority 1</option><option value="2" '+(ress_priority_deut == '2' ? 'selected':'')+'>Priority 2</option><option value="3" '+(ress_priority_deut == '3' ? 'selected':'')+'>Priority 3</option></select></span><br/>';
     sephi_frigos_data+='           <table style="width:507px;color:#6f9fc8;"><tr>';
-    sephi_frigos_data+='             <th style="width:700px;text-align:center;"><span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Coords planet d\'éjection <input type="text" style="width: 25px;position:relative;margin-left:30px;text-align:center;" value="'+eject_gal+'" title="Galaxie" id="eject_galaxy" onclick="if (this.value == \'Galaxie\') this.value=\'\';"/><input type="text" style="width: 25px;position:relative;margin-left:5px;text-align:center;" value="'+eject_sys+'" title="Système" id="eject_system" onclick="if (this.value == \'Système\') this.value=\'\';"/><input type="text" style="width: 25px;position:relative;margin-left:5px;text-align:center;" value="'+eject_pla+'" title="Planète" id="eject_planet" onclick="if (this.value == \'Planète\') this.value=\'\';"/></span><br><span style="position:relative;left:20px"><input type="checkbox" id="ejectLune" title="Si vous cochez cette case, l\'éjection se fera sur la lune des coordonnées demandées." style="position:relative;top:2px;" '+(eject_onLune?'checked':'')+'/> Ejecter vers sa lune</span></th>';
+    sephi_frigos_data+='             <th style="width:700px;text-align:center;"><span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Coords planet d\'éjection <input type="text" style="width: 25px;position:relative;margin-left:30px;text-align:center;" value="'+eject_gal+'" title="Galaxie" id="eject_galaxy" onclick="if (this.value == \'Galaxie\') this.value=\'\';"/><input type="text" style="width: 25px;position:relative;margin-left:5px;text-align:center;" value="'+eject_sys+'" title="Système" id="eject_system" onclick="if (this.value == \'Système\') this.value=\'\';"/><input type="text" style="width: 25px;position:relative;margin-left:5px;text-align:center;" value="'+eject_pla+'" title="Planète" id="eject_planet" onclick="if (this.value == \'Planète\') this.value=\'\';"/></span><br><span style="position:relative;left:20px"><input type="checkbox" id="ejectLune" title="Si vous cochez cette case, l\'éjection se fera sur la lune des coordonnées demandées." style="position:relative;top:2px;" '+(eject_onLune?'checked':'')+'/> Ejecter vers la lune de cette planete</span></th>';
     sephi_frigos_data+='             <th style="width:300px;text-align:right;position:relative;left:-20px;top:0px;"><span class="factorbutton"><input class="btn_blue" id="eject_save_button" style="" type="button" value="Enregistrer"></span></th>';
     sephi_frigos_data+='           </tr></table>';
     sephi_frigos_data+='        </p><br>';
