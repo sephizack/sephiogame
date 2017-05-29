@@ -3,6 +3,7 @@ Fonctionnalitées:
 - Activation ou désactivation d'une alerte sonore sur attaque
 - Activation ou désactivation de la rotation des planetes.
 - Sauvegarde/chargement des données en JSON (avec prise en compte ancien système de format de données)
+- Programmation multiples (chantiers, recherches)
 - Programmation pack sur nouvelle ou existante planete ou Lune
 - Auto ejection sur attaque configurable (ejection avant 5, 10,15mins)
 - Add capability to set the leave slot
