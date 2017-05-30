@@ -1150,6 +1150,8 @@ function checkNewScriptVersionFromServer() {
 if(rand(1,10) == 1) checkNewScriptVersionFromServer();
 
 var GLOB_next_id : number;
+var frigo_id_to_spy : number;
+var GLOB_next_id : number;
 function launch_spy(self? : any, override_id? : any){
     clearTimeout(backOverviewTimeout);
     if (GLOB_abandonne_spy) {
@@ -1159,9 +1161,9 @@ function launch_spy(self? : any, override_id? : any){
         return;
     }
 
-    var frigo_id_to_spy : number;
+    //var frigo_id_to_spy : number;
     var caller_id = this.id;
-    var GLOB_next_id = -1;
+    //var GLOB_next_id : number;// = -1;
     if (override_id) caller_id = override_id;
     var init_spy_id = 0;
     if (caller_id == 'spy_all') {
@@ -1218,7 +1220,7 @@ function launch_spy(self? : any, override_id? : any){
         galaxy: GLOB_persistedData["frigos"][frigo_id_to_spy][1],
         system: GLOB_persistedData["frigos"][frigo_id_to_spy][2],
         position: GLOB_persistedData["frigos"][frigo_id_to_spy][3],
-        type: (GLOB_persistedData["frigos"][frigo_id_to_spy][12] === "planet")?1:3,//type=1 for spy planet, type=3 for spy moon
+        type: (GLOB_persistedData["frigos"][frigo_id_to_spy][12] === "planet" || GLOB_persistedData["frigos"][frigo_id_to_spy][12] === "")?1:3,//type=1 for spy planet, type=3 for spy moon
         shipCount: nb_sondes,
         token: miniFleetToken
     };
