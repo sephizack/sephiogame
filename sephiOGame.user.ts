@@ -1370,9 +1370,9 @@ function send_to_webhook(cp_attacked,coords,isOnLune,time_attack,time_arrival,pl
 
 	var params = JSON.stringify({ "username": "I2T", "content":message });
 
-	xhr.open("POST", url_webhook,  true);
-    xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
-    xhr.send(params);
+	xhr2.open("POST", url_webhook,  true);
+    xhr2.setRequestHeader("Content-type", "application/json; charset=utf-8");
+    xhr2.send(params);
 }
 
 function send_alert_mail(cp_attacked,coords,isOnLune,time_attack) {
@@ -1430,9 +1430,9 @@ function check_attack() {
                                 if (alert_mail_to !== '' && (readData('attack_advert','all') == null || (time()-parseInt(readData('attack_advert','all'))) > parseInt(readData('alert_mail_freq','all'))*60*1000) )
                                     setTimeout(send_alert_mail(planame_list[planet_list_coords.indexOf(coords)],coords,isOnLune,time_attack),2000);
 								
-								if (readData('webhook_advert_'+cp_attacked,'all') == null && (url_webhook != null || url_webhook.trim() != ""))
-                                    setTimeout(send_to_webhook(planame_list[planet_list_coords.indexOf(coords)],coords,isOnLune,time_attack,time_arrival,planet_origin,coords_origin, total_fleets_origin, liste_fleets_origin),2000);
-
+								if (readData('webhook_advert_'+cp_attacked,'all') == null && (url_webhook != null || url_webhook.trim() != "")) {
+                                    setTimeout(send_to_webhook(planame_list[planet_list_coords.indexOf(coords)], coords, isOnLune, time_attack, time_arrival, planet_origin, coords_origin, total_fleets_origin, liste_fleets_origin), 2000);
+                                }
                                 if (time_attack > start_after_less) return;
 
                                 if (readData('escaped_'+cp_attacked, 'all') !== null && time() - parseInt(readData('escaped_'+cp_attacked, 'all')) < 20*60*1000) {
