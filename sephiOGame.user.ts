@@ -1153,6 +1153,7 @@ var GLOB_next_id : number;
 var frigo_id_to_spy : number;
 var GLOB_next_id : number;
 function launch_spy(self? : any, override_id? : any){
+    debugger;
     clearTimeout(backOverviewTimeout);
     if (GLOB_abandonne_spy) {
         GLOB_abandonne_spy=false;
@@ -1294,11 +1295,22 @@ function launch_spy(self? : any, override_id? : any){
                 blit_message('<span style="float: none;margin: 0;color:#d43635">Pas assez de deutérium</span> pour espionner '+GLOB_persistedData["frigos"][frigo_id_to_spy][0]);
                 GLOB_next_id = frigo_id_to_spy+1;
                 wait_sec=2;
+            } else if (dateESP.response.message.match('pas de vaisseaux') && frigo_id_to_spy == 0) {
+                blit_message('<span style="float: none;margin: 0;color:#d43635">Pas de vaisseaux</span> pour espionner. Retour.');
+                $('#auto_attack').html('&#9658; Aucun vaisseau ne permet d\'espionner vos frigos');
+                $('#spy_all').html('&#9658; Espionnage des frigos terminé.');
+                $('#spy_all').css('color','#F02020');
+                $('#rap_gene').html('&#9658; Aucun espionnage effectué.');
+                $('#rap_gene').css('color','#F02020');
+                clearTimeout(spyTimeout);
+                GLOB_abandonne_spy = true;
+                setTimeout(function(){window.location.href = 'https://'+univers+'/game/index.php?page=overview';}, 10000);
+                return;
             } else {
                 GLOB_next_id = frigo_id_to_spy;
                 //Imp2Toulouse- Increase de delay for waiting spy back
                 wait_sec=rand(6,15);
-                setTimeout(function(){blit_message('<span style="float: none;margin: 0;">Erreur d\'espionnage : Nouvel essai dans '+wait_sec+' secondes</span>');}, 2000);
+                setTimeout(function(){blit_message('<span style="float: none;margin: 0;">Erreur d\'espionnage : '+dateESP.response.message+'<br>Nouvel essai dans '+wait_sec+' secondes</span>');}, 2000);
                 $('#spy_all').html('&#9658; Espionnage des frigos en cours... (Nouvel essai dans '+wait_sec+' secondes)');
 
                 // Au bout de 5 erreurs on abandonne
