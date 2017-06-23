@@ -1,21 +1,18 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.7.5
+// @version     3.7.6
 // @description Script Ogame
 // @author      Sephizack
-// @include     http://s*.ogame.gameforge.com/game/*
-// @include     https://s*.ogame.gameforge.com/game/*
-// @include     http://fr.ogame.gameforge.com/
-// @include     https://fr.ogame.gameforge.com/
-// @exclude     http://s*.ogame.gameforge.com/feed/*
-// @exclude     https://s*.ogame.gameforge.com/feed/*
-// @exclude     https://*.ogame.gameforge.com/board*
-// @exclude     http://www.*
-// @exclude     https://www.*
-// @exclude     http://www.sephiogame.com*
-// @exclude     http://*ajax=1*
-// @exclude     https://*ajax=1*
+
+// @exclude     /^(http|https)://s.*\.ogame\.gameforge\.com/feed/.*$/
+// @exclude     /^(http|https)://s.*\.ogame\.gameforge\.com/board/.*$/
+// @exclude     /^(http|https)://www\.sephiogame\.com/.*$/
+// @exclude     /^(http|https)://www.*$/
+// @exclude     /^(http|https)://.*ajax=1.*$/
+// @include     /^(http|https)://s.*\.ogame\.gameforge\.com/game/index.php.*$/
+// @include     /^(http|https)://fr\.ogame\.gameforge\.com/$/
+
 // @copyright   2012+, You
 // @updateURL   http://www.sephiogame.com/script/sephiOGame.user.js
 // @require     http://code.jquery.com/jquery-1.9.1.min.js
@@ -88,10 +85,6 @@
 //3.7.3
 //         - Correction "Report general" when spy report on planet was not a frigo
 //         - Change match regex to improve detection of old spy report on detroyed planet
-//3.7.2:               * Fixed Save/Load 
-//3.7.4
-//         - Correction "Report general" when spy report on planet was not a frigo
-//         - Change match regex to improve detection of old spy report on detroyed planet
 //3.7.4
 //         - Correction "add frigo" on galaxy view
 //         - Correction auto-eject bug on attack
@@ -101,6 +94,8 @@
 //         - Add webhook functionnality (to announce attack in webhookapps like discord)
 //3.7.6
 //         - Improve last version check (real call)
+//         - Add functionnality allowing to add MOON as frigo from galaxy and message pages
+//           Update spy process in order to spy moon too.
 
 declare var $: JQueryStatic;
 
@@ -193,7 +188,7 @@ function blit_message_time(message : string, time : number) {
  *
  * @param  {authResult} result of the Auth request
  */
-function Auth_Load_Saev_info(authResult) {
+function Auth_Load_Save_info(authResult) {
     if (authResult && !authResult.error) {
         storeData('gapi_auth',time().toString(),'all');
         storeData('gapi_token',authResult.access_token,'all');
@@ -634,7 +629,8 @@ function change_actions_tab(action_tab){
                     //END DETECTION
                 }
 				//Detection type frigo
-				typeFrigo=($(this).find('.msg_head .msg_title figure.moon').length >0)?"moon":"planet";
+				var typeFrigo=($(this).find('.msg_head .msg_title figure.moon').length >0)?"moon":"planet";
+                coord+=(typeFrigo ==="moon")?"Lune":"";
                 if (planame && coord) {
                     [,galaxy,system,planet] = coord.match(/\[(.*):(.*):(.*)\]/);
 
@@ -924,13 +920,11 @@ function save_list_in_cookies() {
         )
        ) {
         if (readData('add_racc','all') != null && parseInt(readData('add_racc','all')) > 0) {
-            messageID = parseInt(readData('add_racc','all'));
+            var messageID = readData('add_racc','all');
             storeData('add_racc', '0', 'all');
-            $('#raccourcis_name_sep'+messageID).focus();
-
-            cur_nb=GLOB_persistedData["frigos"].length;
+            $('#raccourcis_name_sep'+messageID).focus()
+            var cur_nb=GLOB_persistedData["frigos"].length;
             GLOB_persistedData["frigos"][cur_nb] = new Array();
-
             //Nom du frigo
             GLOB_persistedData["frigos"][cur_nb][0] = $('#raccourcis_name_sep'+messageID).val().replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
             //Galaxy
@@ -971,7 +965,7 @@ function save_list_in_cookies() {
             //all_del_racc contents coord
             var delid=is_frigo(GLOB_persistedData["frigos"],readData('del_racc','all'));
             storeData('del_racc', '0', 'all');
-            frig_name=GLOB_persistedData["frigos"][delid][0];
+            var frig_name=GLOB_persistedData["frigos"][delid][0];
             GLOB_persistedData["frigos"].splice(delid, 1);
 
             save_important_vars();
@@ -1035,13 +1029,18 @@ function edit_frigo(){
 
 //Imp2Toulouse: Add function to factorize
 //browse all frigos and return id back else -1
-function is_frigo(frigos,coord){
+function is_frigo(frigos,coord:string){
 
     //Parcours des frigos: frigo trouvé pour cette galaxie, systeme et planete => return idFrigo
+    var Galaxy="",System="", Planet="", Type="";
+    [,Galaxy, System, Planet, Type]=coord.match(/\[(.*):(.*):(.*)\](.*)/);
+    Type=(Type === "")?"planet":"moon";
+
     for (j=0 ; j<frigos.length ; j++){
-        if (   frigos[j][1] == coord.match(/\[(.*):.*:.*\]/)[1] // = Galaxy
-            && frigos[j][2] == coord.match(/\[.*:(.*):.*\]/)[1] // = System
-            && frigos[j][3] == coord.match(/\[.*:.*:(.*)\]/)[1] // = planet
+        if (   frigos[j][1] == Galaxy
+            && frigos[j][2] == System
+            && frigos[j][3] == Planet
+            && frigos[j][12] == Type
         ) {
             return(parseInt(j));
         }
@@ -1151,7 +1150,10 @@ function checkNewScriptVersionFromServer() {
 if(rand(1,10) == 1) checkNewScriptVersionFromServer();
 
 var GLOB_next_id : number;
+var frigo_id_to_spy : number;
+var GLOB_next_id : number;
 function launch_spy(self? : any, override_id? : any){
+    debugger;
     clearTimeout(backOverviewTimeout);
     if (GLOB_abandonne_spy) {
         GLOB_abandonne_spy=false;
@@ -1160,9 +1162,9 @@ function launch_spy(self? : any, override_id? : any){
         return;
     }
 
-    var frigo_id_to_spy : number;
+    //var frigo_id_to_spy : number;
     var caller_id = this.id;
-    var GLOB_next_id = -1;
+    //var GLOB_next_id : number;// = -1;
     if (override_id) caller_id = override_id;
     var init_spy_id = 0;
     if (caller_id == 'spy_all') {
@@ -1219,7 +1221,7 @@ function launch_spy(self? : any, override_id? : any){
         galaxy: GLOB_persistedData["frigos"][frigo_id_to_spy][1],
         system: GLOB_persistedData["frigos"][frigo_id_to_spy][2],
         position: GLOB_persistedData["frigos"][frigo_id_to_spy][3],
-        type: 1,
+        type: (GLOB_persistedData["frigos"][frigo_id_to_spy][12] === "planet" || GLOB_persistedData["frigos"][frigo_id_to_spy][12] === "")?1:3,//type=1 for spy planet, type=3 for spy moon
         shipCount: nb_sondes,
         token: miniFleetToken
     };
@@ -1293,11 +1295,22 @@ function launch_spy(self? : any, override_id? : any){
                 blit_message('<span style="float: none;margin: 0;color:#d43635">Pas assez de deutérium</span> pour espionner '+GLOB_persistedData["frigos"][frigo_id_to_spy][0]);
                 GLOB_next_id = frigo_id_to_spy+1;
                 wait_sec=2;
+            } else if (dateESP.response.message.match('pas de vaisseaux') && frigo_id_to_spy == 0) {
+                blit_message('<span style="float: none;margin: 0;color:#d43635">Pas de vaisseaux</span> pour espionner. Retour.');
+                $('#auto_attack').html('&#9658; Aucun vaisseau ne permet d\'espionner vos frigos');
+                $('#spy_all').html('&#9658; Espionnage des frigos terminé.');
+                $('#spy_all').css('color','#F02020');
+                $('#rap_gene').html('&#9658; Aucun espionnage effectué.');
+                $('#rap_gene').css('color','#F02020');
+                clearTimeout(spyTimeout);
+                GLOB_abandonne_spy = true;
+                setTimeout(function(){window.location.href = 'https://'+univers+'/game/index.php?page=overview';}, 10000);
+                return;
             } else {
                 GLOB_next_id = frigo_id_to_spy;
                 //Imp2Toulouse- Increase de delay for waiting spy back
                 wait_sec=rand(6,15);
-                setTimeout(function(){blit_message('<span style="float: none;margin: 0;">Erreur d\'espionnage : Nouvel essai dans '+wait_sec+' secondes</span>');}, 2000);
+                setTimeout(function(){blit_message('<span style="float: none;margin: 0;">Erreur d\'espionnage : '+dateESP.response.message+'<br>Nouvel essai dans '+wait_sec+' secondes</span>');}, 2000);
                 $('#spy_all').html('&#9658; Espionnage des frigos en cours... (Nouvel essai dans '+wait_sec+' secondes)');
 
                 // Au bout de 5 erreurs on abandonne
@@ -1369,9 +1382,9 @@ function send_to_webhook(cp_attacked,coords,isOnLune,time_attack,time_arrival,pl
 
 	var params = JSON.stringify({ "username": "I2T", "content":message });
 
-	xhr.open("POST", url_webhook,  true);
-    xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
-    xhr.send(params);
+	xhr2.open("POST", url_webhook,  true);
+    xhr2.setRequestHeader("Content-type", "application/json; charset=utf-8");
+    xhr2.send(params);
 }
 
 function send_alert_mail(cp_attacked,coords,isOnLune,time_attack) {
@@ -1429,9 +1442,9 @@ function check_attack() {
                                 if (alert_mail_to !== '' && (readData('attack_advert','all') == null || (time()-parseInt(readData('attack_advert','all'))) > parseInt(readData('alert_mail_freq','all'))*60*1000) )
                                     setTimeout(send_alert_mail(planame_list[planet_list_coords.indexOf(coords)],coords,isOnLune,time_attack),2000);
 								
-								if (readData('webhook_advert_'+cp_attacked,'all') == null)
-									setTimeout(send_to_webhook(planame_list[planet_list_coords.indexOf(coords)],coords,isOnLune,time_attack,time_arrival,planet_origin,coords_origin, total_fleets_origin, liste_fleets_origin),2000);
-
+								if (readData('webhook_advert_'+cp_attacked,'all') == null && (url_webhook != null || url_webhook.trim() != "")) {
+                                    setTimeout(send_to_webhook(planame_list[planet_list_coords.indexOf(coords)], coords, isOnLune, time_attack, time_arrival, planet_origin, coords_origin, total_fleets_origin, liste_fleets_origin), 2000);
+                                }
                                 if (time_attack > start_after_less) return;
 
                                 if (readData('escaped_'+cp_attacked, 'all') !== null && time() - parseInt(readData('escaped_'+cp_attacked, 'all')) < 20*60*1000) {
@@ -2775,7 +2788,7 @@ function check_galaxy_frigs() {
             GAL_check_cur_sys = parseInt($('#system_input').val());
             $("#mobileDiv .row").not(".empty_filter").each( function(index){
                 position=$(this).find("td.position").text();
-                if (planame_list.indexOf($(this).find("td.planetname").html().trim()) < 0) {
+                if (planame_list.indexOf($(this).find("td.planetname").text().trim()) < 0) {
                     if(is_frigo(GLOB_persistedData["frigos"],"["+GAL_check_cur_gal+":"+GAL_check_cur_sys+":"+position+"]") <0 ) {
                         b = $(this).find(('div#planet')+position);
                         if (b.length > 0) {
@@ -2783,26 +2796,59 @@ function check_galaxy_frigs() {
                             ListLinks += '<input type="hidden" id="raccourcis_name_sep'+position+'" value="'+b.find('.textNormal').html()+'">';
                             ListLinks += '<input type="hidden" id="galaxy'+position+'" value="'+b.find('.ListImage').html().match(/.*\[(.*):.*:.*\].*/)[1]+'">';
                             ListLinks += '<input type="hidden" id="system'+position+'" value="'+b.find('.ListImage').html().match(/.*\[.*:(.*):.*\].*/)[1]+'">';
-                            ListLinks += '<input type="hidden" id="position'+position+'" value="'+b.find('.ListImage').html().match(/.*\[.*:.*:(.*)\].*/)[1]+'"></li>';
-							ListLinks += '<input type="hidden" id="type'+position+'" value="planet">';
+                            ListLinks += '<input type="hidden" id="position'+position+'" value="'+b.find('.ListImage').html().match(/.*\[.*:.*:(.*)\].*/)[1]+'">';
+                            ListLinks += '<input type="hidden" id="type'+position+'" value="planet"></li>';
                             b.find('ul.ListLinks').append(ListLinks);
                         }
                     } else {
                         if ($(this).find("td.playername .status").html().match(/\(/)){
-                            $(this).find("td.playername .status").html($(this).find("td.playername .status").html().replace("</span>)", "</span>&nbsp;<span class=\"status_abbr_frigo\"><span class=\"status_abbr_frigo tooltipHTML js_hideTipOnMobile\" style=\"color:#A52592;font-weight:bold;\" title=\"Cible frigo|Ce joueur est un frigo, qui sera régulièrement pillé.\">F</span></span>)"));
+                            $(this).find("td.playername .status").html($(this).find("td.playername .status").html().replace("</span>)", "</span>&nbsp;<span class=\"status_abbr_frigo\"><span class=\"status_abbr_frigo tooltipHTML js_hideTipOnMobile\" style=\"color:#A52592;font-weight:bold;\" title=\"Cible frigo|La planete de ce joueur est un frigo qui sera régulièrement pillé.\">Fp</span></span>)"));
                         } else {
-                            $(this).find("td.playername .status").html('(<span class="status_abbr_frigo"><span class="status_abbr_frigo tooltipHTML js_hideTipOnMobile" style="color:#A52592;font-weight:bold;" title="Cible frigo|Ce joueur est un frigo, qui sera régulièrement pillé.">F</span>)</span>');
+                            $(this).find("td.playername .status").html('(<span class="status_abbr_frigo"><span class="status_abbr_frigo tooltipHTML js_hideTipOnMobile" style="color:#A52592;font-weight:bold;" title="Cible frigo|La planete de ce joueur est un frigo qui sera régulièrement pillé.">Fp</span>)</span>');
                         }
                         $(this).find("td.planetname").css({'color':'#A52592','font-weight':'bold'});
 
                         b = $(this).find(('div#planet')+position);
                         if (b.length > 0) {
-                            ListLinks =  '<li><a href="javascript:void(0);" onclick="localStorage.setItem(\'all_del_racc\', \''+(b.find('ul.ListImage li span#pos-planet').html())+'\');setTimeout(function(){$(\'#showbutton\').click();},500);this.onclick=null;" style="cursor:pointer;color:#A52592;font-weight:bold">Supprimer des frigos</a>';
+                            var ListLinks =  '<li><a href="javascript:void(0);" onclick="localStorage.setItem(\'all_del_racc\', \''+(b.find('ul.ListImage li span#pos-planet').html())+'\');setTimeout(function(){$(\'#showbutton\').click();},500);this.onclick=null;" style="cursor:pointer;color:#A52592;font-weight:bold">Supprimer des frigos</a>';
                             ListLinks += '<input type="hidden" id="raccourcis_name_sep'+(position)+'" value="'+b.find('.textNormal').html()+'">';
                             ListLinks += '<input type="hidden" id="galaxy'+(position)+'" value="'+b.find('ul.ListImage li span#pos-planet').html().match(/.*\[(.*):.*:.*\].*/)[1]+'">';
                             ListLinks += '<input type="hidden" id="system'+(position)+'" value="'+b.find('ul.ListImage li span#pos-planet').html().match(/.*\[.*:(.*):.*\].*/)[1]+'">';
-                            ListLinks += '<input type="hidden" id="position'+(position)+'" value="'+b.find('ul.ListImage li span#pos-planet').html().match(/.*\[.*:.*:(.*)\].*/)[1]+'"></li>';
-							ListLinks += '<input type="hidden" id="type'+position+'" value="planet">';
+                            ListLinks += '<input type="hidden" id="position'+(position)+'" value="'+b.find('ul.ListImage li span#pos-planet').html().match(/.*\[.*:.*:(.*)\].*/)[1]+'">';
+                            ListLinks += '<input type="hidden" id="type'+position+'" value="planet"></li>';
+                            b.find('ul.ListLinks').append(ListLinks);
+                        }
+                    }
+                }
+
+                if (planame_list.indexOf('Lune ('+$(this).find("td.planetname").text().trim()+')') < 0) {
+                    if(is_frigo(GLOB_persistedData["frigos"],"["+GAL_check_cur_gal+":"+GAL_check_cur_sys+":"+position+"]Lune") <0 ) {
+                        var b = $(this).find(('div#moon')+position);
+                        if (b.length > 0) {
+                            var ListLinks = '<li><a href="javascript:void(0);" onclick="localStorage.setItem(\'all_add_racc\', \''+position+'M'+'\');setTimeout(function(){$(\'#showbutton\').click();},500);this.onclick=null;" style="cursor:pointer;color:#A52592;font-weight:bold">Ajouter aux frigos</a>';
+                            ListLinks += '<input type="hidden" id="raccourcis_name_sep'+position+'M'+'" value="'+b.find('.textNormal').html()+'">';
+                            ListLinks += '<input type="hidden" id="galaxy'+position+'M'+'" value="'+b.find('.ListImage').html().match(/.*\[(.*):.*:.*\].*/)[1]+'">';
+                            ListLinks += '<input type="hidden" id="system'+position+'M'+'" value="'+b.find('.ListImage').html().match(/.*\[.*:(.*):.*\].*/)[1]+'">';
+                            ListLinks += '<input type="hidden" id="position'+position+'M'+'" value="'+b.find('.ListImage').html().match(/.*\[.*:.*:(.*)\].*/)[1]+'">';
+                            ListLinks += '<input type="hidden" id="type'+position+'M'+'" value="moon"></li>';
+                            b.find('ul.ListLinks').append(ListLinks);
+                        }
+                    } else {
+                        if ($(this).find("td.playername .status").html().match(/\(/)){
+                            $(this).find("td.playername .status").html($(this).find("td.playername .status").html().replace("</span>)", "</span>&nbsp;<span class=\"status_abbr_frigo\"><span class=\"status_abbr_frigo tooltipHTML js_hideTipOnMobile\" style=\"color:#A52592;font-weight:bold;\" title=\"Cible frigo|La lune de ce joueur est un frigo qui sera régulièrement pillé.\">Fl</span></span>)"));
+                        } else {
+                            $(this).find("td.playername .status").html('(<span class="status_abbr_frigo"><span class="status_abbr_frigo tooltipHTML js_hideTipOnMobile" style="color:#A52592;font-weight:bold;" title="Cible frigo|La lune de ce joueur est un frigo qui sera régulièrement pillé.">Fl</span>)</span>');
+                        }
+                        $(this).find("td.planetname").css({'color':'#A52592','font-weight':'bold'});
+
+                        var b = $(this).find(('div#moon')+position);
+                        if (b.length > 0) {
+                            var ListLinks =  '<li><a href="javascript:void(0);" onclick="localStorage.setItem(\'all_del_racc\', \''+(b.find('ul.ListImage li span#pos-moon').html())+'Lune\');setTimeout(function(){$(\'#showbutton\').click();},500);this.onclick=null;" style="cursor:pointer;color:#A52592;font-weight:bold">Supprimer des frigos</a>';
+                            ListLinks += '<input type="hidden" id="raccourcis_name_sep'+(position)+'M" value="'+b.find('.textNormal').html()+'">';
+                            ListLinks += '<input type="hidden" id="galaxy'+(position)+'M" value="'+b.find('ul.ListImage li span#pos-moon').html().match(/.*\[(.*):.*:.*\].*/)[1]+'">';
+                            ListLinks += '<input type="hidden" id="system'+(position)+'M" value="'+b.find('ul.ListImage li span#pos-moon').html().match(/.*\[.*:(.*):.*\].*/)[1]+'">';
+                            ListLinks += '<input type="hidden" id="position'+(position)+'M" value="'+b.find('ul.ListImage li span#pos-moon').html().match(/.*\[.*:.*:(.*)\].*/)[1]+'">';
+                            ListLinks += '<input type="hidden" id="type'+position+'M" value="moon"></li>';
                             b.find('ul.ListLinks').append(ListLinks);
                         }
                     }
@@ -3197,7 +3243,7 @@ $('#officers').addClass("one");
 // Variable temporelle de changement de planetes
 plapla_change_time1 = 1;
 plapla_change_time2 = 3;
-url_webhook=(readData("url_webhook", "all") == null)?"":readData("url_webhook", "all");
+url_webhook=(readData("url_webhook", "all") == null || readData("url_webhook", "all").trim() == "")?"":readData("url_webhook", "all");
 //$(".smallplanet").mouseover(function(){setTimeout(planetmenu_isVisible(),1500)});
 
 //##################################
@@ -4330,7 +4376,7 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='           <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Ejecter également les vaisseaux de combat : <input '+(eject_all ? 'checked' : '')+' type="checkbox" id="eject_all" style="position:relative;top:2px;"/></span><br>';
     sephi_frigos_data+='           <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Prioriser les ressources Métal: <select id="ress_priority_metal" style="visibility: visible;"><option value="1" '+(ress_priority_metal == '1' ? 'selected':'')+'>Priority 1</option><option value="2" '+(ress_priority_metal == '2' ? 'selected':'')+'>Priority 2</option><option value="3" '+(ress_priority_metal == '3' ? 'selected':'')+'>Priority 3</option></select>&nbsp;Crystal: <select id="ress_priority_crystal" style="visibility: visible;"><option value="1" '+(ress_priority_crystal == '1' ? 'selected':'')+'>Priority 1</option><option value="2" '+(ress_priority_crystal == '2' ? 'selected':'')+'>Priority 2</option><option value="3" '+(ress_priority_crystal == '3' ? 'selected':'')+'>Priority 3</option></select>&nbsp;Deut: <select id="ress_priority_deut" style="visibility: visible;"><option value="1" '+(ress_priority_deut == '1' ? 'selected':'')+'>Priority 1</option><option value="2" '+(ress_priority_deut == '2' ? 'selected':'')+'>Priority 2</option><option value="3" '+(ress_priority_deut == '3' ? 'selected':'')+'>Priority 3</option></select></span><br/>';
     sephi_frigos_data+='           <table style="width:507px;color:#6f9fc8;"><tr>';
-    sephi_frigos_data+='             <th style="width:700px;text-align:center;"><span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Coords planet d\'éjection <input type="text" style="width: 25px;position:relative;margin-left:30px;text-align:center;" value="'+eject_gal+'" title="Galaxie" id="eject_galaxy" onclick="if (this.value == \'Galaxie\') this.value=\'\';"/><input type="text" style="width: 25px;position:relative;margin-left:5px;text-align:center;" value="'+eject_sys+'" title="Système" id="eject_system" onclick="if (this.value == \'Système\') this.value=\'\';"/><input type="text" style="width: 25px;position:relative;margin-left:5px;text-align:center;" value="'+eject_pla+'" title="Planète" id="eject_planet" onclick="if (this.value == \'Planète\') this.value=\'\';"/></span><br><span style="position:relative;left:20px"><input type="checkbox" id="ejectLune" title="Si vous cochez cette case, l\'éjection se fera sur la lune des coordonnées demandées." style="position:relative;top:2px;" '+(eject_onLune?'checked':'')+'/> Ejecter vers sa lune</span></th>';
+    sephi_frigos_data+='             <th style="width:700px;text-align:center;"><span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Coords planet d\'éjection <input type="text" style="width: 25px;position:relative;margin-left:30px;text-align:center;" value="'+eject_gal+'" title="Galaxie" id="eject_galaxy" onclick="if (this.value == \'Galaxie\') this.value=\'\';"/><input type="text" style="width: 25px;position:relative;margin-left:5px;text-align:center;" value="'+eject_sys+'" title="Système" id="eject_system" onclick="if (this.value == \'Système\') this.value=\'\';"/><input type="text" style="width: 25px;position:relative;margin-left:5px;text-align:center;" value="'+eject_pla+'" title="Planète" id="eject_planet" onclick="if (this.value == \'Planète\') this.value=\'\';"/></span><br><span style="position:relative;left:20px"><input type="checkbox" id="ejectLune" title="Si vous cochez cette case, l\'éjection se fera sur la lune des coordonnées demandées." style="position:relative;top:2px;" '+(eject_onLune?'checked':'')+'/> Ejecter vers la lune de cette planete</span></th>';
     sephi_frigos_data+='             <th style="width:300px;text-align:right;position:relative;left:-20px;top:0px;"><span class="factorbutton"><input class="btn_blue" id="eject_save_button" style="" type="button" value="Enregistrer"></span></th>';
     sephi_frigos_data+='           </tr></table>';
     sephi_frigos_data+='        </p><br>';
@@ -4706,7 +4752,7 @@ if (lastActu !== null) {
 }
 
 // Affiche les frigos sur la page galaxie et ajouter un bouton "ajouter aux frigos" //Imp2Toulouse- et ajouter un bouton "Supprimer des frigos"
-last_gal_state="";
+var last_gal_state="",cur_gal_state="",GAL_check_cur_gal="",GAL_check_cur_sys="";
 if (gup('page') == "galaxy") setInterval(check_galaxy_frigs,100);
 
 // Fonction d'activation du pack
