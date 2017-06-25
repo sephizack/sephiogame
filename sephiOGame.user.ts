@@ -3367,9 +3367,9 @@ if (cur_version !== last_page_version) {
 
 /* Enregiste la vitesse de production */
 GLOB_persistedData["prods"] = new Array();
-GLOB_persistedData["prods"][0] = $(document.body).html().split('Production actuelle\\u00a0:')[1].split('<span')[1].split('/span>')[0].match(/\d/g).join("");//($(document.body).html().split(',"tooltip":')[1].split('<span')[3].split('/span>')[0] == null)?0:parseInt($(document.body).html().split(',"tooltip":')[1].split('<span')[3].split('/span>')[0].match(/\d/g).join(""));
-GLOB_persistedData["prods"][1] = $(document.body).html().split('Production actuelle\\u00a0:')[2].split('<span')[1].split('/span>')[0].match(/\d/g).join("");//($(document.body).html().split(',"tooltip":')[2].split('<span')[3].split('/span>')[0] == null)?0:parseInt($(document.body).html().split(',"tooltip":')[2].split('<span')[3].split('/span>')[0].match(/\d/g).join(""));
-GLOB_persistedData["prods"][2] = $(document.body).html().split('Production actuelle\\u00a0:')[3].split('<span')[1].split('/span>')[0].match(/\d/g).join("");//($(document.body).html().split(',"tooltip":')[3].split('<span')[3].split('/span>')[0] == null)?0:parseInt($(document.body).html().split(',"tooltip":')[3].split('<span')[3].split('/span>')[0].match(/\d/g).join(""));
+GLOB_persistedData["prods"][0] = parseInt($(document.body).html().split('Production actuelle\\u00a0:')[1].split('<span')[1].split('/span>')[0].match(/\d/g).join(""));//parseInt($(document.body).html().split(',"tooltip":')[1].split('<span')[3].split('/span>')[0].match(/\d/g).join(""));
+GLOB_persistedData["prods"][1] = parseInt($(document.body).html().split('Production actuelle\\u00a0:')[2].split('<span')[1].split('/span>')[0].match(/\d/g).join(""));//parseInt($(document.body).html().split(',"tooltip":')[2].split('<span')[3].split('/span>')[0].match(/\d/g).join(""));
+GLOB_persistedData["prods"][2] = parseInt($(document.body).html().split('Production actuelle\\u00a0:')[3].split('<span')[1].split('/span>')[0].match(/\d/g).join(""));//parseInt($(document.body).html().split(',"tooltip":')[3].split('<span')[3].split('/span>')[0].match(/\d/g).join(""));
 
 /* lit votre capacité de stockage */
 capa_metal = parseInt($(document.body).html().split(',"max":')[1].split(',')[0].match(/\d/g).join(""));
