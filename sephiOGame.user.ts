@@ -473,7 +473,6 @@ function add_programmation_button() {
             // Program button
             //I2T: Pour compatibilité AGO
             //var ori_build_button = $("#content").find('a').last();
-            debugger;
             var ori_build_button = ($("#content").find('a.build-it_premium').length == 1)?$("#content").find('a.build-it_premium'):$("#content").find('a.build-it');
             ori_build_button.css('position', 'absolute')//'relative');
             ori_build_button.css('right', '5px');
