@@ -430,7 +430,7 @@ function get_prevision_bar_html(i, textSupp, textSupp2, infotitle, color,cost_me
 }
 
 function get_cost(data, type) {
-    if (data.match('energy')) return 0;
+    //if (data.match('energy')) return 0;
     tmp = data.split('<li class="'+type);
     if (tmp[0] !== data) {
         data = tmp[1].split('class="cost')[1].split("</")[0];
@@ -441,10 +441,9 @@ function get_cost(data, type) {
 }
 
 function add_programmation_button() {
-    if (gup('page') !== 'premium' && $("#content").length >0 && $("#content").children()[0].tagName == 'H2') {
+    if ( gup('page') !== 'premium' && gup('page') !== 'shop' && $("#content").length >0 && $("#content").children()[0].tagName == 'H2') {
         title=$("#content").children()[0].innerText;
         if (title !== cur_title) {
-
             var ress_metal = $("span#resources_metal").html().replace(/\./g,"");
             var ress_crystal = $("span#resources_crystal").html().replace(/\./g,"");
             var ress_deuterium = $("span#resources_deuterium").html().replace(/\./g,"");
@@ -463,7 +462,7 @@ function add_programmation_button() {
             tmp = Math.floor(parseInt(ress_deuterium)/parseInt(cost_deuterium));
             if (tmp < max_nb) max_nb = tmp;
             max_text = '';
-            if (max_nb > 0) max_text = '[max. '+max_nb+']';
+            if (max_nb > 0) max_text = max_nb; //max_text = '[max. '+max_nb+']';
 
             det = $("div#detail").html();
             form_modus = $('div#detail input[name="modus"]').val();
@@ -472,14 +471,19 @@ function add_programmation_button() {
             form_number = ($('#number').length > 0)?$('#number').val():"";
 
             // Program button
-            var ori_build_button = $("#content").find('a').last();
-            ori_build_button.css('position', 'relative');
-            ori_build_button.css('top', '-16px')
+            //I2T: Pour compatibilité AGO
+            //var ori_build_button = $("#content").find('a').last();
+            debugger;
+            var ori_build_button = ($("#content").find('a.build-it_premium').length == 1)?$("#content").find('a.build-it_premium'):$("#content").find('a.build-it');
+            ori_build_button.css('position', 'absolute')//'relative');
+            ori_build_button.css('right', '5px');
             var build_button = ori_build_button.clone();
+            (AGO_actif)?ori_build_button.css('top', '35px'):ori_build_button.css('top', '80px');//'-16px');//'-85px')
             build_button.attr('class', 'build-it');
             build_button.attr('href', '#');
             build_button.css('background-image', 'url(http://www.sephiogame.com/script/d99a48dc0f072590fbf110ad2a3ef5.png)');
             build_button.children()[0].innerHTML = LANG_programm;
+            (AGO_actif)?build_button.css('top', '-16px'):build_button.css('top', '25px');//'-16px');//'-85px');
             build_button.click(function (e) {
                 $(e.currentTarget).css('backgroundImage', 'url(http://www.sephiogame.com/script/sfdgdfshsdhg.png)');
                 $(e.currentTarget).prop('disabled', true);
@@ -510,7 +514,14 @@ function add_programmation_button() {
                 + '<div style="display:none" id="is_ok_prev">no</div>')
             // Max number
             var p_amount = $("#content").find('p.amount')
-            if (p_amount.length > 0) p_amount.first().append(' <span style="color:#ffffff">'+max_text+'</span>')
+            var div_enter = $("#content").find('div.enter');
+            if (p_amount.length > 0) {
+                p_amount.html(p_amount.html().replace(":"," max:"))
+                p_amount.first().append(' <span style="color:#ffffff">'+max_text+'</span>');
+                p_amount.css('display','block');
+            }
+            div_enter.css('top','125px');
+            (AGO_actif)?div_enter.css('right','16px'):div_enter.css('right','-110px');
 
             $("#content").find('a#close').on("click",function(){
                 $('div#detail').css("display", 'none');
@@ -533,7 +544,7 @@ function add_programmation_button() {
             }
         }
         //set down info_prog
-        $('#info_prog').css("top",parseInt(($("div#detail").css('display') !== 'none')?$('#detail').height():$('#detail').height()-30)+'px');
+        //$('#info_prog').css("top",parseInt(($("div#detail").css('display') !== 'none')?$('#detail').height():$('#detail').height()-30)+'px');
     }
     setTimeout(add_programmation_button, 500);
 }
@@ -578,9 +589,9 @@ function change_actions_tab(action_tab){
                 url_parent = parent.attr("href");
                 url_pt = url_parent.replace("mission=1", "mission=1&auto=yes&ID=0&PT=" + (1 + Math.floor(butin / 5000)) + "&Referer=" + (encodeURIComponent($(location).attr('href').replace(/.*\?(.*)/g, "$1"))));
                 url_gt = url_parent.replace("mission=1", "mission=1&auto=yes&ID=0&GT=" + (1 + Math.floor(butin / 25000)) + "&Referer=" + (encodeURIComponent($(location).attr('href').replace(/.*\?(.*)/g, "$1"))));
-                title = "</span>Butin&nbsp;:" + butin + "<br><a href='" + url_pt + "'>P.Transp&nbsp;:" + (1 + Math.floor(butin / 5000)) + "</a><br><a href='" + url_gt + "'>G.Transp&nbsp;:" + (1 + Math.floor(butin / 25000)) + "</a>";
-                $(this).attr("title", title);
+                title = "Butin&nbsp;:" + butin + "<br><a href='" + url_pt + "'>P.Transp&nbsp;:" + (1 + Math.floor(butin / 5000)) + "</a><br><a href='" + url_gt + "'>G.Transp&nbsp;:" + (1 + Math.floor(butin / 25000)) + "</a>";
                 $(this).addClass("tooltipCustom tooltip-width:400");
+                $(this).attr("title", title);
                 var url_parent = null;
                 var url_pt = null;
                 var url_gt = null;
@@ -1993,6 +2004,8 @@ function read_rapports_and_create_table() {
             setTimeout(read_rapports_and_create_table, 3000);
         }
     });
+    //Compatibility Antigame
+    var AGO_actif=($("#content").attr("ago-status") == 1);
 }
 
 function start_rapport_general() {
@@ -3133,6 +3146,9 @@ username=($('span.textBeefy a.overlay.textBeefy').length > 0)?$('span.textBeefy 
 
 //get current token
 cur_token=($(document.body).find("#planet input[name='token']").length > 0)?$(document.body).find("#planet input[name='token']").val():"";
+
+//Compatibility Antigame
+var AGO_actif=($(document).find("#ago_global_data").length >0);
 
 //Preparation de l'optimisation mais en attente d'avoir une lune pour vérifier le code
 /*$(document.body).find("#planetList").find('[id*="planet-"] a').each(function(nb_planet){
