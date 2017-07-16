@@ -666,7 +666,7 @@ function change_actions_tab(action_tab){
                     frigo_status=(flottesDetected == "undefined" || !(flottesDetected && flottesActive))?"":" avec une flotte active";
                     frigo_status=frigo_status+((frigo_status !=="")?" et ":"")+((defenseDetected == "undefined" || !(defenseDetected && defenseActive))?"":" avec une defense active");
 
-                    var ressources=parseInt($(this).find('.msg_content div.compacting:eq(1) span:eq(4):contains("Ressources:")').html().match(/\d/g).join(""));
+                    var ressources=parseInt($(this).find('.msg_content div.compacting:eq(1) span:eq(4):contains("Ressources:")').html().replace('M','000').match(/\d/g).join(""));
 
                     if (infrig == 'no' && readData('Prog_AF','all') == "true") {
                         var cur_planet_GAL=parseInt(cur_planet_coords.replace(/\[|\]/,'').split(/:/)[0]);
