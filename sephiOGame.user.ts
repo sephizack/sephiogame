@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.7.6
+// @version     3.7.7
 // @description Script Ogame
 // @author      Sephizack
-
+//
 // @exclude     /^(http|https)://s.*\.ogame\.gameforge\.com/feed/.*$/
 // @exclude     /^(http|https)://s.*\.ogame\.gameforge\.com/board/.*$/
 // @exclude     /^(http|https)://www\.sephiogame\.com/.*$/
@@ -12,7 +12,7 @@
 // @exclude     /^(http|https)://.*ajax=1.*$/
 // @include     /^(http|https)://s.*\.ogame\.gameforge\.com/game/index.php.*$/
 // @include     /^(http|https)://fr\.ogame\.gameforge\.com/$/
-
+//
 // @copyright   2012+, You
 // @updateURL   http://www.sephiogame.com/script/sephiOGame.user.js
 // @require     http://code.jquery.com/jquery-1.9.1.min.js
@@ -21,7 +21,7 @@
 // @grant       GM_xmlhttpRequest
 // @connect     sephiogame.com
 // ==/UserScript==
-
+//
 //History Version
 //3.6.0: Sephizack-      Initial version [PROD]
 //3.6.1: Imp2Toulouse-   *Add capability to set the leave slot
@@ -96,6 +96,11 @@
 //         - Improve last version check (real call)
 //         - Add functionnality allowing to add MOON as frigo from galaxy and message pages
 //           Update spy process in order to spy moon too.
+//3.7.7
+//         -Auto insertion on spied frigos (insertion on access to the spy messages)
+//         -Compatibilité avec AGO (Antigame Origin)
+//         -Change spy process to add a specific return if no vessel to perform spy and add vebose explanation on error
+//         -Improve add_programmation_button by adding case of original button has class built-it_disabled
 
 declare var $: JQueryStatic;
 
@@ -107,7 +112,7 @@ class PersistedData {
 }
 
 var antiBugTimeout = setTimeout(function(){location.href=location.href;}, 5*60*1000);
-var cur_version = '3.7.6';
+var cur_version = '3.7.7';
 var univers = window.location.href.split('/')[2];
 
 // Multi langues
