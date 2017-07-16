@@ -643,22 +643,35 @@ function change_actions_tab(action_tab){
 				var typeFrigo=($(this).find('.msg_head .msg_title figure.moon').length >0)?"moon":"planet";
                 coord+=(typeFrigo ==="moon")?"Lune":"";
                 if (planame && coord) {
+                    var galaxy, system, planet;
                     [,galaxy,system,planet] = coord.match(/\[(.*):(.*):(.*)\]/);
 
                     // Recherche d'un frigo avec ces coordonnées
                     //Imp2Toulouse- Factorize with is_frigo fonction
-                    num_frigo=is_frigo(GLOB_persistedData["frigos"],coord);
-                    infrig=(num_frigo>=0)?'yes':'no';
+                    var num_frigo=is_frigo(GLOB_persistedData["frigos"],coord);
+                    var infrig=(num_frigo>=0)?'yes':'no';
 					//If coord is ours return
 					if ($.inArray(coord,planet_list_coords) >=0) return;
                     ////
                     //nb sonde config dans option
                     var nb_sonde_default=parseInt(readData("nb_sondes","options"));
-                    (nb_sonde_default==0 || nb_sonde_default == "undefined")?nb_sonde_default=1:null;
+                    (nb_sonde_default==0 || nb_sonde_default == "undefined" || nb_sonde_default == "NaN")?nb_sonde_default=1:null;
 
                     var frigo_status="", img_surcharge="";
                     frigo_status=(flottesDetected == "undefined" || !(flottesDetected && flottesActive))?"":" avec une flotte active";
                     frigo_status=frigo_status+((frigo_status !=="")?" et ":"")+((defenseDetected == "undefined" || !(defenseDetected && defenseActive))?"":" avec une defense active");
+
+                    var ressources=parseInt($(this).find('.msg_content div.compacting:eq(1) span:eq(4):contains("Ressources:")').html().match(/\d/g).join(""));
+
+                    if (infrig == 'no' && readData('Prog_AF','all') == "true") {
+                        var cur_planet_GAL=parseInt(cur_planet_coords.replace(/\[|\]/,'').split(/:/)[0]);
+                        if (
+                            (readData('SameGAL_AF','all') != "true" || (readData('SameGAL_AF','all') == "true" && galaxy == cur_planet_GAL))
+                            && (readData('WithoutFLEET_DEF_AF', 'all') != "true" || (readData('WithoutFLEET_DEF_AF', 'all') == "true" && flottesActive == false && defenseActive == false))
+                            && (readData('Seuil_Auto_ADD_AF','all') != "true" || (readData('Seuil_Auto_ADD_AF','all') == "true" && readData('Seuil_Auto_ADD_VAL_AF','all') <= (ressources/2)))
+                        ) add_frigo({'nom': planame, 'galaxy': galaxy, 'system': system, 'position': planet, 'sondes': 1, 'flottes': flottes, 'defenses': defense, 'type': typeFrigo});
+                    }
+
 
                     if (infrig == 'no') {
                         var info='Je ne suis pas encore un de vos frigos !';
@@ -1036,6 +1049,38 @@ function edit_frigo(){
     }
     save_important_vars();
     blit_message_time('Modifications <span style="float: none;margin: 0;color:#109E18">enregistrées avec succès</span> !',1000);
+}
+
+function add_frigo(infos_frigo_to_add){
+    var cur_nb=GLOB_persistedData["frigos"].length;
+    GLOB_persistedData["frigos"][cur_nb] = new Array();
+    //Nom du frigo
+    GLOB_persistedData["frigos"][cur_nb][0] = infos_frigo_to_add['nom'].replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
+    //Galaxy,System,Position
+    GLOB_persistedData["frigos"][cur_nb][1] = infos_frigo_to_add['galaxy'];
+    GLOB_persistedData["frigos"][cur_nb][2] = infos_frigo_to_add['system'];
+    GLOB_persistedData["frigos"][cur_nb][3] = infos_frigo_to_add['position'];
+    //Checked or not checked
+    GLOB_persistedData["frigos"][cur_nb][4] = '1';
+    //Flotte_Perso
+    GLOB_persistedData["frigos"][cur_nb][5] = '';
+    //Ignore
+    GLOB_persistedData["frigos"][cur_nb][6] = '0';
+    if (gup('page') == 'messages') {
+        //Flottes
+        GLOB_persistedData["frigos"][cur_nb][7] = infos_frigo_to_add['flottes'];
+        //Defenses
+        GLOB_persistedData["frigos"][cur_nb][8] = infos_frigo_to_add['defenses'];
+    }
+    //Flotte en cours
+    GLOB_persistedData["frigos"][cur_nb][9] = '0';
+    //defense en cours
+    GLOB_persistedData["frigos"][cur_nb][10] = '0';
+    //Nb sonde
+    GLOB_persistedData["frigos"][cur_nb][11] = infos_frigo_to_add['sondes'];
+    //Type frigo
+    GLOB_persistedData["frigos"][cur_nb][12] = infos_frigo_to_add['type'].replace(/__/g, '').replace(/'/g, '').replace(/"/g, '');
+    save_important_vars();
 }
 
 //Imp2Toulouse: Add function to factorize
@@ -4259,8 +4304,8 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='<div style="width:80%;height:1px;background:#404040;position:relative;top:-25px;left:7%;margin-top:20px"></div>';
 
     sephi_frigos_data+='<span style="text-align:left;color:#c0c0c0;position:relative;top:-12px;padding-left:40px;font-weight:normal;">Configuration des frigos:</span><br>';
-    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-2px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="Prog_AF" style="position:relative;top:2px;"/> Auto ajouter les cibles espionnées.<i><span id="save_AF_Prog" style="display:none;">(enregistré)</span></i></span><br><br>';
-    sephi_frigos_data+='<ul style="text-align:left;color:#808080;position:relative;top:-2px;padding-left:40px;font-weight:normal;">Conditions optionnelles:<li><input type="checkbox" '+(($('#Prog_AF').checked)?'':'disabled')+' id="Activ_AF_SameGAL" style="position:relative;top:2px;" onfocus="document.getElementById(\'Prog_AF\').checked = true;"> Dans la même galaxy (conseillée).<i><span id="save_AF_SameGAL" style="display:none;">(enregistré)</span></i></li><li><input type="checkbox" id="Activ_AF_WithoutFLEET_DEF" '+(($('#Prog_AF').checked)?'':'disabled')+' style="position:relative;top:2px;" onfocus="document.getElementById(\'Prog_AF\').checked = true;"> Sans flottes & sans défense (conseillé) <i><span id="save_AF_WithoutFLEET_DEF" style="display:none;">(enregistré)</span></i></li><li><input type="checkbox" id="Activ_AF_Seuil_Auto_ADD" '+(($('#Prog_AF').checked)?'':'disabled')+' style="position:relative;top:2px;" onfocus="document.getElementById(\'Prog_AF\').checked = true;"> Dont les ressources dépassent <input type="text" id="AF_Seuil_Auto_ADD" '+(($('#Prog_AF').checked && $('#Activ_AF_Seuil_Auto_ADD').checked)?'':'disabled')+' value="200000" title="Seuil de ressource globale déclenchant l\'auto ajout de la cible en frigo" style="position:relative;top:-3px;text-align:center; width:45px;margin-left:5px;margin-right:5px;height: 15px;">.<i><span id="save_AF_Seuil_Auto_ADD" style="display:none;">(enregistré)</span></i></li></ul><br><br>';
+    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-2px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="Prog_AF" '+ ((readData('Prog_AF','all') == "true")?'checked':'')+' style="position:relative;top:2px;"/> Auto ajouter les cibles espionnées.<i><span id="save_AF_Prog" style="display:none;">(enregistré)</span></i></span><br><br>';
+    sephi_frigos_data+='<ul style="text-align:left;color:#808080;position:relative;top:-2px;padding-left:40px;font-weight:normal;">Conditions optionnelles:<li><input type="checkbox" id="Activ_AF_SameGAL" '+((readData('Prog_AF','all') == "true")?'':'disabled')+' '+ ((readData('SameGAL_AF','all') == "true")?'checked':'')+' style="position:relative;top:2px;" onfocus="document.getElementById(\'Prog_AF\').checked = true;"> Dans la même galaxy (conseillée).<i><span id="save_AF_SameGAL" style="display:none;">(enregistré)</span></i></li><li><input type="checkbox" id="Activ_AF_WithoutFLEET_DEF" '+((readData('Prog_AF','all') == "true")?'':'disabled')+' '+ ((readData('WithoutFLEET_DEF_AF','all') == "true")?'checked':'')+' style="position:relative;top:2px;" onfocus="document.getElementById(\'Prog_AF\').checked = true;"> Sans flottes & sans défense (conseillé).<i><span id="save_AF_WithoutFLEET_DEF" style="display:none;">(enregistré)</span></i></li><li><input type="checkbox" id="Activ_AF_Seuil_Auto_ADD" '+((readData('Prog_AF','all') == "true")?'':'disabled')+' '+ ((readData('Seuil_Auto_ADD_AF','all') == "true")?'checked':'')+' style="position:relative;top:2px;" onfocus="document.getElementById(\'Prog_AF\').checked = true;"> Dont les ressources dépassent <input type="text" id="AF_Seuil_Auto_ADD_VAL" '+((readData('Prog_AF','AF') == "true" && readData('Seuil_Auto_ADD_AF','all') == "true")?'':'disabled')+' value="'+ ((readData('Seuil_Auto_ADD_VAL_AF','all') != "" && readData('Seuil_Auto_ADD_VAL_AF','all') != null)?readData('Seuil_Auto_ADD_VAL_AF','all'):'200000')+'" title="Seuil de ressource globale déclenchant l\'auto ajout de la cible en frigo" style="position:relative;top:-3px;text-align:center; width:45px;margin-left:5px;margin-right:5px;height: 15px;">.<i><span id="save_AF_Seuil_Auto_ADD" style="display:none;">(enregistré)</span></i></li></ul><br><br>';
     sephi_frigos_data+='<table style="width:604px;color:#6f9fc8;"><tr>';
     sephi_frigos_data+='<th style="border-right: #09d0ff dashed 0px;text-align:right;width:90px;"><span style="width:80px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;">Ignorer</span><br><span><input type="checkbox" title="Tout cocher/décocher" id="check_all"/></span></th>';
     sephi_frigos_data+='<th style="border-right: #09d0ff dashed 0px;text-align:center;width:75px;"><span style="width:70px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;">Nom</span><br><span>&nbsp;</span></th>';
@@ -4505,60 +4550,78 @@ if (gup('sephiScript') == '1') {
     $('#time_no_AA_m_end').on("change", update_no_AA_time);
 
     $('#Prog_AF').on("change", function(){
+        //debugger;
         if (this.checked == true) {
+            $('#Prog_AF').attr('checked', true);
             $('#Activ_AF_SameGAL').attr('disabled', false);
             $('#Activ_AF_SameGAL').attr('checked', true);
             $('#Activ_AF_WithoutFLEET_DEF').attr('disabled', false);
+            $('#Activ_AF_WithoutFLEET_DEF').attr('checked', true);
             $('#Activ_AF_Seuil_Auto_ADD').attr('disabled', false);
+            storeData('Prog_AF', "true", 'all');
+            storeData('SameGAL_AF', "true", 'all');
+            storeData('WithoutFLEET_DEF_AF', "true", 'all');
+            storeData('Seuil_Auto_ADD_AF', "true", 'all');
         } else {
+            $('#Prog_AF').attr('checked', false);
             $('#Activ_AF_SameGAL').attr('checked', false);
             $('#Activ_AF_SameGAL').attr('disabled', true);
             $('#Activ_AF_WithoutFLEET_DEF').attr('disabled', true);
             $('#Activ_AF_Seuil_Auto_ADD').attr('disabled', true);
             $('#Activ_AF_Seuil_Auto_ADD').attr('checked', false);
             $('#Activ_AF_Seuil_Auto_ADD').attr('disabled', true);
+            storeData('Prog_AF', "false", 'all');
+            storeData('SameGAL_AF', "false", 'all');
+            storeData('WithoutFLEET_DEF_AF', "false", 'all');
+            storeData('Seuil_Auto_ADD_AF', "false", 'all');
         }
-        storeData('AF_same_gal', ($('#Activ_AF_SameGAL').attr('checked') == "checked"), 'AA');
-        storeData('AF_WithoutFLEET_DEF', ($('#Activ_AF_WithoutFLEET_DEF').attr('checked') == "checked"), 'AA');
-        storeData('AF_Seuil_Auto_ADD', ($('#Activ_AF_Seuil_Auto_ADD').attr('checked') == "checked"), 'AA');
 
         $('#save_AF_Prog').show(1500, function () {
             $('#save_AF_Prog').hide();
         });
     });
     $('#Activ_AF_SameGAL').on("change", function(){
+        //debugger;
         if (this.checked == true) {
-            $('Prog_AF').attr('checked',true);
-            $('#save_AF_SameGAL').show(1500, function () {
-                $('#save_AF_SameGAL').hide();
-            });
+            $('#Prog_AF').attr('checked',true);
+            storeData('SameGAL_AF', "true", 'all');
+        } else {
+            storeData('SameGAL_AF', "false", 'all');
         }
-        storeData('AF_same_gal', ($('#Activ_AF_SameGAL').attr('checked') == "checked"), 'AA');
+        $('#save_AF_SameGAL').show(1500, function () {
+            $('#save_AF_SameGAL').hide();
+        });
     });
     $('#Activ_AF_WithoutFLEET_DEF').on("change", function() {
+        //debugger;
         if (this.checked == true) {
-            $('Prog_AF').attr('checked',true);
-            $('#save_AF_WithoutFLEET_DEF').show(1500, function () {
-                $('#save_AF_WithoutFLEET_DEF').hide();
-            });
-        }
-        storeData('AF_WithoutFLEET_DEF', ($('#Activ_AF_WithoutFLEET_DEF').attr('checked') == "checked"), 'AA');
-    });
-    $('#Activ_AF_Seuil_Auto_ADD').on("change", function() {
-        if (this.checked == true) {
-            $('Prog_AF').attr('checked',true);
-            $('AF_Seuil_Auto_ADD').attr('disabled',false);
-            $('#save_AF_Seuil_Auto_ADD').show(1500, function () {
-                $('#save_AF_Seuil_Auto_ADD').hide();
-            });
+            $('#Prog_AF').attr('checked',true);
+            storeData('WithoutFLEET_DEF_AF', "true", 'all');
         } else {
-            $('AF_Seuil_Auto_ADD').attr('disabled',false);
+            storeData('WithoutFLEET_DEF_AF', "false", 'all');
         }
-        storeData('AF_Seuil_Auto_ADD', ($('#Activ_AF_Seuil_Auto_ADD').attr('checked') == "checked"), 'AA');
+        $('#save_AF_WithoutFLEET_DEF').show(1500, function () {
+            $('#save_AF_WithoutFLEET_DEF').hide();
+        });
     });
     $('#Activ_AF_Seuil_Auto_ADD').on("change", function() {
-        if ($('#AF_Seuil_Auto_ADD').val != "") {
-            storeData('AF_Seuil_Auto_ADD', $('#AF_Seuil_Auto_ADD').val(), 'AA');
+        //debugger;
+        if (this.checked == true) {
+            $('#Prog_AF').attr('checked',true);
+            $('#AF_Seuil_Auto_ADD_VAL').attr('disabled',false);
+            storeData('Seuil_Auto_ADD_AF', "true" ,'all');
+        } else {
+            $('#AF_Seuil_Auto_ADD_VAL').attr('disabled',false);
+            storeData('Seuil_Auto_ADD_AF', "false", 'all');
+        }
+        $('#save_AF_Seuil_Auto_ADD').show(1500, function () {
+            $('#save_AF_Seuil_Auto_ADD').hide();
+        });
+    });
+    $('#AF_Seuil_Auto_ADD_VAL').on("change", function() {
+        //debugger;
+        if ($('#AF_Seuil_Auto_ADD_VAL').val != "") {
+            storeData('Seuil_Auto_ADD_VAL_AF', $('#AF_Seuil_Auto_ADD_VAL').val, 'all');
         }
     });
 
