@@ -663,7 +663,7 @@ function change_actions_tab(action_tab){
                     var frigo_status="", img_surcharge="";
                     frigo_status=(flottesDetected == "undefined" || !(flottesDetected && flottesActive))?"":" avec une flotte active";
                     frigo_status=frigo_status+((frigo_status !=="")?" et ":"")+((defenseDetected == "undefined" || !(defenseDetected && defenseActive))?"":" avec une defense active");
-                    
+
                     if (
                         $(this).find('.msg_head .msg_title').html().match(/Rapport d`espionnage/) //in spy message only
                         && infrig == 'no' //if not a frigo yet
