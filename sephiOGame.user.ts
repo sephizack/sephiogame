@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.7.7
+// @version     3.7.8
 // @description Script Ogame
 // @author      Sephizack
 //
@@ -16,8 +16,6 @@
 // @copyright   2012+, You
 // @updateURL   http://www.sephiogame.com/script/sephiOGame.user.js
 // @require     http://code.jquery.com/jquery-1.9.1.min.js
-// @require     http://www.sephiogame.com/script/FileSaver1.3.2.js
-// @require     http://www.sephiogame.com/script/googleMailAPI.js
 // @grant       GM_xmlhttpRequest
 // @connect     sephiogame.com
 // ==/UserScript==
@@ -112,7 +110,7 @@ class PersistedData {
 }
 
 var antiBugTimeout = setTimeout(function(){location.href=location.href;}, 5*60*1000);
-var cur_version = '3.7.7';
+var cur_version = '3.7.8';
 var univers = window.location.href.split('/')[2];
 
 // Multi langues

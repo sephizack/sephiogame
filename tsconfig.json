@@ -1,12 +1,13 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
+        "module": "system",
         "noImplicitAny": true,
         "removeComments": false,
         "preserveConstEnums": true,
         "sourceMap": true,
         "baseUrl": ".",
 		"inlineSources": true,
+        "outFile": "sephiOGame.user.js",
         "paths": {
           "jquery": ["node_modules/jquery/dist/jquery"]
         }
