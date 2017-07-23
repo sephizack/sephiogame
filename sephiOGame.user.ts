@@ -2229,13 +2229,19 @@ function fill_rapport_general() {
 
 function clean_name(txt) {return txt.replace('[En Cours] ','').replace('[Abandon] ','').replace('[Essai 2] ','').replace('[Essai 3] ','').replace('[Essai 4] ','').replace('[Timeout 1] ','').replace('[Timeout 2] ','').replace('[Timeout 3] ','').replace('[Butin] ','').replace('<span title="Flotte envoyée">[OK]</span> ','').replace('<span title="Vous n\'avez plus assez de deuterium pour envoyer cette flotte">? [Deut]</span> ','').replace('<span title="Vous n\'avez plus de slots de flotte disponible">? [Flotte]</span> ','').replace('<span title="Votre flotte personnalisée est irréalisable">? [Perso]</span>','').replace('<span title="Vous manquez de petits transporteurs, cliquez sur \'\'forcer\'\' pour envoyer tout ceux que vous avez">? [PT]</span> ','').replace('<span title="Vous manquez de grands transporteurs, cliquez sur \'\'forcer\'\' pour envoyer tout ceux que vous avez">? [GT]</span> ','');}
 function attack_cur() {
-    if(GLOB_curAA_ID < GLOB_rgButins.length-1 && parseInt(GLOB_rgButins[GLOB_curAA_ID][0]) > parseInt(document.getElementById('butin_AA_RG').value) && (readData('AA_remain_slot', 'all') == "true" || readData('AA_remain_slot', 'all') == null))  {
+    if(GLOB_curAA_ID < GLOB_rgButins.length-1 &&
+        parseInt(GLOB_rgButins[GLOB_curAA_ID][0]) > parseInt(document.getElementById('butin_AA_RG').value) &&
+        (readData('AA_remain_slot', 'all') == "true" || readData('AA_remain_slot', 'all') == null)
+    )  {
         encourstime = 0;
         if (!isFirstTry) encourstime = 1000;
         setTimeout(function(){
             // GLOB_rgButins[GLOB_curAA_ID][2] = url dans source de l'iframe
-            if ((isFirstTry && type_vaisseaux_AA == 1) || (!isFirstTry && type_vaisseaux_AA == 2) || type_vaisseaux_AA == 3) {setTimeout(function(){document.getElementById('ifr_AA').src = GLOB_rgButins[GLOB_curAA_ID][2];}, 1000);}
-            else {setTimeout(function(){document.getElementById('ifr_AA').src = GLOB_rgButins[GLOB_curAA_ID][3];}, 1000);}
+            if ((isFirstTry && type_vaisseaux_AA == 1) || (!isFirstTry && type_vaisseaux_AA == 2) || type_vaisseaux_AA == 3) {
+                setTimeout(function(){document.getElementById('ifr_AA').src = GLOB_rgButins[GLOB_curAA_ID][2];}, 1000);
+            } else {
+                setTimeout(function(){document.getElementById('ifr_AA').src = GLOB_rgButins[GLOB_curAA_ID][3];}, 1000);
+            }
 
             elem = document.getElementById('rap_general_planet_name_'+GLOB_rgButins[GLOB_curAA_ID][1]);
             elem.style.color = '#761B68';
@@ -2295,6 +2301,7 @@ function check_AA_feedback() { // Checkout Auto Attack feedback
         flotte_succes = false;
 
         if (readData('AA_feed','all').match('IS_OK')) {
+            console.log ("e:"+e);
             e.innerHTML = '<span title="Flotte envoyée">[OK]</span> ' + clean_name(e.innerHTML); e.style.color='#109E18'; flotte_succes = true;
             // On augmente l'importance du frigo
             frigid = parseInt(document.getElementById('frigoID_'+ID).innerHTML);
