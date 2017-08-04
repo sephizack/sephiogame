@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.7.8
+// @version     3.8.0
 // @description Script Ogame
 // @author      Sephizack
 //
@@ -99,7 +99,13 @@
 //         -Compatibilité avec AGO (Antigame Origin)
 //         -Change spy process to add a specific return if no vessel to perform spy and add vebose explanation on error
 //         -Improve add_programmation_button by adding case of original button has class built-it_disabled
-
+//3.7.8
+//         -Add the function allowing to Automise added Frigo
+//         -Change version + comments + correction du souci dans la génération du fichier js (pas de ligne vide dans l'entete qui est sinon coupée à la génération)
+//3.7.9
+//         -Multiples minor correction in AutoFrigo
+//3.8.0
+//         - Fonction autospy added in galaxy view and allowing to detect&spy all inactive target in a predefined scope.
 declare var $: JQueryStatic;
 
 class PersistedData {
@@ -110,7 +116,7 @@ class PersistedData {
 }
 
 var antiBugTimeout = setTimeout(function(){location.href=location.href;}, 5*60*1000);
-var cur_version = '3.7.8';
+var cur_version = '3.8.0';
 var univers = window.location.href.split('/')[2];
 
 // Multi langues
@@ -121,7 +127,7 @@ var LANG_started = isFR ? "Lancé" : "Started";
 var LANG_done = isFR ? "Terminé" : "Done";
 var LANG_noLocalStorage = isFR ? "Votre navigateur ne supporte pas le système de localStorage, mettez le à jour ou désinstallez le script." 
     : "Your browser does not support localStorage feature, please update to latest Chrome version or unistall SephiOGame.";
-var LANG_nouveaute_update = '- Migrate starter packs to JSON data<br>- Bug correction regarding frigo icons on fight report<br>- Add webhook functionnality (to announce attack in webhookapps like discord)<br>- Improve last version check (real call)';
+var LANG_nouveaute_update = '- Add autospy functionnality in galaxy view allowing to detect&spy all inactive target in a predefined scope.';
 
 if ($('#banner_skyscraper')) $('#banner_skyscraper').html('');
 if (localStorage == null) {
@@ -5275,7 +5281,7 @@ if (lastActuSecu == null) {
     storeData('lastActuTimeSecu', time().toString(), 'all');
     lastActuSecu = time();
 }
-/*if (lastActu !== null) {
+if (lastActu !== null) {
     lastActu = time() - parseInt(lastActu);
     lastActuSecu = time() - parseInt(lastActuSecu);
     if (lastActu > 16*60*60*1000 && lastActuSecu>10*60*1000) {
@@ -5290,7 +5296,7 @@ if (lastActuSecu == null) {
     }
 } else {
     storeData('lastActuTime', time().toString(), 'all');
-}*/
+}
 
 // Affiche les frigos sur la page galaxie et ajouter un bouton "ajouter aux frigos" //Imp2Toulouse- et ajouter un bouton "Supprimer des frigos"
 var last_gal_state="",cur_gal_state="",GAL_check_cur_gal="",GAL_check_cur_sys="";
