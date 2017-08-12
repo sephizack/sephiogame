@@ -5020,9 +5020,12 @@ if (gup('sephiScript') == '1') {
         });
     });
     $('#AF_Seuil_Auto_ADD_VAL').on("change", function() {
-        if ($('#AF_Seuil_Auto_ADD_VAL').val != "") {
-            storeData('Seuil_Auto_ADD_VAL_AF', $('#AF_Seuil_Auto_ADD_VAL').val, 'all');
+        if ($('#AF_Seuil_Auto_ADD_VAL').val() != "") {
+            storeData('Seuil_Auto_ADD_VAL_AF', $('#AF_Seuil_Auto_ADD_VAL').val(), 'all');
         }
+        $('#save_AF_Seuil_Auto_ADD').show(1500, function () {
+            $('#save_AF_Seuil_Auto_ADD').hide();
+        });
     });
 
     $('#time_no_AA_eject_choice').on("change",function(){
