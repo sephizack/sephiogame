@@ -4692,7 +4692,6 @@ if (gup('sephiScript') == '1') {
 
     //Imp2toulouse- Factorize this part to the get_Time_Remain (previously get_last_AA_coolTime) function
     var lastAAcoolTime:string=get_Time_Remain(readData("last_start", "AA"));
-
     // Gestion Auto-Rapatriement
     sephi_frigos_data+='<div class="header"><h2>Gestion Auto-Rapatriement de vos ressources</h2></div>';
     sephi_frigos_data+='<div class="content" style="min-height: 100px;positon:relative;z-index:10;margin-bottom:50px;padding-top:15px;">';
