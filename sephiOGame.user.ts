@@ -254,7 +254,7 @@ function load_important_vars() {
             GLOB_persistedData = JSON.parse(aSerializedData);
         } catch(e) {
             blit_message('<span style="color:red">Unable to load saved data</span>')
-            console.log(e)
+            console.log('e1:'+e)
             throw e
         }
         console.log('JSON persisted data retrieved')
@@ -273,7 +273,7 @@ function load_important_vars() {
                 GLOB_persistedData = load_persisted_data_deprecated(aSerializedData)
             } catch (e) {
                 blit_message('<span style="color:red">Unable to load saved data</span>')
-                console.log(e)
+                console.log('e2:'+e)
                 throw e
             }
         }
@@ -301,7 +301,7 @@ function load_persisted_data_deprecated(iSerializedData : string) : PersistedDat
             }
         }
     }
-    
+
     for (var i=0 ; i<4 ; i++) {
         if (i == 0) result['listPrev'] = aSerializedDataParts[i];
         if (i == 1) result['prods'] = aSerializedDataParts[i];
@@ -420,14 +420,14 @@ function get_cool_digit(i){
 }
 
 function get_prevision_bar_html(i, textSupp, textSupp2, infotitle, color,cost_met,cost_crys,cost_deut,ress_metal,ress_crystal,ress_deuterium,cur_progs_count) {
-    color1='#109E18';
-    color2='#109E18';
-    color3='#109E18';
+    var color1='#109E18';
+    var color2='#109E18';
+    var color3='#109E18';
     if (parseInt(cost_met) > parseInt(ress_metal)) color1='#d43635';
     if (parseInt(cost_crys) > parseInt(ress_crystal)) color2='#d43635';
     if (parseInt(cost_deut) > parseInt(ress_deuterium)) color3='#d43635';
     if (textSupp == '['+LANG_started+'] ') cool_title= LANG_done;
-    else cool_title=get_cool_title (cost_met,cost_crys,cost_deut,color1,color2,color3);
+    else var cool_title=get_cool_title (cost_met,cost_crys,cost_deut,color1,color2,color3);
 
     data = "\n"+'<div id="block_prog_'+i+'" style="height:0px;position:relative;top:'+(27*(cur_progs_count-1))+'px;"><span style="display:none" id="prog_cur_place_'+i+'">'+i+'</span><div class="tooltipHTML" title="'+cool_title+'" id="info_prog_'+i+'" style="cursor:default;word-wrap: normal;height:20px;font: 700 12px Verdana,Arial,Helvetica,sans-serif;position:relative;left:-8px;padding-top:7px;background: url(http://www.sephiogame.com/images/barre_fond.gif) no-repeat;background-position:0px -1px;width:640px;margin-bottom:0px;color:'+color+';padding-left:40px;font-weight:normal;">';
     data += '<p style="width:600px;height:20px;white-space: nowrap">'+ textSupp+' <b>'+infotitle+'</b>';
@@ -443,15 +443,16 @@ function get_cost(data, type) {
     tmp = data.split('<li class="'+type);
     if (tmp[0] !== data) {
         data = tmp[1].split('class="cost')[1].split("</")[0];
-        if (!data.match(',')) res = data.replace('M','.000.000').match(/\d/g).join("");
-        else res = parseInt(data.split(',')[0].match(/\d/g).join(""))*1000000 + parseInt(data.split(',')[1].match(/\d/g).join(""))*100000/Math.pow(10,data.split(',')[1].match(/\d/g).length -1);
-    } else {res = 0}
-    return parseInt(res);
+        if (!data.match(',')) return parseInt(data.replace('M','.000.000').match(/\d/g).join(""));
+        else return parseInt(parseInt(data.split(',')[0].match(/\d/g).join(""))*1000000 + parseInt(data.split(',')[1].match(/\d/g).join(""))*100000/Math.pow(10,data.split(',')[1].match(/\d/g).length -1));
+    } else {
+        return 0;
+    }
 }
 
 function add_programmation_button() {
     if ( gup('page') !== 'premium' && gup('page') !== 'shop' && $("#content").length >0 && $("#content").children()[0].tagName == 'H2') {
-        title=$("#content").children()[0].innerText;
+        var title=$("#content").children()[0].innerText;
         if (title !== cur_title) {
             var ress_metal = $("span#resources_metal").html().replace(/\./g,"");
             var ress_crystal = $("span#resources_crystal").html().replace(/\./g,"");
@@ -461,23 +462,23 @@ function add_programmation_button() {
             title=title.replace(/ /g,'_esp_');
             cur_content = $("#content").html();
 
-            cost_metal = get_cost(cur_content, "metal");
-            cost_crystal = get_cost(cur_content, "crystal");
-            cost_deuterium = get_cost(cur_content, "deuterium");
+            var cost_metal = get_cost(cur_content, "metal");
+            var cost_crystal = get_cost(cur_content, "crystal");
+            var cost_deuterium = get_cost(cur_content, "deuterium");
 
-            max_nb = Math.floor(parseInt(ress_metal)/parseInt(cost_metal));
+            var max_nb = Math.floor(parseInt(ress_metal)/parseInt(cost_metal));
             tmp = Math.floor(parseInt(ress_crystal)/parseInt(cost_crystal));
             if (tmp < max_nb) max_nb = tmp;
             tmp = Math.floor(parseInt(ress_deuterium)/parseInt(cost_deuterium));
             if (tmp < max_nb) max_nb = tmp;
-            max_text = '';
+            var max_text = '';
             if (max_nb > 0) max_text = max_nb; //max_text = '[max. '+max_nb+']';
 
-            det = $("div#detail").html();
-            form_modus = $('div#detail input[name="modus"]').val();
-            form_type = $('div#detail input[name="type"]').val();
+            var det = $("div#detail").html();
+            var form_modus = $('div#detail input[name="modus"]').val();
+            var form_type = $('div#detail input[name="type"]').val();
 
-            form_number = ($('#number').length > 0)?$('#number').val():"";
+            var form_number = ($('#number').length > 0)?$('#number').val():"";
 
             // Program button
             //I2T: Pour compatibilité AGO
@@ -948,10 +949,10 @@ function save_list_in_cookies() {
 
     // Ajout de frigo
     //imp2Toulouse- Retrait de Frigo
-    if ((gup('page') == "fleet2" || gup('page') == 'messages' || gup('page') == 'galaxy') 
+    if ((gup('page') == "fleet2" || gup('page') == 'messages' || gup('page') == 'galaxy')
         && (
-            (readData('add_racc','all') != null && parseInt(readData('add_racc','all')) > 0) 
-            || (readData('updt_racc','all') != null && parseInt(readData('updt_racc','all')) > 0) 
+            (readData('add_racc','all') != null && parseInt(readData('add_racc','all')) > 0)
+            || (readData('updt_racc','all') != null && parseInt(readData('updt_racc','all')) > 0)
             || (readData('del_racc','all') != null && readData('del_racc','all').match(':'))
         )
        ) {
@@ -1605,7 +1606,7 @@ function save_alert_mail() {
 }
 
 function send_to_webhook(cp_attacked,coords,isOnLune,time_attack,time_arrival,planet_origin,coords_origin, total_fleets_origin,liste_fleets_origin) {
-    storeData('webhook_advert_'+cp_attacked, time().toString(), 'all');	
+    storeData('webhook_advert_'+cp_attacked, time().toString(), 'all');
 	var message="|_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_|\nAttaque en cours sur la "+((isOnLune)?"lune":"planete")+" "+cp_attacked+" "+coords+"\n\tNom du défenseur : "+username+"\n\tHeure d'impact : "+time_arrival+"\n\tInformation attaquant:\n\t\tAttaque depuis: "+planet_origin+" "+coords_origin+"\n\t\tNombres vaisseaux: "+total_fleets_origin+"\n\t\tListe vaisseaux: "+liste_fleets_origin+"\n|_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_|\n";
 
 	var params = JSON.stringify({ "username": "I2T", "content":message });
@@ -1649,7 +1650,7 @@ function check_attack() {
 
 						//if (xhr.responseText.match("allianceAttack").length >0)
 						//	Attaque_groupee=true
-						
+
                         // Auto-Eject
                         //events = xhr.responseText.split('eventFleet');
 						events = xhr.responseText.split('<tr class="');
@@ -1679,7 +1680,7 @@ function check_attack() {
                                 //Imp2Toulouse- Add frequency defined in param
                                 if (alert_mail_to !== '' && (readData('attack_advert','all') == null || (time()-parseInt(readData('attack_advert','all'))) > parseInt(readData('alert_mail_freq','all'))*60*1000) )
                                     setTimeout(send_alert_mail(planame_list[planet_list_coords.indexOf(coords)],coords,isOnLune,time_attack),2000);
-								
+
 								/*if (readData('webhook_advert_'+cp_attacked,'all') == null && (url_webhook != null || url_webhook.trim() != "")) {
                                     setTimeout(send_to_webhook(planame_list[planet_list_coords.indexOf(coords)], coords, isOnLune, time_attack, time_arrival, planet_origin, coords_origin, total_fleets_origin, liste_fleets_origin), 2000);
                                 }*/
@@ -2174,8 +2175,8 @@ function read_rapports_and_create_table() {
                     [,planame,galaxy,system,planet]=$(this).find("span.msg_title a").text().trim().match(/(.*) \[(\d+):(\d+):(\d+)\]/);
                     coord = '['+galaxy+":"+system+":"+planet+']';
                     //Imp2Toulouse: Replace by function
-                    idFrig=is_frigo(GLOB_persistedData["frigos"],coord);
-                    if (idFrig>=0 || gup('RG') !== 'OUI') {
+                    var idFrig:number=is_frigo(GLOB_persistedData["frigos"],coord);
+                    if (idFrig>=0) { //|| gup('RG') !== 'OUI') {
                         count_esp++;
                         url = '';
                         process_espionnage_data($(this).find("span.ctn4 .resspan"));
@@ -2202,13 +2203,13 @@ function read_rapports_and_create_table() {
 
                         if (idFrig >= 0 && ($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').length > 0 || $(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').length > 0)) save_important_vars();
 
-                        data += '<tr id="rap_general_line_'+count_esp+'"><td id="rap_general_coord_'+count_esp+'" style="border: 1px solid #303030;padding: 5px 8px;text-align:center;height: 28px;">'+coord+'</td>';
+                        data += '<tr id="rap_general_line_'+count_esp+'"><td id="rap_general_coord_'+count_esp+'" style="border: 1px solid #303030;padding: 5px 8px;text-align:center;height: 28px;"><a target=_blank style="text-decoration:none;'+color+'" href="https://'+univers+'/game/index.php?page=galaxy&galaxy='+galaxy+'&system='+system+'&position='+planet+'" onclick="this.style.textDecoration=\'line-through\'">'+coord+'</a></td>';
                         data += '<td style="border: 1px solid #303030;padding: 5px 8px;"><a target=_blank style="text-decoration:none;'+color+'" href="https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1" onclick="this.style.textDecoration=\'line-through\'"><span id="rap_general_planet_name_'+count_esp+'">'+planame+'</span></a><span id="url_rap_esp_'+count_esp+'" style="display:none;">'+url+'</span></td>';
                         data += '<td id="rap_general_butin_'+count_esp+'" style="border: 1px solid #303030;padding: 5px 8px;text-align:center;font-weight:bold;color:#FF9600;">-</td>';
                         data += '<td id="rap_general_attack_'+count_esp+'" style="border: 1px solid #303030;padding: 5px 8px;text-align: center;">Veuillez Patienter...</td>';
                         data += '</tr>';
                         count_esp++;
-                        data += '<tr id="rap_general_line_'+count_esp+'"><td id="rap_general_coord_'+count_esp+'" style="border: 1px solid #303030;padding: 5px 8px;text-align:center;height: 28px;">'+coord+'</td>';
+                        data += '<tr id="rap_general_line_'+count_esp+'"><td id="rap_general_coord_'+count_esp+'" style="border: 1px solid #303030;padding: 5px 8px;text-align:center;height: 28px;"><a target=_blank style="text-decoration:none;'+color+'" href="https://'+univers+'/game/index.php?page=galaxy&galaxy='+galaxy+'&system='+system+'&position='+planet+'" onclick="this.style.textDecoration=\'line-through\'">'+coord+'</a></td>';
                         data += '<td style="border: 1px solid #303030;padding: 5px 8px;"><a target=_blank style="text-decoration:none;'+color+'" href="https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1" onclick="this.style.textDecoration=\'line-through\'"><span id="rap_general_planet_name_'+count_esp+'">'+planame+' (2)</span></a><span id="url_rap_esp_'+count_esp+'" style="display:none;">second</span></td>';
                         data += '<td id="rap_general_butin_'+count_esp+'" style="border: 1px solid #303030;padding: 5px 8px;text-align:center;font-weight:bold;color:#FF9600;">-</td>';
                         data += '<td id="rap_general_attack_'+count_esp+'" style="border: 1px solid #303030;padding: 5px 8px;text-align: center;">Veuillez Patienter...</td>';
@@ -2220,8 +2221,8 @@ function read_rapports_and_create_table() {
             $(elems).each(function(index) {
                 if (stopMail == true) return;
                 if (document.getElementById('with_readed_RG').checked && count_esp>=nb_limit*2) return;
-                console.log("Message n°"+index+" title="+$(this).find("span.msg_title").text());
-                if ($(this).find('.msg_head .fright .js_actionKill')) {
+                console.log("Message n°"+index+" title="+$(this).find(".msg_head span.msg_title").text());
+                if ($(this).find('.msg_head .fright .js_actionKill') && $(this).find(".msg_head span.msg_title").text().match(/Rapport d`espionnage de.*\[\d+:\d+:\d+\]/) != null) {
                     delete_msg($(this).attr("data-msg-id"));
                     console.log("  --> action=deleting");
                 }
@@ -2342,14 +2343,15 @@ function fill_case(butin, flotte_perso, idFrigo, curplanet_name, check_perso_is_
     var tmp=$('#rap_general_planet_name_'+GLOB_rgID).parent().attr('href')+'&am202='+(2+Math.floor(butin/5000))+'&am203='+(2+Math.floor(butin/25000));
     $('#rap_general_planet_name_'+GLOB_rgID).parent().attr("href",tmp);
     tmp=null;
-    document.getElementById('rap_general_butin_'+GLOB_rgID).innerHTML = get_cool_digit(butin);
+    //document.getElementById('rap_general_butin_'+GLOB_rgID).innerHTML = get_cool_digit(butin);
+    $('#rap_general_butin_'+GLOB_rgID).html(get_cool_digit(butin));
 
     (check_perso_is_needed != "")?checkperso_param="&check_perso_is_needed="+check_perso_is_needed:checkperso_param="";
 
     attack_data = '<span id="RG_PT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'https://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+'&force=0&flotte_perso='+flotte_perso+'&blockswitchplanet=yes&cp='+GLOB_cur_planet+checkperso_param+'\';setTimeout(function(){document.getElementById(\'RG_PT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Envoyer '+(2+Math.floor(butin/5000))+' PT</span>';
     attack_data += '<br><span id="RG_GT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'https://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&GT='+(2+Math.floor(butin/25000))+'&force=0&flotte_perso='+flotte_perso+'&blockswitchplanet=yes&cp='+GLOB_cur_planet+checkperso_param+'\';setTimeout(function(){document.getElementById(\'RG_GT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Envoyer '+(2+Math.floor(butin/25000))+' GT</span>';
     attack_data += '<span id="frigoID_'+GLOB_rgID+'" style="display:none">'+idFrigo+'</span>';
-    document.getElementById('rap_general_attack_'+GLOB_rgID).innerHTML = attack_data;
+    $('#rap_general_attack_'+GLOB_rgID).html(attack_data);
     GLOB_rgButins[GLOB_rgID] = new Array();
     GLOB_rgButins[GLOB_rgID][0] = butin;
     GLOB_rgButins[GLOB_rgID][1] = GLOB_rgID;
@@ -2362,27 +2364,24 @@ function fill_case(butin, flotte_perso, idFrigo, curplanet_name, check_perso_is_
 
 function fill_rapport_general() {
     if (GLOB_rgID <= GLOB_rgMaxID) {
-        tmp = document.getElementById('rap_general_coord_'+GLOB_rgID).innerHTML.replace('[','').replace(']','').split(':');
-        galaxy = tmp[0];
-        system = tmp[1];
-        planet = tmp[2];
-        curplanet_name = document.getElementById('rap_general_planet_name_'+GLOB_rgID).innerHTML;
+
+        [,galaxy,system,planet] = $('#rap_general_coord_' + GLOB_rgID+' a').html().match(/\[(\d+):(\d+):(\d+)\]/);
+        curplanet_name = $('#rap_general_planet_name_'+GLOB_rgID).html();
 
         //Imp2Toulouse- Replace this block with equivalent one in order to use id_frigo function
         // Recherche d'un frigo avec ces coordonnées et qui a une flote personnalisée
-        flotte_perso='';
-        idFrig=is_frigo(GLOB_persistedData["frigos"],document.getElementById('rap_general_coord_'+GLOB_rgID).innerHTML);
-        //If 5 items set so a "flotte_perso" exist
-        if (idFrig>=0 && GLOB_persistedData["frigos"][idFrig].length > 5) flotte_perso=GLOB_persistedData["frigos"][idFrig][5];
-        ////
 
-        mail_url = document.getElementById('url_rap_esp_'+GLOB_rgID).innerHTML.replace(/&amp;/g,'&');
+        flotte_perso='';
+        idFrig=is_frigo(GLOB_persistedData["frigos"],$('#rap_general_coord_' + GLOB_rgID + ' a').html());
+        //If 5 items set so a "flotte_perso" exist
+        if (idFrig>=0 && GLOB_persistedData["frigos"][idFrig].length > 5) flotte_perso = GLOB_persistedData["frigos"][idFrig][5];
+        mail_url = document.getElementById('url_rap_esp_' + GLOB_rgID).innerHTML.replace(/&amp;/g, '&');
         //Imperator2Toulouse- If second attack, middle butin is set
-        butin = (mail_url !== "second") ? parseInt(mail_url.replace('puredata:','')) : parseInt(parseInt(document.getElementById('url_rap_esp_'+(GLOB_rgID-1)).innerHTML.replace('puredata:','')) /2);
+        butin = (mail_url !== "second") ? parseInt(mail_url.replace('puredata:', '')) : parseInt(parseInt(document.getElementById('url_rap_esp_' + (GLOB_rgID - 1)).innerHTML.replace('puredata:', '')) / 2);
 
         //Check if flotte perso need to be improved because of opponant flotte and def has changed or if flotte or def exist and flotteperso is empty
-        check_perso_is_needed='';
-        check_perso_is_needed=( ((parseInt(GLOB_persistedData["frigos"][idFrig][7]) >0 || parseInt(GLOB_persistedData["frigos"][idFrig][8])>0) && GLOB_persistedData["frigos"][idFrig][5] == '') || (parseInt(GLOB_persistedData["frigos"][idFrig][7])<parseInt(GLOB_persistedData["frigos"][idFrig][9])) || (parseInt(GLOB_persistedData["frigos"][idFrig][8])<parseInt(GLOB_persistedData["frigos"][idFrig][10])))?"1":"0";
+        check_perso_is_needed = '';
+        check_perso_is_needed = ( ((parseInt(GLOB_persistedData["frigos"][idFrig][7]) > 0 || parseInt(GLOB_persistedData["frigos"][idFrig][8]) > 0) && GLOB_persistedData["frigos"][idFrig][5] == '') || (parseInt(GLOB_persistedData["frigos"][idFrig][7]) < parseInt(GLOB_persistedData["frigos"][idFrig][9])) || (parseInt(GLOB_persistedData["frigos"][idFrig][8]) < parseInt(GLOB_persistedData["frigos"][idFrig][10]))) ? "1" : "0";
 
         fill_case(butin, flotte_perso, idFrig, curplanet_name, check_perso_is_needed);
         fill_rapport_general();
@@ -2469,7 +2468,7 @@ function attack_cur() {
 		if (readData('AA_remain_slot', 'all') == "false") reason='[Flotte] ';
 		else if (GLOB_curAA_ID > GLOB_rgButins.length-1 || parseInt(GLOB_rgButins[GLOB_curAA_ID][0]) < parseInt(document.getElementById('butin_AA_RG').value)) reason='[Butin] ';
 		else reason='[Butin] ';
-		
+
         for (tmp =GLOB_curAA_ID; tmp<GLOB_rgButins.length-1 ; tmp++) {
             document.getElementById('rap_general_planet_name_'+GLOB_rgButins[tmp][1]).style.color = 'darkred';
             document.getElementById('rap_general_planet_name_'+GLOB_rgButins[tmp][1]).innerHTML = reason +  clean_name(document.getElementById('rap_general_planet_name_'+GLOB_rgButins[tmp][1]).innerHTML);
@@ -2537,7 +2536,6 @@ function countdownAA() {
     if (countdownObj.length > 0) {
         if (t>0 && !is_AA_blocked_by_time()) {
             countdownObj.html(get_cool_time(t/1000));
-
             if (readData('time_no_AA_eject_done','AA') == 'oui') {
                 storeData('time_no_AA_eject_done', 'non', 'AA');
                 repeat_text = '';
@@ -3009,43 +3007,43 @@ function SendFleetFailed(params){
     }
 }
 
-function ressources_by_priority(full_capacity,prio_metal,prio_crystal,prio_deut,metal,crystal,deut){
-    var capa_metal=0, capa_crystal=0, capa_deut=0;
+function ressources_by_priority(full_capacity,prio_metal,prio_cristal,prio_deut,metal,cristal,deut){
+    var capa_metal=0, capa_cristal=0, capa_deut=0;
     if (prio_metal == 1) {//si p1=metal alors
         capa_metal= (metal <= full_capacity) ? metal : full_capacity ; //capa_metal= si ress_metal <= global_capa alors ress_metal sinon global_capa ;
-        if (prio_crystal == 2) //si p2=chrystal alors
-            capa_crystal= (crystal <= (full_capacity-metal)) ? crystal : (full_capacity-metal); //capa_chrystal= si ress_crystal <= (global_capa-ress_metal) alors ress_crystal sinon (global_capa-ress_metal)
+        if (prio_cristal == 2) //si p2=christal alors
+            capa_cristal= (cristal <= (full_capacity-metal)) ? cristal : (full_capacity-metal); //capa_chrystal= si ress_cristal <= (global_capa-ress_metal) alors ress_cristal sinon (global_capa-ress_metal)
         if (prio_deut == 2) //si p2=deut alors
             capa_deut= (deut <= (full_capacity-metal)) ? deut : (full_capacity-metal); //capa_deut= si ress_deut <= (global_capa-ress_metal) alors ress_deut sinon (global_capa-ress_metal)
-        if (prio_crystal == 3) //si p3=chrystal alors
-            capa_chrystal= (crystal <= (full_capacity-metal-deut)) ? crystal : (full_capacity-metal-deut); //capa_chrystal= si ress_crystal <= (global_capa-ress_metal-ress_deut) alors ress_crystal sinon (global_capa-ress_metal-ress_deut)
+        if (prio_cristal == 3) //si p3=chrystal alors
+            capa_cristal= (cristal <= (full_capacity-metal-deut)) ? cristal : (full_capacity-metal-deut); //capa_chrystal= si ress_cristal <= (global_capa-ress_metal-ress_deut) alors ress_cristal sinon (global_capa-ress_metal-ress_deut)
         if (prio_deut == 3) // si p3=deut alors
-            capa_deut= (deut <= (full_capacity-metal-crystal)) ? deut : (full_capacity-metal-crystal); //capa_deut= si ress_deut <= (global_capa-ress_metal-ress_crystal) alors ress_deut sinon (global_capa-ress_metal-ress_crystal)
+            capa_deut= (deut <= (full_capacity-metal-cristal)) ? deut : (full_capacity-metal-cristal); //capa_deut= si ress_deut <= (global_capa-ress_metal-ress_cristal) alors ress_deut sinon (global_capa-ress_metal-ress_cristal)
     }
-    if (prio_crystal == 1) { //si p1=crystal alors
-        capa_crystal= (crystal <= full_capacity) ? crystal : full_capacity ; //capa_chrystal= si ress_crystal <= global_capa alors ress_crystal sinon global_capa ;
+    if (prio_cristal == 1) { //si p1=cristal alors
+        capa_cristal= (cristal <= full_capacity) ? cristal : full_capacity ; //capa_chrystal= si ress_cristal <= global_capa alors ress_cristal sinon global_capa ;
         if (prio_metal == 2) //si p2=metal alors
-            capa_metal= (metal <= (full_capacity-crystal)) ? metal : (full_capacity-crystal); //capa_metal= si ress_metal <= (global_capa-ress_crystal) alors ress_metal sinon (global_capa-ress_crystal)
+            capa_metal= (metal <= (full_capacity-cristal)) ? metal : (full_capacity-cristal); //capa_metal= si ress_metal <= (global_capa-ress_cristal) alors ress_metal sinon (global_capa-ress_cristal)
         if (prio_deut == 2) // si p2=deut alors
-            capa_deut= (deut <= (full_capacity-crystal)) ? deut : (full_capacity-crystal); //capa_deut= si ress_deut <= (global_capa-ress_crystal) alors ress_deut sinon (global_capa-ress_crystal)
+            capa_deut= (deut <= (full_capacity-cristal)) ? deut : (full_capacity-cristal); //capa_deut= si ress_deut <= (global_capa-ress_cristal) alors ress_deut sinon (global_capa-ress_crIstal)
         if (prio_metal == 3) //si p3=metal alors
-            capa_metal= (metal <= (full_capacity-crystal-deut)) ? metal : (full_capacity-crystal-deut); //capa_metal= si ress_metal <= (global_capa-ress_crystal-ress_deut) alors ress_metal sinon (global_capa-ress_crystal-ress_deut)
+            capa_metal= (metal <= (full_capacity-cristal-deut)) ? metal : (full_capacity-cristal-deut); //capa_metal= si ress_metal <= (global_capa-ress_cristal-ress_deut) alors ress_metal sinon (global_capa-ress_cristal-ress_deut)
         if (prio_deut == 3) // si p3=deut alors
-            capa_deut= (deut <= (full_capacity-crystal-metal)) ? deut : (full_capacity-crystal-metal); //capa_deut= si ress_deut <= (global_capa-ress_crystal-ress_metal) alors ress_deut sinon (global_capa-ress_crystal-ress_metal)
+            capa_deut= (deut <= (full_capacity-cristal-metal)) ? deut : (full_capacity-cristal-metal); //capa_deut= si ress_deut <= (global_capa-ress_cristal-ress_metal) alors ress_deut sinon (global_capa-ress_cristal-ress_metal)
     }
     if (prio_deut == 1) {  //si p1=deut alors
         capa_deut= (deut <= full_capacity) ? deut : full_capacity ; //capa_deut= si ress_deut <= global_capa alors ress_deut sinon global_capa ;
         if (prio_metal == 2) //si p2=metal alors
             capa_metal= (metal <= (full_capacity-deut)) ? metal : (full_capacity-deut); // capa_metal= si ress_metal <= (global_capa-ress_deut) alors ress_metal sinon (global_capa-ress_deut)
-        if (prio_crystal == 2) //si p2=crystal alors
-            capa_crystal= (crystal <= (full_capacity-deut)) ? crystal : (full_capacity-deut); //capa_chrystal= si ress_chrystal <= (global_capa-ress_deut) alors ress_chrystal sinon (global_capa-ress_deut)
+        if (prio_cristal == 2) //si p2=cristal alors
+            capa_cristal= (cristal <= (full_capacity-deut)) ? cristal : (full_capacity-deut); //capa_chrystal= si ress_chrystal <= (global_capa-ress_deut) alors ress_chrystal sinon (global_capa-ress_deut)
         if (prio_metal == 3) //si p3=metal alors
-            capa_metal= (metal <= (full_capacity-deut-crystal)) ? metal : (full_capacity-deut-crystal); //capa_metal= si ress_metal <= (global_capa-ress_crystal-ress_deut) alors ress_metal sinon (global_capa-ress_crystal-ress_deut)
-        if (prio_crystal == 3) //si p3=chrystal alors
-            capa_crystal= (crystal <= (full_capacity-deut-metal)) ? crystal : (full_capacity-deut-metal); //capa_chrystal= si ress_chrystal <= (global_capa-ress_deut-ress_metal) alors ress_chrystal sinon (global_capa-ress_deut-ress_metal)
+            capa_metal= (metal <= (full_capacity-deut-cristal)) ? metal : (full_capacity-deut-cristal); //capa_metal= si ress_metal <= (global_capa-ress_cristal-ress_deut) alors ress_metal sinon (global_capa-ress_cristal-ress_deut)
+        if (prio_cristal == 3) //si p3=chrystal alors
+            capa_cristal= (cristal <= (full_capacity-deut-metal)) ? cristal : (full_capacity-deut-metal); //capa_chrystal= si ress_chrystal <= (global_capa-ress_deut-ress_metal) alors ress_chrystal sinon (global_capa-ress_deut-ress_metal)
     }
     //return positive value or 0
-    return ([parseInt((capa_metal>=0)?capa_metal:0),parseInt((capa_crystal>0)?capa_crystal:0),parseInt((capa_deut>0)?capa_deut:0)]);
+    return ([parseInt((capa_metal>=0)?capa_metal:0),parseInt((capa_cristal>0)?capa_cristal:0),parseInt((capa_deut>0)?capa_deut:0)]);
 }
 
 function check_galaxy_frigs() {
@@ -3057,7 +3055,7 @@ function check_galaxy_frigs() {
             GAL_check_cur_gal = parseInt($('#galaxy_input').val());
             GAL_check_cur_sys = parseInt($('#system_input').val());
             $("#mobileDiv .row").not(".empty_filter").each( function(index){
-                position=$(this).find("td.position").text();
+                var position=$(this).find("td.position").text();
                 if (planame_list.indexOf($(this).find("td.planetname").text().trim()) < 0) {
                     if(is_frigo(GLOB_persistedData["frigos"],"["+GAL_check_cur_gal+":"+GAL_check_cur_sys+":"+position+"]") <0 ) {
                         b = $(this).find(('div#planet')+position);
@@ -3518,7 +3516,7 @@ var isDragingPrev=false;
 if ($("#loginForm").length == 1) {
     $('#content').append(build_login_data());
     $('#AutoLogServer').append($('#serverLogin').html());
-    
+
     if (readData('autoLogEnabled','all') !== "yes") {
         $('#AutoLogServer').val('');
         $('#AutLogUser').val('');
@@ -3543,7 +3541,7 @@ if ($("#loginForm").length == 1) {
         else alert("L'Auto-Login est maintenant INACTIF. Les identifiants que vous avez pu indiquer auparavant ne sont maintenant plus stockés dans les paramètres du script");
         location.href = location.href;
     });
-    
+
     if (readData('autoLogEnabled','all') == "yes") {
         // Timeout pour que le navigateur remplisse les champs
         setTimeout(function(){
@@ -3650,13 +3648,13 @@ class Planet {
 var data_planets = $(document.body).html().split("id=\"planet-").slice(1);
 for (var i=0 ; i<data_planets.length ; i++) {
     var tmp=data_planets[i];
-    
+
     // Planete classique
     planet_list_coords[nb_planet] = '['+tmp.split('[')[1].split(']')[0]+']';
     planame_list[nb_planet] = tmp.split('planet-name')[1].split('>')[1].split('<')[0];
     planet_list[nb_planet] = parseInt(tmp.split('"')[0]);
     planet_isLune[nb_planet] = false;
-    
+
     if (tmp.replace('planetlink active','') !== tmp) {
         GLOB_cur_planet = planet_list[nb_planet];
         cur_planet_coords = planet_list_coords[nb_planet];
@@ -3665,14 +3663,14 @@ for (var i=0 ; i<data_planets.length ; i++) {
         cur_planetIsLune = false;
     }
     nb_planet++;
-    
+
     if (tmp.match('<a class="moonlink')) {
         // Lune
         planet_list_coords[nb_planet] = planet_list_coords[nb_planet-1]+'Lune';
         planame_list[nb_planet] = 'Lune ('+planame_list[nb_planet-1]+')';
         planet_list[nb_planet] = parseInt(tmp.split('<a class="moonlink')[1].split('cp=')[1].split('"')[0]);
         planet_isLune[nb_planet] = true;
-        
+
         if (tmp.replace('moonlink active','') !== tmp) {
             GLOB_cur_planet = planet_list[nb_planet];
             cur_planet_coords = planet_list_coords[nb_planet];
@@ -3687,17 +3685,17 @@ for (var i=0 ; i<data_planets.length ; i++) {
 if (GLOB_cur_planet == 'default') {
     GLOB_cur_planet = planet_list[0];
     cur_planet_coords = planet_list_coords[0];
-    cur_planet_id=0; 
+    cur_planet_id=0;
     GLOB_cur_planet_name = planame_list[0];
     cur_planetIsLune = false;
 }
 
 var xhr;
 try {  xhr = new ActiveXObject('Msxml2.XMLHTTP');   }
-catch (e) 
+catch (e)
 {
     try {   xhr = new ActiveXObject('Microsoft.XMLHTTP'); }
-    catch (e2) 
+    catch (e2)
     {
         try {  xhr = new XMLHttpRequest();  }
         catch (e3) {  xhr = false;   }
@@ -3748,7 +3746,7 @@ else storeData('alert_mail_freq',alert_mail_freq,'all');
 if (GLOB_persistedData["listPrev"] == null || GLOB_persistedData["listPrev"] == 'undefined' || GLOB_persistedData["listPrev"] == '')
     GLOB_persistedData["listPrev"] = new Array();
 
-                  
+
 if (GLOB_persistedData["frigos"] == null || GLOB_persistedData["frigos"] == 'undefined' || GLOB_persistedData["frigos"] == '')
     GLOB_persistedData["frigos"] = new Array();
 
@@ -3792,7 +3790,7 @@ if (data !== null && data.split(":").length > 2) {
         +'<span style="color:#C02020">['+eject_gal+':'+eject_sys+':'+eject_pla+']</span></a></div>');
     GLOB_persistedData["eject"] = data;
     save_important_vars();
-    
+
     //Vérification du eject
     if (rand(1,20) == 1 && !gup('page').match('fleet')) {
         //Imp2Toulouse- Preset the type of mission if the moon is used
@@ -3809,7 +3807,7 @@ if (data !== null && data.split(":").length > 2) {
                    storeData('isDead', 'oui', 'eject');
                 }
             }
-        });        
+        });
     }
     if (readData('isDead', 'eject') == 'oui')
         blit_message('<span style="float: none;margin: 0;color:#d43635">Votre planète EJECT a disparu !!</span>');
@@ -3839,17 +3837,17 @@ GLOB_persistedData["prods"][1] = parseInt($(document.body).html().split('Product
 GLOB_persistedData["prods"][2] = parseInt($(document.body).html().split('Production actuelle\\u00a0:')[3].split('<span')[1].split('/span>')[0].match(/\d/g).join(""));//parseInt($(document.body).html().split(',"tooltip":')[3].split('<span')[3].split('/span>')[0].match(/\d/g).join(""));
 
 /* lit votre capacité de stockage */
-capa_metal = parseInt($(document.body).html().split(',"max":')[1].split(',')[0].match(/\d/g).join(""));
-capa_crystal = parseInt($(document.body).html().split(',"max":')[2].split(',')[0].match(/\d/g).join(""));
-capa_deuterium = parseInt($(document.body).html().split(',"max":')[3].split(',')[0].match(/\d/g).join(""));
+var capa_metal:number = parseInt($(document.body).html().split(',"max":')[1].split(',')[0].match(/\d/g).join(""));
+var capa_crystal:number = parseInt($(document.body).html().split(',"max":')[2].split(',')[0].match(/\d/g).join(""));
+var capa_deuterium:number = parseInt($(document.body).html().split(',"max":')[3].split(',')[0].match(/\d/g).join(""));
 
 // Rapport général
-leave_slot='';
-noGTAA='';
-forceAA='';
-type_vaisseaux_AA = readData('type_vaisseaux','AA') == null ? 1 : parseInt(readData('type_vaisseaux','AA'));
-defaut_AA_butin = 20000;
-defaut_AA_nb_slot=1;
+var leave_slot='';
+var noGTAA='';
+var forceAA='';
+var type_vaisseaux_AA = readData('type_vaisseaux','AA') == null ? 1 : parseInt(readData('type_vaisseaux','AA'));
+var defaut_AA_butin = 20000;
+var defaut_AA_nb_slot=1;
 if (readData('AA_butin','AA') !== null) defaut_AA_butin = readData('AA_butin','AA').match(/\d/g).join("");
 if (readData('AA_nb_slot','AA') !== null) defaut_AA_nb_slot = readData('AA_nb_slot','AA').match(/\d/g).join("");
 if (readData('AA_leave_slot','AA') == 'oui') leave_slot=' checked';
@@ -3860,7 +3858,7 @@ if (readData('force','AA') == 'oui') forceAA=' checked';
 bonus_class="";
 bonus_style="";
 lastAAcoolTime=null;
-cur_check_all_state = false;
+var cur_check_all_state:boolean = false;
 
 
 //##################################
@@ -3876,16 +3874,16 @@ setTimeout(check_attack, 2000);
 
 
 //Prepare autoattack bar
-id_prev="planet";
+var id_prev="planet";
 if (gup('page') == "overview") id_prev="detailWrapper";
-data='';
+var data:string='';
 data += '<div style="height:0px;"><div id="support_prev_block" style="height:;width:660px;background:#0D1014;position:relative;left:-5px;"></div></div>';
 add_auto_attack_bar();
 
 /* Affiche du retour d'ejection */
 if (readData('retour_auto', 'eject') == 'oui') {
-    time_restant = retour_time - time() + parseInt(readData('ejection_time', 'eject'));
-    
+    var time_restant = retour_time - time() + parseInt(readData('ejection_time', 'eject'));
+
     if (time_restant > 0) {
         count_progs++;
         GLOB_nb_special_bars++;
@@ -3906,22 +3904,22 @@ if (readData('retour_auto', 'eject') == 'oui') {
 
 
 // Affiche le pack de démarrage
-enable_quick_pack = false;
+var enable_quick_pack:boolean = false;
 if ((gup('page') == "resources" && !cur_planetIsLune) || (gup('page') == "station" && cur_planetIsLune)) {
-    lvlMineMetal = 10;
-    lvlMineCris = 10;
+    var lvlMineMetal:number = 10;
+    var lvlMineCris:number = 10;
     //Imp2Toulouse- Maybe we could need
-    lvlSynthDeut = 10;
-    lvlSolar = 10;
-    lvlBaseLunaire = 10;
-    //Imp2Toulouse- Factorization + Antigame compatibility  
+    var lvlSynthDeut:number = 10;
+    var lvlSolar:number = 10;
+    var lvlBaseLunaire:number = 10;
+    //Imp2Toulouse- Factorization + Antigame compatibility
     //Call function get_info_button returns back current button level and evolution (if one running)
     //Allow to answer to the bug
-    lvlMineMetal_Next = 0;
-    lvlMineCris_Next = 0;
-    lvlSynthDeut_Next = 0;
-    lvlSolar_Next = 0;
-    lvlBaseLunaire_Next = 0;
+    var lvlMineMetal_Next:number = 0;
+    var lvlMineCris_Next:number = 0;
+    var lvlSynthDeut_Next:number = 0;
+    var lvlSolar_Next:number = 0;
+    var lvlBaseLunaire_Next:number = 0;
 
     if (!cur_planetIsLune) {
         var info_button1=get_info_button("button1");
@@ -3953,8 +3951,8 @@ if ((gup('page') == "resources" && !cur_planetIsLune) || (gup('page') == "statio
         lvlBaseLunaire_Next= parseInt(info_button2[1]);
 
         info_button2=null;
-    } 
-    
+    }
+
     if (GLOB_persistedData["listPrev"].length == 0 && ((!cur_planetIsLune && lvlMineMetal <= 1 && lvlMineCris <= 1 && lvlSolar <= 1) || (cur_planetIsLune && lvlBaseLunaire==0))) {
         blit_message_time("<b>Pack de démarrage rapide</b> disponible pour votre nouvelle "+(cur_planetIsLune ? 'lune' : 'planète')+" !", 6000);
         enable_quick_pack = true;
@@ -3966,13 +3964,13 @@ if ((gup('page') == "resources" && !cur_planetIsLune) || (gup('page') == "statio
         data += "\n"+'  </div>';
         data += "\n"+'</div>';
     }
-    
+
     //Imp2Toulouse- Clean Up
     lvlMineMetal = null;
     lvlMineCris = null;
     lvlSynthDeut = null;
     lvlSolar = null;
-    lvlBaseLunaire = null;    
+    lvlBaseLunaire = null;
     lvlMineMetal_Next = null;
     lvlMineCris_Next = null;
     lvlSynthDeut_Next = null;
@@ -3988,12 +3986,12 @@ if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page')
     ////////////////
     //Imp2Toulouse- FIRST IMPACT 6.0.5
     ////////////////
-    if (gup('page')!=='resourceSettings' && gup('page')!=='messages' && gup('page')!=='chat') $('#planet').removeClass('shortHeader').addClass('Header'); 
+    if (gup('page')!=='resourceSettings' && gup('page')!=='messages' && gup('page')!=='chat') $('#planet').removeClass('shortHeader').addClass('Header');
     ////////////////
     var ress_metal = $(document.body).find('#resources_metal').html().match(/\d/g).join("");
     var ress_crystal = $(document.body).find('#resources_crystal').html().match(/\d/g).join("");
     var ress_deuterium = $(document.body).find('#resources_deuterium').html().match(/\d/g).join("");
-   
+
     decalY_prev = count_progs;
     reportfini = false;
     for (var i=0 ; i<GLOB_persistedData["listPrev"].length && GLOB_persistedData["listPrev"][i]; i++) {
@@ -4007,11 +4005,11 @@ if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page')
             else multip = " (x"+get_prev_data("form_number", i)+")";
             factor=parseInt(get_prev_data("form_number", i));
         }
-        
+
         if (get_prev_data("havetoprev", i) == "yes" || get_prev_data("donned", i) == "yes" || get_prev_data("donned", i).match("yesno")) {
             bg = "#0F1D2D";
             color = "#606060";
-            
+
             if (pref == gup('page') || gup('page') == "overview") {
                 bg = "#3F4D5D";
                 color = "#6f9fc8";
@@ -4029,12 +4027,12 @@ if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page')
                     textSupp="<span style=\"cursor:help\" title=\"Lorsque certaines conditions empêchent le lancement d'une construction (arbre tech par exemple), le script la repporte de 10 minutes\">[Repporté "+((parseInt((endTime-time())/60/1000))+1)+"min]</span> ";
                 }
             }
-            
+
             count_progs++;
             data += get_prevision_bar_html(i,textSupp, titles_cat[categories.indexOf(pref)], get_prev_data("title", i).replace(/_esp_/g, ' ')+multip, color, parseInt(get_prev_data("cur_met_prev", i))*factor,parseInt(get_prev_data("cur_crys_prev", i))*factor,parseInt(get_prev_data("cur_deut_prev", i))*factor,ress_metal,ress_crystal,ress_deuterium,count_progs);
         }
-    }   
-    
+    }
+
     if (reportfini) {
         save_important_vars();
         blit_message('La liste de constructions à été mise à jour, actualisation.');
@@ -4077,14 +4075,14 @@ if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page')
 }
 
 var mouse = {x: 0, y: 0};
-document.addEventListener('mousemove', function(e){ 
-    mouse.x = e.clientX || e.pageX; 
+document.addEventListener('mousemove', function(e){
+    mouse.x = e.clientX || e.pageX;
     mouse.y = e.clientY || e.pageY;
     update_prev_pos();
     update_pla_pos();
 }, false);
 
-document.addEventListener('mouseup', function(e){ 
+document.addEventListener('mouseup', function(e){
     drop_prev();
     drop_pla();
 }, false);
@@ -4112,7 +4110,7 @@ document.getElementById('dragplaReset').onclick =function(){
 };
 
 for (i=0 ; i<nb_planet ; i++) {
-    e=document.getElementById("planet-"+planet_list[i]);
+    var e=document.getElementById("planet-"+planet_list[i]);
     if(e !== null) {
         e.style.position = "relative";
         e.innerHTML += '<img style="display:none;cursor:move;width:18px;height:auto;-moz-user-select: none;position:relative;z-index:1000;left:110px;top:-44px;" id="dragpla-'+planet_list[i]+'" draggable="false" src="http://www.sephiogame.com/script/dragdrop.png" title="Déplacer">';
@@ -4134,11 +4132,30 @@ for (i=0 ; i<nb_planet ; i++) {
     }
 }
 
-
+//Gestion des messages
 if (gup('page') == 'messages') {
     // Imp2Toulouse- Add id_prev pour le nouveau systeme de message
     $( '#buttonz' ).prepend( '<div id="planet" style="height:1px"> </div>' );
     setInterval(change_message_actiontab,500);
+}
+
+//Gestion de l'auto-rapatriement
+if (gup('page') == 'overview' && readData('typethreshold','AR') == 'volume') {
+    //Si l'ensemble des ressources moins les ressources devant rester à quai > volume de ressource seuil
+    if (
+        (parseInt(ress_metal)-parseInt(readData("ressremain","AR").split(":")[0])
+        +parseInt(ress_crystal)-parseInt(readData("ressremain","AR").split(":")[1])
+        +parseInt(ress_deuterium)-parseInt(readData("ressremain","AR").split(":")[2])) > readData("threshold","AR")) {
+        blit_message('L\'auto-rapatriement des ressources de cette planete va être lancé dans 10 secs.');
+        var sephi_opt:string = "rapatriement=yes&ID=Transport";
+        var galaxy:number, system:number, position:number, islune:boolean;
+        [,galaxy,system,position,islune]=readData('coord','AR').match(/(\d+):(\d+):(\d+):(\d+)/);
+        var ress_priority:string = "prioMetal=" + readData("priority_metal","AR") + "&prioCrystal=" + readData("priority_cristal","AR") + "&prioDeuterium=" + readData("priority_deut","AR");
+        params = JSON.parse('{ "url": "' + "https://" + univers + "/game/index.php" + '", "page": "page=fleet1", "from": "' + "cp=" + planet_list[planame_list.indexOf(GLOB_cur_planet_name)] + '", "to": "' + "galaxy=" + galaxy + "&system=" + system + "&position=" + position +'", "type_mission": "' + "type="+(islune?'3':'1')+"&mission=4" + '", "fleets": "' + "speed=1" + '", "ressources": "' + "metal=" + parseInt(ress_metal) + "&crystal=" + parseInt(ress_crystal) + "&deuterium=" + parseInt(ress_deuterium) + '&' + ress_priority + '", "fleets_opts": "' + "union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0" + '", "token": "' + "token=" + '", "step": "' + 1 + '", "sephi_opt":"' + sephi_opt + '"}');
+        storeData('data',JSON.stringify(params), 'form');
+/*        PostXMLHttpRequest(params.url+"?"+params.page+"&"+params.from,"",SendFleet);
+*/
+    }
 }
 
 curY_decal = 0;
@@ -4162,7 +4179,7 @@ if (plapla_change_time1>= plapla_change_time2) plapla_change_time2 = plapla_chan
 if (nb_planet>1 && (readData("change_planet", 'all') == "yes" || gup('page') == "overview") && gup('blockswitchplanet') != "yes") {
     attente = rand(plapla_change_time1,plapla_change_time2)*60;
     if ($(document.body).html().match('<div id="attack_alert" style="visibility:visible;">')) attente = rand(1,2)*30;
-    
+
     if (readData("noplaplaChange", 'all') == 'oui') {
         storeData("change_planet", "no", 'all');
         setTimeout(function(){blit_message_time('<span style="float: none;margin: 0;color:red">Attention : Changement de planète désactivé</span>',10000);}, 20000);
@@ -4177,7 +4194,7 @@ if (nb_planet>1 && (readData("change_planet", 'all') == "yes" || gup('page') == 
             for (i=1;i<=20;i++) setTimeout(function(){if (!GLOB_planet_change_inhibited) blit_message('Changement de planète prévu dans <span style="float: none;margin: 0;color:#109E18">'+get_cool_time(dump_attente - Math.floor((time()-deb_time)/1000))+' minutes</span>.', true);}, i*17000);
         }
     }
-    
+
     if (readData("noplaplaChange", 'all') != 'oui') {
         // On prévoit le changement de planète
         setTimeout(function(){
@@ -4331,24 +4348,24 @@ if (gup('page') == "fleet2" && gup('recyclPLZ') == 'oui') {
 
 // Auto-Attack
 if (gup('page') == "fleet1" && gup('auto') == 'yes') {
-    nbPT = 0;
-    nbGT = 0;
+    var nbPT = 0;
+    var nbGT = 0;
     if (gup('PT') !== "") nbPT = parseInt(gup('PT'));
     if (gup('GT') !== "") nbGT = parseInt(gup('GT'));
 
-    maxPT = get_info_button("button202")[0];
-    maxGT = get_info_button("button203")[0];
+    var maxPT = get_info_button("button202")[0];
+    var maxGT = get_info_button("button203")[0];
 
     //Check if Flotte/Def of opponant has changed
-    check_perso_is_needed=(gup('check_perso_is_needed') === "1");
+    var check_perso_is_needed=(gup('check_perso_is_needed') === "1");
 
-    maxNames = new Array('Chasseur léger','Chasseur lourd','Croiseur','Vaisseau de bataille','Traqueur','Bombardier','Destructeur','Étoile de la mort','Petit transporteur','Grand transporteur','Vaisseau de colonisation','Recycleur','Sonde d`espionnage');
-    maxNames_button = new Array('204','205','206','207','215','211','213','214','202','203','208','209','210');
-    perso_is_ok = true;
+    var maxNames = new Array('Chasseur léger','Chasseur lourd','Croiseur','Vaisseau de bataille','Traqueur','Bombardier','Destructeur','Étoile de la mort','Petit transporteur','Grand transporteur','Vaisseau de colonisation','Recycleur','Sonde d`espionnage');
+    var maxNames_button = new Array('204','205','206','207','215','211','213','214','202','203','208','209','210');
+    var perso_is_ok = true;
     //Check if flotte_perso is ok
-    fleets_perso="";
+    var fleets_perso="";
     if (gup('flotte_perso') !== '') {
-        nbf = gup('flotte_perso').split(':');
+        var nbf = gup('flotte_perso').split(':');
         var supPT = 0;
         var supGT = 0
         for (i=0; i<nbf.length ; i++) {
@@ -4359,17 +4376,17 @@ if (gup('page') == "fleet1" && gup('auto') == 'yes') {
             } else {
                 fleets_perso+= "&am"+maxNames_button[i]+"="+nbf[i];
             }
-            if (parseInt(nbf[i]) > parseInt(get_info_button("button"+maxNames_button[i])[0]))    
+            if (parseInt(nbf[i]) > parseInt(get_info_button("button"+maxNames_button[i])[0]))
                 perso_is_ok=false;
         }
-        
+
         if (perso_is_ok) {
             nbPT = supPT + nbPT;
             nbGT = supGT + nbGT;
         }
     }
 
-    idcook = 'AA_feed';
+    var idcook = 'AA_feed';
     if (gup('ID') == 'Exped') idcook = 'AA_Exp';
     if (!hasEnoughSlots()) {
         document.title = 'Pas assez de slots disponible';
@@ -4392,7 +4409,7 @@ if (gup('page') == "fleet1" && gup('auto') == 'yes') {
     else {
         ////////////////////////////
         //// USE NEW SendFleet
-        var params; 
+        var params;
         var cp ="cp="+planet_list[planame_list.indexOf(GLOB_cur_planet_name)];
         var url= "https://"+univers+"/game/index.php";
         var to= "galaxy="+gup('galaxy')+"&system="+gup('system')+"&position="+gup('position');
@@ -4437,10 +4454,10 @@ if (gup('page') == 'movement') {
     quant_crystal = new Array();
     quant_deut = new Array();
     nb_vaisseaux = new Array();
-    
+
     data='<div id="buttonz" style="min-height: 0px;margin:0px;position:relative;top:'+(document.getElementById("planet").offsetHeight-27)+'px;left:-8px;"><div class="header"><p style="width:665px;text-align:center;height:20px;white-space: nowrap;padding-top:8px;color:#6f9fc8;"><b>Arrivées prévues</b></p></div></div>';
     data+='<table id="tab_coming_soon" style="width:656px;position:relative;top:'+(document.getElementById("planet").offsetHeight-27)+'px;left:-2px;border: 1px solid #000000;color: #777;background:#0D1014;margin:auto;margin-bottom:16px;"><tbody><tr style="background:#1b1b1b;color: #999;"><th style="border: 1px solid #303030;padding: 5px 8px;">Planète</th><th style="border: 1px solid #303030;padding: 5px 8px;">Métal</th><th style="border: 1px solid #303030;padding: 5px 8px;">Cristal</th><th style="border: 1px solid #303030;padding: 5px 8px;">Deuterium</th><th style="border: 1px solid #303030;padding: 5px 8px;">Vaisseaux</th></tr>';
-    
+
     for (i=0 ; i<flottes.length ; i++) {
         tmp=flottes[i].innerHTML.split('</figure>');
         dep = tmp[1].split('</span>')[0].replace(/ /g,'');
@@ -4454,22 +4471,22 @@ if (gup('page') == 'movement') {
         for (j=1 ; j<tmp.length ; j++) {
             vaisseaux += parseInt(tmp[j].split('</td>')[0]);
         }
-        
+
         id_dep = planets.indexOf(dep);
         if (id_dep == -1)id_dep = planets.length;
-        
+
         id_dest = planets.indexOf(dest);
         if (id_dest == -1)id_dest = planets.length;
-        
+
         if (flottes[i].innerHTML.match('Attaquer') || flottes[i].innerHTML.match('Stationner') || flottes[i].innerHTML.match('Expédition')) {
             if (flottes[i].innerHTML.match('Stationner')) {id = id_dest; planets[id] = dest;}
             else {id = id_dep; planets[id] = dep;}
-            
+
             if (quant_metal[id] == undefined) quant_metal[id] = 0;
             if (quant_crystal[id] == undefined) quant_crystal[id] = 0;
             if (quant_deut[id] == undefined) quant_deut[id] = 0;
             if (nb_vaisseaux[id] == undefined) nb_vaisseaux[id] = 0;
-            
+
             quant_metal[id] += metal;
             quant_crystal[id] += crystal;
             quant_deut[id] += deut;
@@ -4479,7 +4496,7 @@ if (gup('page') == 'movement') {
             if (nb_vaisseaux[id_dep] == undefined) nb_vaisseaux[id_dep] = 0;
             planets[id_dep] = dep;
             nb_vaisseaux[id_dep] += vaisseaux;
-            
+
             if (!flottes[i].innerHTML.match('fleet_icon_reverse')) {
                 if (quant_metal[id_dest] == undefined) quant_metal[id_dest] = 0;
                 if (quant_crystal[id_dest] == undefined) quant_crystal[id_dest] = 0;
@@ -4491,13 +4508,13 @@ if (gup('page') == 'movement') {
             }
         }
     }
-    
+
     for (i=0 ; i<planets.length ; i++) {
         if (quant_metal[i] == undefined || quant_metal[i] == 0) quant_metal[i] = '-';
         if (quant_crystal[i] == undefined || quant_crystal[i] == 0) quant_crystal[i] = '-';
         if (quant_deut[i] == undefined || quant_deut[i] == 0) quant_deut[i] = '-';
         if (nb_vaisseaux[i] == undefined || nb_vaisseaux[i] == 0) nb_vaisseaux[i] = '-';
-        
+
         data += '<tr><td style="border: 1px solid #303030;padding: 5px 8px;color:#7c8e9a;">'+planets[i]+'</td>';
         data += '<td style="border: 1px solid #303030;padding: 5px 8px;">'+get_cool_digit(quant_metal[i])+'</td>';
         data += '<td style="border: 1px solid #303030;padding: 5px 8px;">'+get_cool_digit(quant_crystal[i])+'</td>';
@@ -4505,12 +4522,12 @@ if (gup('page') == 'movement') {
         data += '<td style="border: 1px solid #303030;padding: 5px 8px;">'+get_cool_digit(nb_vaisseaux[i])+'</td>';
         data += '</tr>';
     }
-    
-    
+
+
     data += '</tbody></table></td></tr></table>';
     document.getElementById('planet').innerHTML += data;
     document.getElementById('planet').style.height = (document.getElementById("planet").offsetHeight+((1+planets.length)*26+32)) + "px";
-    
+
     //document.getElementById('inhalt').innerHTML = document.getElementById('inhalt').innerHTML.replace('<div class="fleetStatus">',data+'<div class="fleetStatus">');
 }
 // END - Total Retours
@@ -4527,7 +4544,7 @@ if (gup('page') == 'messages') {
     data += '                    Generation des rapports d\'auto-attaque';
     data += '                </h2>';
     data += '                <div class="content">';
-     
+
     data += '                    <p id="old_rapport_gen" style="display:'+((readData('lastRap', 'AA') !== null)?'inline':'none')+';text-align:left;cursor:pointer;color:#6f9fc8;position:relative;top:7px;padding-left:30px;font-weight:normal;padding-bottom:10px;padding-top:10px;">&#9658; Relire le dernier <b>rapport général</b> de cette planète (Généré il y a '+get_Time_Remain(readData("last_start", "AA"))+')</p>';
     data += '                    <p id="rapport_gen" style="text-align:left;cursor:pointer;color:#6f9fc8;position:relative;top:7px;padding-left:30px;font-weight:normal;padding-bottom:10px;padding-top:10px;">&#9658; Demander un <b>rapport général</b> (seulement les rapports non lu de cette page)</p>';
     data += '                    <p style="text-align:left;color:#808080;position:relative;top:7px;padding-left:40px;font-weight:normal;padding-bottom:10px;padding-top:0px;"><input type="checkbox" id="with_readed_RG" style="position:relative;top:2px;"/> Considérer également les rapports lus (maximum <input type="text" id="NB_readed_RG" value="5" style="text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onfocus="document.getElementById(\'with_readed_RG\').checked = true;"> rapports)</p>';
@@ -4560,20 +4577,20 @@ if (gup('page') == 'messages') {
             activeSubtabid = $(this).attr('id');
         });
         var activeSubbuttonid=$('#buttonz .content .tab_ctn .list_item.ui-tabs-active').attr('id');
-        
+
         //desactivate and hidden button and associated tab
         $('#'+activeButtonid).attr("aria-selected","false");
         $('#'+activeButtonid).attr("aria-expanded","false");
         $('#'+activeButtonid).attr("aria-hidden","true");
         $('#'+activeButtonid).attr("href","https://"+univers+"/game/"+activeTabrel);
-        
+
         $('#'+activeSubbuttonid).attr("aria-selected","false");
         $('#'+activeSubbuttonid).attr("aria-expanded","false");
         $('#'+activeSubbuttonid).removeClass( "ui-tabs-active" );
         $('#'+activeAriaControls).attr("aria-hidden","true");
         $('#'+activeAriaControls).hide();
         $('#'+activeButtonid).removeClass( "ui-tabs-active" );
-        
+
         $(this).parent().addClass( "ui-tabs-active" );
         $(this).parent().attr("aria-selected","true");
         $(this).parent().attr("aria-expanded","true");
@@ -4608,15 +4625,13 @@ if (gup('page') == 'messages') {
         document.getElementById('old_rapport_gen_AA').style.display = 'none';
 
         while(document.getElementById('rap_general_coord_'+GLOB_rgID) != null) {
-            butin = parseInt(document.getElementById('rap_general_butin_'+GLOB_rgID).innerHTML.match(/\d/g).join(""));
-            tmp = document.getElementById('rap_general_coord_'+GLOB_rgID).innerHTML.replace('[','').replace(']','').split(':');
-            galaxy = tmp[0];
-            system = tmp[1];
-            planet = tmp[2];
+            butin = parseInt($('#rap_general_butin_'+GLOB_rgID).html().match(/\d/g).join(""));
+            [,galaxy,system,planet]=$('#rap_general_coord_' + GLOB_rgID+' a').html().match(/\[(\d+):(\d+):(\d+)\]/)
+
             //Imp2Toulouse- Replace this block with equivalent one in order to use id_frigo function
             // Recherche d'un frigo avec ces coordonnées et qui a une flote personnalisée
             flotte_perso='';
-            idFrig=is_frigo(GLOB_persistedData["frigos"],document.getElementById('rap_general_coord_'+GLOB_rgID).innerHTML);
+            idFrig=is_frigo(GLOB_persistedData["frigos"],$('#rap_general_coord_'+GLOB_rgID+' a').html());
             //If 5 items set so a "flotte_perso" exist
             if (idFrig>=0 && GLOB_persistedData["frigos"][idFrig].length > 5) flotte_perso=GLOB_persistedData["frigos"][idFrig][5];
             ////
@@ -4662,26 +4677,50 @@ add_programmation_button();
 //setInterval(function(){if ($("#content") > 0 && cur_title !== '') {cur_title = ''}}, 100);
 save_list_in_cookies();
 update_timers();
-verif=setTimeout(gestion_cook, rand(2,4)*1000);
+var verif=setTimeout(gestion_cook, rand(2,4)*1000);
 
 /* Page Sephi Script */
 if (gup('sephiScript') == '1') {
     document.getElementById('planetList').innerHTML = document.getElementById('planetList').innerHTML.replace(/page=shipyard/g,'page=shipyard&sephiScript=1');
-    bonus_class="selected";
-    bonus_style=" background-position:0px 27px;";
+    var bonus_class:string="selected";
+    var bonus_style:string=" background-position:0px 27px;";
     document.getElementById('menuTable').innerHTML = document.getElementById('menuTable').innerHTML.replace('shipyard highlighted','shipyard').replace('menubutton  selected','menubutton');
 
     document.getElementById('planet').style.backgroundImage = 'url(http://www.sephiogame.com/script/cadre_sephi_script_page.png)';
     document.getElementById('header_text').innerHTML = document.getElementById('header_text').innerHTML.replace('Chantier spatial','SephiOGame');
-    sephi_frigos_data= '';
+    var sephi_frigos_data:string= '';
 
     //Imp2toulouse- Factorize this part to the get_Time_Remain (previously get_last_AA_coolTime) function
-    lastAAcoolTime=get_Time_Remain(readData("last_start", "AA"));
+    var lastAAcoolTime:string=get_Time_Remain(readData("last_start", "AA"));
 
-    titletext = 'Mes frigos';
+    // Gestion Auto-Rapatriement
+    sephi_frigos_data+='<div class="header"><h2>Gestion Auto-Rapatriement de vos ressources</h2></div>';
+    sephi_frigos_data+='<div class="content" style="min-height: 100px;positon:relative;z-index:10;margin-bottom:50px;padding-top:15px;">';
+    sephi_frigos_data+=' <p style="padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">';
+    sephi_frigos_data+='  Le script vous permet de rapatrier vos ressources selon votre besoin vers une de vos colonies. Si besoin de garder des ressources à quai, il faudra le spécifier dans la partie "Ressources restantes".</i><br><br><br/>';
+    if (readData('coord', 'AR') == null) storeData('coord',cur_planet_coords.replace('[','').replace(']','').replace('Lune','')+':1','AR');
+    sephi_frigos_data+='  <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Coords planete de rapatriement: <input type="number" min="1" max="7" style="width:30px;position:relative;margin-left:30px;text-align:center;" value="'+(readData('coord','AR') != ''?readData('coord','AR').split(":")[0]:'')+'" title="Galaxie" id="AR_coord_galaxy"/><input type="number" min="1" max="499" style="width:40px;position:relative;margin-left:5px;text-align:center;" value="'+(readData('coord','AR') != ''?readData('coord','AR').split(":")[1]:'')+'" title="Système" id="AR_coord_system"/><input type="number" min="1" max="15" style="width:30px;position:relative;margin-left:5px;text-align:center;" value="'+(readData('coord','AR') != ''?readData('coord','AR').split(":")[2]:'')+'" title="Planète" id="AR_coord_position"/> &nbsp; <input type="checkbox" id="AR_coord_lune" title="Si vous cochez cette case, l\'éjection se fera sur la lune des coordonnées demandées." style="position:relative;top:2px;" '+(readData('coord','AR') != '' && readData('coord','AR').split(":")[3]=='1'?'checked':'')+'/> Ejecter vers la lune &nbsp;&nbsp; <i><span id="save_AR_coord" style="display:none;">(enregistré)</span></i></span><br>';
+    var typethreshold:string=readData('typethreshold', 'AR');
+    var threshold:string=(typethreshold == 'volume')?readData('threshold', 'AR'):'';
+    sephi_frigos_data+='  <br><span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Seuil basé sur <select id="AR_typethreshold" style="position:relative;margin-right:10px;visibility: visible;"><option value="off" '+(typethreshold == 'off'?'selected':'')+'>Aucun(Off)</option><option value="volume" '+(typethreshold == 'volume'?'selected':'')+'>Volume global ressource</option><option value="desactivationAA" '+(typethreshold == 'desactivationAA'?'selected':'')+'>Désactivation Auto-Attack</option></select>&nbsp;<span id="AR_threshold_show" style="display:'+(typethreshold == 'volume'?'inline-block':'none')+'"> Volume:&nbsp;<input type="number" min="0" style="width:75px;position:relative;margin-right:10px;text-align:center;" value="'+threshold+'" title="Valeur du seuil (Quantité globale de ressources)" id="AR_threshold"/></span> &nbsp;&nbsp; <i><span id="save_AR_threshold" style="display:none;">(enregistré)</span></i></span><br/>';
+    if (readData('ressremain', 'AR') == null) storeData('ressremain','0:0:100000','AR');
+    sephi_frigos_data+='  <br><span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Ressources restantes: Metal&nbsp;<input type="number" min="0" style="width:75px;position:relative;margin-right:10px;text-align:center;" value="'+(readData('ressremain','AR') != ''?readData('ressremain','AR').split(":")[0]:'')+'" title="Volume de Metal restant" id="AR_ressremain_metal"/>Cristal&nbsp;<input type="number" min="0" style="width:75px;position:relative;margin-right:10px;text-align:center;" value="'+(readData('ressremain','AR') != ''?readData('ressremain','AR').split(":")[1]:'')+'" title="Volume de Cristal restant" id="AR_ressremain_cristal"/>Deuterium&nbsp;<input type="number" min="0" style="width:75px;position:relative;margin-right:10px;text-align:center;" value="'+(readData('ressremain','AR') != ''?readData('ressremain','AR').split(":")[2]:'')+'" title="Volume de Deuterium restant" id="AR_ressremain_deut"/> &nbsp;&nbsp; <i><span id="save_AR_ressremain" style="display:none;">(enregistré)</span></i></span><br/>';
+    if (readData('priority_metal', 'AR') == null) storeData('priority_metal','1','AR');
+    if (readData('priority_cristal', 'AR') == null) storeData('priority_cristal','2','AR');
+    if (readData('priority_deut', 'AR') == null) storeData('priority_deut','3','AR');
+    var AR_priority_metal:number = readData('priority_metal', 'AR');
+    var AR_priority_cristal:number = readData('priority_cristal', 'AR');
+    var AR_priority_deut:number = readData('priority_deut', 'AR');
+    sephi_frigos_data+='  <br><span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Prioriser les ressources Métal: <select id="AR_priority_metal" style="visibility: visible;"><option value="1" '+(AR_priority_metal == '1' ? 'selected':'')+'>Priority 1</option><option value="2" '+(AR_priority_metal == '2' ? 'selected':'')+'>Priority 2</option><option value="3" '+(AR_priority_metal == '3' ? 'selected':'')+'>Priority 3</option></select>&nbsp;Crystal: <select id="AR_priority_cristal" style="visibility: visible;"><option value="1" '+(AR_priority_cristal == '1' ? 'selected':'')+'>Priority 1</option><option value="2" '+(AR_priority_cristal == '2' ? 'selected':'')+'>Priority 2</option><option value="3" '+(AR_priority_cristal == '3' ? 'selected':'')+'>Priority 3</option></select>&nbsp;Deut: <select id="AR_priority_deut" style="visibility: visible;"><option value="1" '+(AR_priority_deut == '1' ? 'selected':'')+'>Priority 1</option><option value="2" '+(AR_priority_deut == '2' ? 'selected':'')+'>Priority 2</option><option value="3" '+(AR_priority_deut == '3' ? 'selected':'')+'>Priority 3</option></select><i><span id="save_AR_priority" style="display:none;">(enregistré)</span></i></span></span><br/>';
+    sephi_frigos_data+=' </p><br>';
+    sephi_frigos_data+='  <div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div>';
+    sephi_frigos_data+='</div>';
+    sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>';
+
+    // Les frigos et ses actions
+    var titletext:string = 'Mes frigos';
     if (GLOB_persistedData["frigos"].length == 1) titletext = 'Mon frigo';
     if (GLOB_persistedData["frigos"].length>1) titletext = 'Mes '+GLOB_persistedData["frigos"].length+' frigos';
-    // Les frigos
     sephi_frigos_data+='<div class="header" style=""><h2>'+titletext+'</h2></div>';
     sephi_frigos_data+='<div class="content" style="min-height: 90px;positon:relative;z-index:10;margin-bottom:40px;padding-top:25px;padding-left:30px;">';
     if (lastAAcoolTime != null) sephi_frigos_data+='<p style="color:#A52592;position:relative;top:-10px;margin-bottom:5px;padding-left:20px;">Dernier rapport global généré il y a ' + lastAAcoolTime+ '</p>';
@@ -4711,7 +4750,11 @@ if (gup('sephiScript') == '1') {
 
     sephi_frigos_data+='<span style="text-align:left;color:#c0c0c0;position:relative;top:-12px;padding-left:40px;font-weight:normal;">Configuration des frigos:</span><br>';
     sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-2px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="Prog_AF" '+ ((readData('Prog_AF','all') == "true")?'checked':'')+' style="position:relative;top:2px;"/> Auto ajouter les cibles espionnées.<i><span id="save_AF_Prog" style="display:none;">(enregistré)</span></i></span><br><br>';
-    sephi_frigos_data+='<ul style="text-align:left;color:#808080;position:relative;top:-2px;padding-left:40px;font-weight:normal;">Conditions optionnelles:<li><input type="checkbox" id="Activ_AF_SameGAL" '+((readData('Prog_AF','all') == "true")?'':'disabled')+' '+ ((readData('SameGAL_AF','all') == "true")?'checked':'')+' style="position:relative;top:2px;" onfocus="document.getElementById(\'Prog_AF\').checked = true;"> Dans la même galaxy (conseillée).<i><span id="save_AF_SameGAL" style="display:none;">(enregistré)</span></i></li><li><input type="checkbox" id="Activ_AF_WithoutFLEET_DEF" '+((readData('Prog_AF','all') == "true")?'':'disabled')+' '+ ((readData('WithoutFLEET_DEF_AF','all') == "true")?'checked':'')+' style="position:relative;top:2px;" onfocus="document.getElementById(\'Prog_AF\').checked = true;"> Sans flottes & sans défense (conseillé).<i><span id="save_AF_WithoutFLEET_DEF" style="display:none;">(enregistré)</span></i></li><li><input type="checkbox" id="Activ_AF_Seuil_Auto_ADD" '+((readData('Prog_AF','all') == "true")?'':'disabled')+' '+ ((readData('Seuil_Auto_ADD_AF','all') == "true")?'checked':'')+' style="position:relative;top:2px;" onfocus="document.getElementById(\'Prog_AF\').checked = true;"> Dont les ressources dépassent <input type="text" id="AF_Seuil_Auto_ADD_VAL" '+((readData('Prog_AF','AF') == "true" && readData('Seuil_Auto_ADD_AF','all') == "true")?'':'disabled')+' value="'+ ((readData('Seuil_Auto_ADD_VAL_AF','all') != "" && readData('Seuil_Auto_ADD_VAL_AF','all') != null)?readData('Seuil_Auto_ADD_VAL_AF','all'):'200000')+'" title="Seuil de ressource globale déclenchant l\'auto ajout de la cible en frigo" style="position:relative;top:-3px;text-align:center; width:45px;margin-left:5px;margin-right:5px;height: 15px;">.<i><span id="save_AF_Seuil_Auto_ADD" style="display:none;">(enregistré)</span></i></li></ul><br><br>';
+    sephi_frigos_data+='<ul style="text-align:left;color:#808080;position:relative;top:-2px;padding-left:40px;font-weight:normal;">Conditions optionnelles:';
+    sephi_frigos_data+='  <li><input type="checkbox" id="Activ_AF_SameGAL" '+((readData('Prog_AF','all') == "true")?'':'disabled')+' '+ ((readData('SameGAL_AF','all') == "true")?'checked':'')+' style="position:relative;top:2px;" onfocus="document.getElementById(\'Prog_AF\').checked = true;"> Dans la même galaxy (conseillée).<i><span id="save_AF_SameGAL" style="display:none;">(enregistré)</span></i></li>';
+    sephi_frigos_data+='  <li><input type="checkbox" id="Activ_AF_WithoutFLEET_DEF" '+((readData('Prog_AF','all') == "true")?'':'disabled')+' '+ ((readData('WithoutFLEET_DEF_AF','all') == "true")?'checked':'')+' style="position:relative;top:2px;" onfocus="document.getElementById(\'Prog_AF\').checked = true;"> Sans flottes & sans défense (conseillé).<i><span id="save_AF_WithoutFLEET_DEF" style="display:none;">(enregistré)</span></i></li>';
+    sephi_frigos_data+='  <li><input type="checkbox" id="Activ_AF_Seuil_Auto_ADD" '+((readData('Prog_AF','all') == "true")?'':'disabled')+' '+ ((readData('Seuil_Auto_ADD_AF','all') == "true")?'checked':'')+' style="position:relative;top:2px;" onfocus="document.getElementById(\'Prog_AF\').checked = true;"> Dont les ressources dépassent <input type="text" id="AF_Seuil_Auto_ADD_VAL" '+((readData('Prog_AF','AF') == "true" && readData('Seuil_Auto_ADD_AF','all') == "true")?'':'disabled')+' value="'+ ((readData('Seuil_Auto_ADD_VAL_AF','all') != "" && readData('Seuil_Auto_ADD_VAL_AF','all') != null)?readData('Seuil_Auto_ADD_VAL_AF','all'):'200000')+'" title="Seuil de ressource globale déclenchant l\'auto ajout de la cible en frigo" style="position:relative;top:-3px;text-align:center; width:45px;margin-left:5px;margin-right:5px;height: 15px;">.<i><span id="save_AF_Seuil_Auto_ADD" style="display:none;">(enregistré)</span></i></li>';
+    sephi_frigos_data+='</ul><br><br>';
     sephi_frigos_data+='<table style="width:604px;color:#6f9fc8;"><tr>';
     sephi_frigos_data+='<th style="border-right: #09d0ff dashed 0px;text-align:right;width:90px;"><span style="width:80px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;">Ignorer</span><br><span><input type="checkbox" title="Tout cocher/décocher" id="check_all"/></span></th>';
     sephi_frigos_data+='<th style="border-right: #09d0ff dashed 0px;text-align:center;width:75px;"><span style="width:70px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;">Nom</span><br><span>&nbsp;</span></th>';
@@ -4763,21 +4806,6 @@ if (gup('sephiScript') == '1') {
 
     sephi_frigos_data+='<div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div></div>';
     sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>'
-
-    // Repport de bug
-    sephi_frigos_data+='<div class="header"><h2>Site officiel du script</h2></div>';
-    sephi_frigos_data+='  <div class="content" style="min-height: 100px;positon:relative;z-index:10;margin-bottom:50px;padding-top:15px;">';
-    sephi_frigos_data+='  <table><tr><th><img src="http://www.sephiogame.com/script/Software_Update_icon.png" style="width:100px;height:auto;margin-left:30px;" /></th><th>';
-    sephi_frigos_data+='    <p style="width:470px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Depuis notre site web vous pouvez apprendre à uiliser le script, et nous repporter les bugs que vous trouvez pour nous aider à améliorer sephiOGame. Nous ferons notre possible pour les corriger dans les futures mises à jour du script :<br><br>'
-    sephi_frigos_data+='      <span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com\',\'_blank\');">• Accéder au site de SephiOGame</span>';
-    sephi_frigos_data+='      <br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Utilisation\',\'_blank\');">• Apprendre à utiliser le scrript</span>';
-    sephi_frigos_data+='      <br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Actualites?curVer='+cur_version+'#Infos\',\'sephiogame\');">• Vérifier les mises à jour</span>';
-    sephi_frigos_data+='      <br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Actualites#reportBug\',\'_blank\');">• Repporter un bug</span>';
-    sephi_frigos_data+='    </p><br>';
-    sephi_frigos_data+='  </th></tr></table>';
-    sephi_frigos_data+='  <div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div>';
-    sephi_frigos_data+='</div>';
-    sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>';
 
     // Mail alerte
     sephi_frigos_data+='<div class="header"><h2>Alertes sur missions hostiles</h2></div>';
@@ -4861,20 +4889,83 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='  </tr></table>';
     sephi_frigos_data+='  <div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div>';
     sephi_frigos_data+='</div>';
-    sephi_frigos_data+='  <div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>'
+    sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>';
 
     // Sauvegarde
     sephi_frigos_data+='<div class="header"><h2>Gestion des données</h2></div>';
-    sephi_frigos_data+='<div class="content" style="min-height: 100px;positon:relative;z-index:10;margin-bottom:50px;padding-top:15px;">';
+    sephi_frigos_data+='  <div class="content" style="min-height: 100px;positon:relative;z-index:10;margin-bottom:50px;padding-top:15px;">';
     sephi_frigos_data+='  <table style="width:95%;positon:relative;z-index:2;"><tr style="vertical-align:top;">'
     sephi_frigos_data+='    <th style="width:70%"><p style="padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Vos données relatives au script sont enregistrées <b>uniquement grâce à votre navigateur internet</b>. Si vous souhaitez pouvoir les retrouver à tout moment, vous pouvez <b>les enregistrer</b> grâce à cette page.<br><br>Ainsi si vos données sont perdues, si vous souhaitez changer d\'ordinateur ou de navigateur, ou bien passer vos frigos à un ami, il vous suffit de cliquer sur le bouton \'\'Sauvegarder\'\' pour obtenir un fichier stockant les données de votre planète. Et plus tard de cliquer sur le bouton \'\'Restaurer\'\' pour rétablir le fichier.<br/><br/><br>En cas de disfonctionnement du script sur cette planète, vous pouvez également reinitialiser vos données de cette planète pour tenter de résoudre le problème.<br><br></p></th>';
     sephi_frigos_data+='    <th style="width:20%;text-align:right;"><table><tr><th colspan=2><center><span class="factorbutton"><input id="save_button" class="btn_blue" style="position:relative;top:110px;" type="button" value="Sauvegarder"></span></center></th></tr><tr><th><span class="factorbutton"><input type="file" id="fileupload" name="file" style="position:relative;top:130px;display:inline"/></span></th><th><span class="factorbutton"><input id="load_button" class="btn_blue" style="position:relative;top:130px;" type="button" value="Restaurer"></span></th></tr><tr><th colspan=2><center><span class="factorbutton"><input id="init_button" class="btn_blue" style="position:relative;top:195px;" type="button" value="Réinitialiser"></span></center></th></tr></table></th>';
     sephi_frigos_data+='  </tr></table>';
     sephi_frigos_data+='  <div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div>';
-    sephi_frigos_data+='  <div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-225px;z-index:10;left:70px;"></div></div>'
-    sephi_frigos_data+='  <div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-85px;z-index:10;left:70px;"></div></div>'
-    sephi_frigos_data+='  <div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:10px;z-index:10;left:70px;"></div></div>'
+    sephi_frigos_data+='</div>';
+    sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>';
+
+    // Repport de bug
+    sephi_frigos_data+='<div class="header"><h2>Site officiel du script</h2></div>';
+    sephi_frigos_data+='  <div class="content" style="min-height: 100px;positon:relative;z-index:10;margin-bottom:50px;padding-top:15px;">';
+    sephi_frigos_data+='  <table><tr><th><img src="http://www.sephiogame.com/script/Software_Update_icon.png" style="width:100px;height:auto;margin-left:30px;" /></th><th>';
+    sephi_frigos_data+='    <p style="width:470px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Depuis notre site web vous pouvez apprendre à uiliser le script, et nous repporter les bugs que vous trouvez pour nous aider à améliorer sephiOGame. Nous ferons notre possible pour les corriger dans les futures mises à jour du script :<br><br>'
+    sephi_frigos_data+='      <span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com\',\'_blank\');">• Accéder au site de SephiOGame</span>';
+    sephi_frigos_data+='      <br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Utilisation\',\'_blank\');">• Apprendre à utiliser le scrript</span>';
+    sephi_frigos_data+='      <br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Actualites?curVer='+cur_version+'#Infos\',\'sephiogame\');">• Vérifier les mises à jour</span>';
+    sephi_frigos_data+='      <br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Actualites#reportBug\',\'_blank\');">• Repporter un bug</span>';
+    sephi_frigos_data+='    </p><br>';
+    sephi_frigos_data+='  </th></tr></table>';
+    sephi_frigos_data+='  <div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div>';
+    sephi_frigos_data+='</div>';
+    sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>'
     document.getElementById('buttonz').innerHTML = sephi_frigos_data;
+
+
+    // Config Auto-Rapatriement
+    var change_AR_coord=function(){
+        storeData('coord',(typeof $('#AR_coord_galaxy') != "undefined"?$('#AR_coord_galaxy').val():'')+':'+(typeof $('#AR_coord_system') != "undefined"?$('#AR_coord_system').val():'')+':'+(typeof $('#AR_coord_position') != "undefined"?$('#AR_coord_position').val():'')+':'+(typeof $('#AR_coord_lune') != "undefined" && $('#AR_coord_lune').is(':checked')?1:0),'AR');
+        $('#save_AR_coord').show(1500,function(){$('#save_AR_coord').hide();});
+    };
+    var change_AR_ressremain=function(){
+        storeData('ressremain',(typeof $('#AR_ressremain_metal') != "undefined"?$('#AR_ressremain_metal').val():'')+':'+(typeof $('#AR_ressremain_cristal') != "undefined"?$('#AR_ressremain_cristal').val():'')+':'+(typeof $('#AR_ressremain_deut') != "undefined"?$('#AR_ressremain_deut').val():''),'AR');
+        $('#save_AR_ressremain').show(1500,function(){$('#save_AR_ressremain').hide();});
+    }
+    var change_AR_typethreshold=function(){
+        storeData('typethreshold', $('#AR_typethreshold').val(), 'AR');
+        switch($('#AR_typethreshold').val()){
+            case 'volume':
+                if ($('#AR_threshold_show').css('display') == 'none') $('#AR_threshold_show').css('display', 'inline-block');
+                break;
+            default:
+                if ($('#AR_threshold_show').css('display') == 'inline-block') $('#AR_threshold_show').css('display', 'none');
+                storeData('threshold', '', 'AR');
+                break;
+        }
+        $('#save_AR_threshold').show(1500,function(){$('#save_AR_threshold').hide();});
+    }
+    var change_AR_threshold=function(){
+        storeData('threshold', $('#AR_threshold').val(), 'AR');
+        $('#save_AR_threshold').show(1500,function(){$('#save_AR_threshold').hide();});
+    }
+    var change_AR_priority=function(){
+        if ($('#AR_priority_metal').val() != readData("priority_metal", "AR"))
+            storeData('priority_metal', $('#AR_priority_metal').val(), 'AR');
+        if ($('#AR_priority_cristal').val() != readData("priority_cristal", "AR"))
+            storeData('priority_cristal', $('#AR_priority_cristal').val(), 'AR');
+        if ($('#AR_priority_deut').val() != readData("priority_deut", "AR"))
+            storeData('priority_deut', $('#AR_priority_deut').val(), 'AR');
+        $('#save_AR_priority').show(1500,function(){$('#save_AR_priority').hide();});
+    }
+    $('#AR_coord_galaxy').on('change', change_AR_coord);
+    $('#AR_coord_system').on('change', change_AR_coord);
+    $('#AR_coord_position').on('change', change_AR_coord);
+    $('#AR_coord_lune').on('change', change_AR_coord);
+    $('#AR_typethreshold').on('change',change_AR_typethreshold)
+    $('#AR_threshold').on('change',change_AR_threshold)
+    $('#AR_ressremain_metal').on('change', change_AR_ressremain);
+    $('#AR_ressremain_cristal').on('change', change_AR_ressremain);
+    $('#AR_ressremain_deut').on('change', change_AR_ressremain);
+    $('#AR_priority_metal').on('change', change_AR_priority);
+    $('#AR_priority_cristal').on('change', change_AR_priority);
+    $('#AR_priority_deut').on('change', change_AR_priority);
 
     // Lancement Auto-Attaque
     document.getElementById('spy_all').onclick = launch_spy;
@@ -4932,23 +5023,21 @@ if (gup('sephiScript') == '1') {
     }
 
     var update_no_AA_time =function(){
-        storeData('time_no_AA', 'oui', 'AA');
-        storeData('time_no_AA_h_start', $('#time_no_AA_h_start').val(), 'AA');
-        storeData('time_no_AA_m_start', $('#time_no_AA_m_start').val(), 'AA');
-        storeData('time_no_AA_h_end', $('#time_no_AA_h_end').val(), 'AA');
-        storeData('time_no_AA_m_end', $('#time_no_AA_m_end').val(), 'AA');
+        if ($('#time_no_AA').is(':checked')) {
+            storeData('time_no_AA', 'oui', 'AA');
+            storeData('time_no_AA_h_start', $('#time_no_AA_h_start').val(), 'AA');
+            storeData('time_no_AA_m_start', $('#time_no_AA_m_start').val(), 'AA');
+            storeData('time_no_AA_h_end', $('#time_no_AA_h_end').val(), 'AA');
+            storeData('time_no_AA_m_end', $('#time_no_AA_m_end').val(), 'AA');
 
-        storeData('time_no_AA_start', 60*60*1000*parseInt('0'+readData('time_no_AA_h_start','AA')) + 60*1000*parseInt('0'+readData('time_no_AA_m_start','AA')), 'AA');
-        storeData('time_no_AA_end', 60*60*1000*parseInt('0'+readData('time_no_AA_h_end','AA')) + 60*1000*parseInt('0'+readData('time_no_AA_m_end','AA')), 'AA');
+            storeData('time_no_AA_start', 60 * 60 * 1000 * parseInt('0' + readData('time_no_AA_h_start', 'AA')) + 60 * 1000 * parseInt('0' + readData('time_no_AA_m_start', 'AA')), 'AA');
+            storeData('time_no_AA_end', 60 * 60 * 1000 * parseInt('0' + readData('time_no_AA_h_end', 'AA')) + 60 * 1000 * parseInt('0' + readData('time_no_AA_m_end', 'AA')), 'AA');
+        } else
+            storeData('time_no_AA', 'non', 'AA');
+
         $('#save_time_no_AA').show(1500,function(){$('#save_time_no_AA').hide();});
     };
-    $('#time_no_AA').on("click",function(){
-        if (this.checked) {
-            update_no_AA_time();
-        } else storeData('time_no_AA', 'non', 'AA');
-
-        $('#save_time_no_AA').show(1500,function(){$('#save_time_no_AA').hide();});
-    });
+    $('#time_no_AA').on("click",update_no_AA_time);
     $('#time_no_AA_h_start').on("change", update_no_AA_time);
     $('#time_no_AA_m_start').on("change", update_no_AA_time);
     $('#time_no_AA_h_end').on("change", update_no_AA_time);
@@ -5022,10 +5111,10 @@ if (gup('sephiScript') == '1') {
     $('#AF_Seuil_Auto_ADD_VAL').on("change", function() {
         if ($('#AF_Seuil_Auto_ADD_VAL').val() != "") {
             storeData('Seuil_Auto_ADD_VAL_AF', $('#AF_Seuil_Auto_ADD_VAL').val(), 'all');
+            $('#save_AF_Seuil_Auto_ADD').show(1500, function () {
+                $('#save_AF_Seuil_Auto_ADD').hide();
+            });
         }
-        $('#save_AF_Seuil_Auto_ADD').show(1500, function () {
-            $('#save_AF_Seuil_Auto_ADD').hide();
-        });
     });
 
     $('#time_no_AA_eject_choice').on("change",function(){
@@ -5170,7 +5259,7 @@ if (gup('sephiScript') == '1') {
     $('#leave_slot_AA').on("click", slot_AA_Management);
     $('#nb_slot_AA').on("change", slot_AA_Management);
     ///////
-    
+
     $('#type_vaisseaux_AA').on("change", function(){
         storeData('type_vaisseaux', this.value, 'AA');
         $('#save_type_vaisseaux_AA').show(1500,function(){$('#save_type_vaisseaux_AA').hide();});
@@ -5284,7 +5373,7 @@ if (lastActuSecu == null) {
     storeData('lastActuTimeSecu', time().toString(), 'all');
     lastActuSecu = time();
 }
-if (lastActu !== null) {
+/*if (lastActu !== null) {
     lastActu = time() - parseInt(lastActu);
     lastActuSecu = time() - parseInt(lastActuSecu);
     if (lastActu > 16*60*60*1000 && lastActuSecu>10*60*1000) {
@@ -5300,14 +5389,12 @@ if (lastActu !== null) {
 } else {
     storeData('lastActuTime', time().toString(), 'all');
 }
-
+*/
 // Affiche les frigos sur la page galaxie et ajouter un bouton "ajouter aux frigos" //Imp2Toulouse- et ajouter un bouton "Supprimer des frigos"
 var last_gal_state="",cur_gal_state="",GAL_check_cur_gal="",GAL_check_cur_sys="";
 if (gup('page') == "galaxy") {
     if ($('#autospy').length == 0) $('#contentWrapper #galaxyHeader .btn_blue').first().after('<div id="autospy" class="btn_blue float_center">Auto-Spy</div>');
     $('#autospy').on("click",function() {
-        //if (!gup("autospy")) window.location.href="https://"+univers+"/game/index.php?page=galaxy&autospy=1"
-        //else
         if ($('#autospy_data').length >0){
             $('#autospy').css("color","white")
             if ($('#autospy_data').css("display") == "block") {
@@ -5322,12 +5409,6 @@ if (gup('page') == "galaxy") {
             setTimeout(launch_autospy(parseInt($('#contentWrapper #galaxyHeader #galaxy_input').val()), parseInt($('#contentWrapper #galaxyHeader #system_input').val()), parseInt(storeData("nb_sondes", this.value, "options") || 5),$('#scope').val()),2000);
         }
     });
-/*    if (gup('autospy') == 1) {
-        $('#autospy').css("color","darkred");
-        setTimeout(launch_autospy(parseInt($('#contentWrapper #galaxyHeader #galaxy_input').val()), parseInt($('#contentWrapper #galaxyHeader #system_input').val()), parseInt(storeData("nb_sondes", this.value, "options") || 5),50),2000);
-    } else {
-        $('#autospy').css("color","white");
-    }*/
     setInterval(check_galaxy_frigs,100);
 }
 
