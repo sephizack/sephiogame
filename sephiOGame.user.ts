@@ -2346,9 +2346,9 @@ function fill_case(butin, flotte_perso, idFrigo, curplanet_name, check_perso_is_
     //document.getElementById('rap_general_butin_'+GLOB_rgID).innerHTML = get_cool_digit(butin);
     $('#rap_general_butin_'+GLOB_rgID).html(get_cool_digit(butin));
 
-    (check_perso_is_needed != "")?checkperso_param="&check_perso_is_needed="+check_perso_is_needed:checkperso_param="";
+    var checkperso_param=(check_perso_is_needed != "")?"&check_perso_is_needed="+check_perso_is_needed:"";
 
-    attack_data = '<span id="RG_PT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'https://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+'&force=0&flotte_perso='+flotte_perso+'&blockswitchplanet=yes&cp='+GLOB_cur_planet+checkperso_param+'\';setTimeout(function(){document.getElementById(\'RG_PT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Envoyer '+(2+Math.floor(butin/5000))+' PT</span>';
+    var attack_data = '<span id="RG_PT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'https://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+'&force=0&flotte_perso='+flotte_perso+'&blockswitchplanet=yes&cp='+GLOB_cur_planet+checkperso_param+'\';setTimeout(function(){document.getElementById(\'RG_PT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Envoyer '+(2+Math.floor(butin/5000))+' PT</span>';
     attack_data += '<br><span id="RG_GT1_'+GLOB_rgID+'" style="cursor:pointer;font-size:12px" onclick="if (document.getElementById(\'ifr_AA\').src!==\'https://ready/\'){alert(\'Vous avez déjà une attaque en cours\');return;} document.getElementById(\'ifr_AA\').src = \'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&GT='+(2+Math.floor(butin/25000))+'&force=0&flotte_perso='+flotte_perso+'&blockswitchplanet=yes&cp='+GLOB_cur_planet+checkperso_param+'\';setTimeout(function(){document.getElementById(\'RG_GT1_'+GLOB_rgID+'\').style.cursor=\'pointer\';},5000);document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').style.color = \'#761B68\';document.getElementById(\'rap_general_planet_name_'+GLOB_rgID+'\').innerHTML = \'[En Cours] '+curplanet_name+'\';">Envoyer '+(2+Math.floor(butin/25000))+' GT</span>';
     attack_data += '<span id="frigoID_'+GLOB_rgID+'" style="display:none">'+idFrigo+'</span>';
     $('#rap_general_attack_'+GLOB_rgID).html(attack_data);
@@ -2356,7 +2356,7 @@ function fill_case(butin, flotte_perso, idFrigo, curplanet_name, check_perso_is_
     GLOB_rgButins[GLOB_rgID][0] = butin;
     GLOB_rgButins[GLOB_rgID][1] = GLOB_rgID;
 
-    (readData('force','AA') == 'oui')?forceparam = '&force=1':forceparam = '';
+    var forceparam = (readData('force','AA') == 'oui')?'&force=1':'';
     GLOB_rgButins[GLOB_rgID][2] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&PT='+(2+Math.floor(butin/5000))+forceparam+'&flotte_perso='+flotte_perso+'&blockswitchplanet=yes&cp='+GLOB_cur_planet+checkperso_param;
     GLOB_rgButins[GLOB_rgID][3] = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=1&auto=yes&ID='+GLOB_rgID+'&GT='+(2+Math.floor(butin/25000))+forceparam+'&flotte_perso='+flotte_perso+'&blockswitchplanet=yes&cp='+GLOB_cur_planet+checkperso_param;
     GLOB_rgID++;
@@ -2502,7 +2502,7 @@ function check_AA_feedback() { // Checkout Auto Attack feedback
         fail_bec_GT = false;
         if (readData('AA_feed','all').match('DEUT')) {e.innerHTML = '<span title="Vous n\'avez plus assez de deuterium pour envoyer cette flotte">? [Deut]</span> ' + clean_name(e.innerHTML); e.style.color='#d43635';flotte_succes = false;}
         if (readData('AA_feed','all').match('FLOTTE')) {e.innerHTML = '<span title="Vous n\'avez plus de slots de flotte disponible">? [Flotte]</span> ' + clean_name(e.innerHTML); e.style.color='#d43635';flotte_succes = false;}
-        if (readData('AA_feed','all').match('DEForFLOTTE_HasCHANGED')) {e.innerHTML = '<span title="La flotte ou la defense de votre adversaire a changé, votre flotte perso n\'est peut-être plus adpatée, controler et cliquez sur \'\'forcer\'\' pour envoyer quand même.">? [CheckFlotte]</span> ' + clean_name(e.innerHTML); e.style.color='#d43635';flotte_succes = false;}
+        if (readData('AA_feed','all').match('DEForFLOTTE_HasCHANGED')) {e.innerHTML = '<span title="La flotte ou la defense de votre adversaire a changé, votre flotte perso n\'est peut-être plus adaptée, controler et cliquez sur \'\'forcer\'\' pour envoyer quand même.">? [CheckFlotte]</span> ' + clean_name(e.innerHTML); e.style.color='#d43635';flotte_succes = false;}
         if (readData('AA_feed','all').match('NO_PERSO')) {e.innerHTML = '<span title="Votre flotte personnalisée est irréalisable">? [Perso]</span> ' + clean_name(e.innerHTML); e.style.color='#d43635';flotte_succes = false;}
         if (readData('AA_feed','all').match('NO_PT')) {fail_bec_PT = true;e.innerHTML = '<span title="Vous manquez de petits transporteurs, cliquez sur \'\'forcer\'\' pour envoyer tout ceux que vous avez">? [PT]</span> ' + clean_name(e.innerHTML); e.style.color='#d43635';flotte_succes = false;}
         if (readData('AA_feed','all').match('NO_GT')) {fail_bec_GT = true;e.innerHTML = '<span title="Vous manquez de grands transporteurs, cliquez sur \'\'forcer\'\' pour envoyer tout ceux que vous avez">? [GT]</span> ' + clean_name(e.innerHTML); e.style.color='#d43635';flotte_succes = false;}
@@ -2567,6 +2567,33 @@ function countdownAA() {
     }
 }
 
+function update_slots() {
+    if (gup('page').match("fleet")) {
+        debugger;
+        var slot_infos: any = $(document).find('#slots .tooltip').html().match(/ (\d+)\/(\d+)/);
+        if (readData('used_slot', 'all') != slot_infos[1])
+            storeData('used_slot', slot_infos[1], 'all')
+
+        if (readData('full_slot', 'all') != slot_infos[2])
+            storeData('full_slot', slot_infos[2], 'all')
+        slot_infos = null;
+    } else {
+        $.ajax("https://"+univers+"/game/index.php?page=fleet1", {
+            type: "POST",
+            dataType: "text",
+            async: true,
+            success: function (html) {
+                var slot_infos: any = $(html).find('#slots .tooltip').html().match(/ (\d+)\/(\d+)/);
+                if (readData('used_slot', 'all') != slot_infos[1])
+                    storeData('used_slot', slot_infos[1], 'all')
+
+                if (readData('full_slot', 'all') != slot_infos[2])
+                    storeData('full_slot', slot_infos[2], 'all')
+                slot_infos = null;
+            }
+        });
+    }
+}
 
 function startEject(){
     blit_message_time("<b>Desactivation des Auto attaques</b><br>Lancement de l'ejection complète de votre flotte via le mode "+readData('time_no_AA_type_eject','AA')+" dans quelques secondes!",2000)
@@ -2591,8 +2618,16 @@ function startEject(){
 }
 
 function startAA() {
+    //Launch slots update
+    update_slots();
     if ($(document.body).html().match('<div id="attack_alert" style="visibility:visible;">')) return;
 
+    if (parseInt(readData('full_slot','all'))-parseInt(readData('used_slot','all'))-parseInt(readData('AA_nb_slot','AA')) <= 0 ) {
+        storeData('progTime', (time() + 60 * 60 * 1000).toString(), 'AA'); // re-essaye dans 60min
+        storeData('isProg', 'oui', 'AA');
+        blit_message_time("<b><span style='float: none;margin: 0;color:red'>Plus de slot disponible</span>, auto attaques reportée dans 1 heure !</b>",5000)
+        return;
+    }
     if (readData('repeat','AA') == 'oui' && readData('repeatTime','AA') !== null) {
         storeData('progTime', (time()+parseInt(readData('repeatTime','AA'))).toString(), 'AA');
         storeData('isProg', 'oui', 'AA');
@@ -2980,6 +3015,8 @@ function SendFleetSuccess(params){
         storeData(idcook, gup('ID')+'_IS_OK', 'all');
 
     }
+    //Mise à jour des slots
+    update_slots();
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 function SendFleetFailed(params){
@@ -3194,6 +3231,7 @@ function planetmenu_isVisible() {
         }
     });
 };
+
 
 //return if slot free
 function hasEnoughSlots() : boolean {
@@ -4141,6 +4179,7 @@ if (gup('page') == 'messages') {
 
 //Gestion de l'auto-rapatriement
 if (gup('page') == 'overview' && readData('typethreshold','AR') == 'volume') {
+
     //Si l'ensemble des ressources moins les ressources devant rester à quai > volume de ressource seuil
     if (
         (parseInt(ress_metal)-parseInt(readData("ressremain","AR").split(":")[0])
@@ -4169,6 +4208,8 @@ if (gup('page') !== 'overview'
     ) {
     storeData("back_to_overview", "no", 'all');
     blit_message('Retour à vue d\'ensemble dans 10 à 15 secondes.');
+    //Mise à jour des slots
+    update_slots();
     setTimeout(function(){window.location.href = window.location.href.replace(gup('page'), 'overview');}, rand(10,15)*1000);
 }
 
@@ -4196,6 +4237,9 @@ if (nb_planet>1 && (readData("change_planet", 'all') == "yes" || gup('page') == 
     }
 
     if (readData("noplaplaChange", 'all') != 'oui') {
+        //On update les slots avant de changer de planete.
+        update_slots();
+
         // On prévoit le changement de planète
         setTimeout(function(){
             storeData("just_to_update_prod", "yes", 'all');
