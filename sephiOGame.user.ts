@@ -3399,8 +3399,8 @@ function espionne_inactif(nb_sondes : number, current_galaxy : number, system1 :
 function launch_autospy(current_galaxy : number, current_system : number, nb_sondes : number, scope : number){
     var players = new Map();
     var playersDATA = new Map();
-    players=traitements_joueurs("https://s145-fr.ogame.gameforge.com/api/players.xml");
-    playersDATA=traitements_colonies("https://s145-fr.ogame.gameforge.com/api/universe.xml");
+    players=traitements_joueurs("https://"+univers+"/api/players.xml");
+    playersDATA=traitements_colonies("https://"+univers+"/api/universe.xml");
 
     var colonies_inactives = new Map();
     colonies_inactives=traitements_inactif(current_galaxy,players,playersDATA);
