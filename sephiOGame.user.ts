@@ -105,7 +105,9 @@
 //3.7.9
 //         -Multiples minor correction in AutoFrigo
 //3.8.0
-//         - Fonction autospy added in galaxy view and allowing to detect&spy all inactive target in a predefined scope.
+//         -Fonction autospy added in galaxy view and allowing to detect&spy all inactive target in a predefined scope.
+//         -Fonction auto-rapatriement added (configurable threshold, target to centralise, ...)
+//         -Minor corrections (users feedback)
 declare var $: JQueryStatic;
 
 class PersistedData {
