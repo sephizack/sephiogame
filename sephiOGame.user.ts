@@ -1741,7 +1741,7 @@ function send_internal_message(attakerChatID, cp_attacked){
 
     var attaker_message_url='https://'+univers+'/game/index.php?page=ajaxChat';
     //Introduction
-    text=msg_text.intro[parseInt(rand(1,4))].replace("\\n","\n");
+    var text:string=msg_text.intro[parseInt(rand(1,4))].replace("\\n","\n");
 
     //Objectif1
     text+=msg_text.corps[0][parseInt(rand(1,4))].replace("\\n","\n");
@@ -1796,7 +1796,7 @@ function check_espionnage_finished() {
         {
             if(xhr.status  == 200) {
                 if (!xhr.responseText.match("https://gf3.geo.gfsrv.net/cdnb7/60a018ae3104b4c7e5af8b2bde5aee.gif")) {
-                    bonus = '';
+                    var bonus = '';
                     if (want_a_AA) {
                         storeData('last_start', time().toString(), 'AA');
                         bonus = '&AA=OUI';
@@ -1866,7 +1866,7 @@ function check_attack_reload() {
             }
         };
 
-        bonus_planet = "";
+        var bonus_planet = "";
         if(gup('cp') !== "") bonus_planet = "&cp="+gup('cp');
         xhr.open("POST", "https://"+univers+"/game/index.php?page=eventList"+bonus_planet,  true);
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -2569,7 +2569,6 @@ function countdownAA() {
 
 function update_slots() {
     if (gup('page').match("fleet")) {
-        debugger;
         var slot_infos: any = $(document).find('#slots .tooltip').html().match(/ (\d+)\/(\d+)/);
         if (readData('used_slot', 'all') != slot_infos[1])
             storeData('used_slot', slot_infos[1], 'all')
@@ -2585,14 +2584,15 @@ function update_slots() {
             success: function (html) {
                 var slot_infos: any = $(html).find('#slots .tooltip').html().match(/ (\d+)\/(\d+)/);
                 if (readData('used_slot', 'all') != slot_infos[1])
-                    storeData('used_slot', slot_infos[1], 'all')
+                    storeData('used_slot', slot_infos[1], 'all');
 
                 if (readData('full_slot', 'all') != slot_infos[2])
-                    storeData('full_slot', slot_infos[2], 'all')
+                    storeData('full_slot', slot_infos[2], 'all');
                 slot_infos = null;
             }
         });
     }
+    //blit_message("Slot updated ("+readData('used_slot','all')+"/"+readData('full_slot','all')+")!");
 }
 
 function startEject(){
@@ -2916,6 +2916,7 @@ function SendFleet(response){
 			//Info('Response >',response,'<');
             if (params.step ==2){ //If second step
                 var token=SmartCut(response,["token'","='"],"'");
+                //var token=SmartCut(response, ["Token", "=\""], "\"");
                 params.step++;
                 params.page=params.page.replace(page,"fleet3"); // Replace for next fleet3 page
                 storeData('data',JSON.stringify(params), 'form');
@@ -2929,7 +2930,7 @@ function SendFleet(response){
                     }
                 }
 
-                //Case of auto=yes
+                //Case of eject=yes
                 if (params.sephi_opt.match('eject=yes') && params.sephi_opt.match('ID=') != null) {
                     var ID = params.sephi_opt.match(/ID=(\w+)/)[1];
                     switch(ID){
@@ -2939,7 +2940,7 @@ function SendFleet(response){
                     }
                 }
                 PostXMLHttpRequest(params.url+"?"+params.page,params.type_mission +"&"+ params.fleets +"&"+ params.to +"&"+ params.token+token,SendFleet);
-                console.log("Request step1:"+params.url+"?"+params.page+", option="+params.type_mission +"&"+ params.fleets +"&"+ params.to +"&"+ params.token+token);
+                console.log("Request step2:"+params.url+"?"+params.page+", option="+params.type_mission +"&"+ params.fleets +"&"+ params.to +"&"+ params.token+token);
             } else {
                 SendFleetFailed(params);
             }
@@ -2948,6 +2949,7 @@ function SendFleet(response){
             //Info('Response >',response,'<');
             if (params.step ==3){ //If third step
                 var token=SmartCut(response,["token'","='"],"'");
+                //var token=SmartCut(response, ["Token", "=\""], "\"");
                 //Info('Token >',token,'<');
                 params.step++;
                 params.page=params.page.replace(page,"movement"); // Replace for next movement page
@@ -2957,12 +2959,11 @@ function SendFleet(response){
                     if (params.sephi_opt.match(/exped_time=(\w+)/) !== null ) params.fleets_opts=params.fleets_opts.replace(/expeditiontime=\d+/,"expeditiontime="+params.sephi_opt.match(/exped_time=(\w+)/)[1]);
                 }
                 storeData('data',JSON.stringify(params), 'form');
-
                 PostXMLHttpRequest(params.url+"?"+ params.page,params.fleets_opts +"&"+ params.to +"&"+ params.type_mission +"&"+ params.fleets +"&"+ params.ressources +"&"+ params.token+token,SendFleet);
-                               console.log("Request step1:"+params.url+"?"+params.page+", option="+params.fleets_opts +"&"+ params.to +"&"+ params.type_mission +"&"+ params.fleets +"&"+ params.ressources +"&"+ params.token+token);
             } else {
                 SendFleetFailed(params);
             }
+            console.log("Request step3:"+params.url+"?"+params.page+", option="+params.type_mission +"&"+ params.fleets +"&"+ params.to +"&"+ params.token+token);
             break;
         /*no more necessary since version 6.0.5 where return is done on fleet1
          case 'movement':
@@ -2983,6 +2984,13 @@ function SendFleet(response){
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 function SendFleetSuccess(params){
     console.log("Attack success (params=" +JSON.stringify(params)+ ").");
+    if (params.sephi_opt.match('rapatriement=yes')) {
+        blit_message("<b>Rapatriement</b> correctement lancé depuis " + GLOB_cur_planet_name + " vers "+params.to.replace(/\w+=(\d+)/g,"$1 ").replace(/&/g,"").trim().replace(/ /g,":")+".");
+        storeData('done','1','AR');
+        setTimeout(function () {
+            window.location.href = "https://" + univers + "/game/index.php?page=overview&"+params.from;
+        }, 4000);
+    }
     if (params.sephi_opt.match('eject=yes')) {
         document.getElementById('eject_button').src = document.getElementById('eject_button').src.replace("grey", "green");
         blit_message("<b>Ejection</b> correctement effectuée depuis " + GLOB_cur_planet_name + ".");
@@ -3021,6 +3029,13 @@ function SendFleetSuccess(params){
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 function SendFleetFailed(params){
     console.log("Attack failled (params=" +JSON.stringify(params)+ ").");
+    if (params.sephi_opt.match('rapatriement=yes')) {
+        blit_message("<b>Rapatriement</b> en erreur depuis " + GLOB_cur_planet_name + " vers "+params.to.replace(/\w+=(\d+)/g,"$1 ").replace(/&/g,"").trim().replace(/ /g,":")+".");
+        storeData('fail',(readData('fail','AR') != null)?(parseInt(readData('fail','AR'))+1).toString():'1','AR');
+        setTimeout(function () {
+            window.location.href = "https://" + univers + "/game/index.php?page=overview&"+params.from;
+        }, 4000);
+    }
     if (params.sephi_opt.match('eject=yes')) {
         document.getElementById('eject_button').src=document.getElementById('eject_button').src.replace("grey","red");
         blit_message("<b>Ejection</b> en erreur depuis "+GLOB_cur_planet_name+".");
@@ -4179,21 +4194,26 @@ if (gup('page') == 'messages') {
 
 //Gestion de l'auto-rapatriement
 if (gup('page') == 'overview' && readData('typethreshold','AR') == 'volume') {
+    //Define global ressources
+    var ress_metal = parseInt($('#resources_metal').text().replace(/\./g, ""));
+    var ress_crystal = parseInt($('#resources_crystal').text().replace(/\./g, ""));
+    var ress_deuterium = parseInt($('#resources_deuterium').text().replace(/\./g, ""));
 
-    //Si l'ensemble des ressources moins les ressources devant rester à quai > volume de ressource seuil
+    //Si l'ensemble des ressources moins les ressources devant rester à quai > volume de ressource seui
     if (
-        (parseInt(ress_metal)-parseInt(readData("ressremain","AR").split(":")[0])
+        ((parseInt(ress_metal)-parseInt(readData("ressremain","AR").split(":")[0])
         +parseInt(ress_crystal)-parseInt(readData("ressremain","AR").split(":")[1])
-        +parseInt(ress_deuterium)-parseInt(readData("ressremain","AR").split(":")[2])) > readData("threshold","AR")) {
+        +parseInt(ress_deuterium)-parseInt(readData("ressremain","AR").split(":")[2])) > readData("threshold","AR"))
+        && (readData('done','AR') == null || readData('done','AR') == false)
+        && (readData('fail','AR') == null || readData('fail','AR') < 3)
+    ) {
         blit_message('L\'auto-rapatriement des ressources de cette planete va être lancé dans 10 secs.');
-        var sephi_opt:string = "rapatriement=yes&ID=Transport";
+
         var galaxy:number, system:number, position:number, islune:boolean;
         [,galaxy,system,position,islune]=readData('coord','AR').match(/(\d+):(\d+):(\d+):(\d+)/);
-        var ress_priority:string = "prioMetal=" + readData("priority_metal","AR") + "&prioCrystal=" + readData("priority_cristal","AR") + "&prioDeuterium=" + readData("priority_deut","AR");
-        params = JSON.parse('{ "url": "' + "https://" + univers + "/game/index.php" + '", "page": "page=fleet1", "from": "' + "cp=" + planet_list[planame_list.indexOf(GLOB_cur_planet_name)] + '", "to": "' + "galaxy=" + galaxy + "&system=" + system + "&position=" + position +'", "type_mission": "' + "type="+(islune?'3':'1')+"&mission=4" + '", "fleets": "' + "speed=1" + '", "ressources": "' + "metal=" + parseInt(ress_metal) + "&crystal=" + parseInt(ress_crystal) + "&deuterium=" + parseInt(ress_deuterium) + '&' + ress_priority + '", "fleets_opts": "' + "union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0" + '", "token": "' + "token=" + '", "step": "' + 1 + '", "sephi_opt":"' + sephi_opt + '"}');
-        storeData('data',JSON.stringify(params), 'form');
-/*        PostXMLHttpRequest(params.url+"?"+params.page+"&"+params.from,"",SendFleet);
-*/
+        setTimeout(function () {
+            document.location.href = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+position+'&type='+(islune == true ?'3':'1')+'&mission=4&rapatriement=yes&ID=0&prioMetal=' + readData("priority_metal","AR") + '&prioCrystal=' + readData("priority_cristal","AR") + '&prioDeuterium=' + readData("priority_deut","AR") + '&ressremain_metal='+parseInt(readData("ressremain","AR").split(":")[0])+'&ressremain_crystal='+parseInt(readData("ressremain","AR").split(":")[1])+'&ressremain_deuterium='+parseInt(readData("ressremain","AR").split(":")[2]);
+        },10000);
     }
 }
 
@@ -4242,13 +4262,18 @@ if (nb_planet>1 && (readData("change_planet", 'all') == "yes" || gup('page') == 
 
         // On prévoit le changement de planète
         setTimeout(function(){
+            if (readData('typethreshold','AR') == 'volume') {
+                //Reinit Rapatriement failed counter and done tag
+                storeData('fail', '0', 'AR');
+                storeData('done', '0', 'AR');
+            }
             storeData("just_to_update_prod", "yes", 'all');
 
             if (gup('cp') == "") {url = window.location.href+'&cp='+planet_list[(cur_planet_id+1)%nb_planet];}
             else url = window.location.href.replace(gup('cp'), planet_list[(cur_planet_id+1)%nb_planet]);
 
             if (!GLOB_planet_change_inhibited) {
-                if (gup('page') == "overview" && (gup('startAA') == 1 || gup('RG') == 'OUI' || gup('AA') == 'OUI')) url = 'https://'+univers+'/game/index.php?page=overview&cp='+planet_list[(cur_planet_id+1)%nb_planet];
+                if (gup('page') == "overview" && (gup('startAA') == '1' || gup('RG') == 'OUI' || gup('AA') == 'OUI')) url = 'https://'+univers+'/game/index.php?page=overview&cp='+planet_list[(cur_planet_id+1)%nb_planet];
                 window.location.href = url;
             }
             if (GLOB_planet_change_inhibited && gup('page') !== 'overview') window.location.href = window.location.href.replace(gup('page'), 'overview');
@@ -4290,8 +4315,8 @@ if (gup('page') == "fleet3") {
     if (haveSondes && count_types == 1 && $('#button6').attr("class") == 'on') $('#missionButton6').click();
 }
 
-if (gup('page') == "fleet1" && gup('eject') == 'yes') {
-    var params;
+if (gup('page') == "fleet1" && (gup('eject') == 'yes' || gup('rapatriement') == 'yes')){
+    var params, PT, GT;
     //Allow to get EXACT battleships and civilships
     var fleets_volume_battleships = get_fleets_capacity("list", $('div#buttonz div.content form#shipsChosen div#battleships li'));
     var fleets_volume_civilships = get_fleets_capacity("list", $('div#buttonz div.content form#shipsChosen div#civilships li'));
@@ -4304,47 +4329,74 @@ if (gup('page') == "fleet1" && gup('eject') == 'yes') {
     //Calculate global fleet ressources transport and adapt the ressource priority on DEUT in FIRST
     if (fleets_volume_civilships != null) {
         [, PT, GT] = fleets_volume_civilships.match(/am202=(\d+).*am203=(\d+).*/);
-        global_fleets_capacity = (PT * 5000) + (GT * 25000);
-    } else global_fleets_capacity=0;
+        var global_fleets_capacity = (PT * 5000) + (GT * 25000);
+    } else var global_fleets_capacity=0;
 
-    //define ressources priorities params
-    ress_priority = "prioMetal=" + ress_priority_metal + "&prioCrystal=" + ress_priority_crystal + "&prioDeuterium=" + ress_priority_deut;
+    if (gup('eject') == 'yes') {
+        //define ressources priorities params
+        var ress_priority = "prioMetal=" + ress_priority_metal + "&prioCrystal=" + ress_priority_crystal + "&prioDeuterium=" + ress_priority_deut;
 
-    [capa_metal, capa_crystal, capa_deuterium] = ressources_by_priority(global_fleets_capacity, ress_priority_metal, ress_priority_crystal, ress_priority_deut, ress_metal, ress_crystal, ress_deuterium);
-    //Define miss transporter to transport all ressource
-    miss_ressources = (ress_metal - capa_metal) + (ress_crystal - capa_crystal) + (ress_deuterium - capa_deuterium);
-    if (miss_ressources > 0) {
-        mesg_miss_ressources = "Il manque " + (miss_ressources <= 25000 ? Math.ceil(miss_ressources / 5000) + "PT" : Math.ceil(miss_ressources / 25000) + "GT") + " pour transporter toutes vos ressources depuis " + GLOB_cur_planet_name + ".";
-        setTimeout(function () {
-            blit_message_time("<b style='color:red'>Ressources à quai:</b>" + mesg_miss_ressources, 4000)
-        }, 1000);
-        setTimeout(function () {
-            sendMessage(readData('alert_mail_to', 'all'), "Fleets and ressources ejection from your planet " + GLOB_cur_planet_name, "Hello,\r\n\r\n" + "Ressources à quai: " + mesg_miss_ressources, "");
-        }, 6000);
-    }
+        [capa_metal, capa_crystal, capa_deuterium] = ressources_by_priority(global_fleets_capacity, ress_priority_metal, ress_priority_crystal, ress_priority_deut, ress_metal, ress_crystal, ress_deuterium);
+        //Define miss transporter to transport all ressource
+        var miss_ressources = (ress_metal - capa_metal) + (ress_crystal - capa_crystal) + (ress_deuterium - capa_deuterium);
+        if (miss_ressources > 0) {
+            var mesg_miss_ressources = "Il manque " + (miss_ressources <= 25000 ? Math.ceil(miss_ressources / 5000) + "PT" : Math.ceil(miss_ressources / 25000) + "GT") + " pour transporter toutes vos ressources depuis " + GLOB_cur_planet_name + ".";
+            setTimeout(function () {
+                blit_message_time("<b style='color:red'>Ressources à quai:</b>" + mesg_miss_ressources, 4000)
+            }, 1000);
+            setTimeout(function () {
+                sendMessage(readData('alert_mail_to', 'all'), "Fleets and ressources ejection from your planet " + GLOB_cur_planet_name, "Hello,\r\n\r\n" + "Ressources à quai: " + mesg_miss_ressources, "");
+            }, 6000);
+        }
 
-    //Define ressources capacities params
-    ressources = "metal=" + parseInt(capa_metal) + "&crystal=" + parseInt(capa_crystal) + "&deuterium=" + parseInt(capa_deuterium);
+        //Define ressources capacities params
+        ressources = "metal=" + parseInt(capa_metal) + "&crystal=" + parseInt(capa_crystal) + "&deuterium=" + parseInt(capa_deuterium);
 
-    if (gup('ID') == 'Exped') {
-        with_exped_speed = readData('time_no_AA_type_eject_exped_speed', 'AA');
-        with_exped_time = readData('time_no_AA_type_eject_exped_temps', 'AA')
-        sephi_opt = "eject=yes&ID=Exped" + ((with_exped_speed == null || with_exped_speed == '') ? '' : "&exped_speed=" + parseInt(with_exped_speed)) + ((with_exped_time == null || with_exped_time == '') ? '' : "&exped_time=" + parseInt(with_exped_time));
-        [,galaxy,system]=cur_planet_coords.match(/\[(\d+):(\d+):.*\]/);
-        params = JSON.parse('{ "url": "' + "https://" + univers + "/game/index.php" + '", "page": "page=fleet1", "from": "' + "cp=" + planet_list[planame_list.indexOf(GLOB_cur_planet_name)] + '", "to": "' + "galaxy=" + galaxy + "&system=" + system + "&position=16"+'", "type_mission": "' + "type=1&mission=15" + '", "fleets": "' + "speed=1&" + (fleets_volume_civilships + "&" + fleets_volume_battleships) + '", "ressources": "' + ressources + '&' + ress_priority + '", "fleets_opts": "' + "union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0" + '", "token": "' + "token=" + '", "step": "' + 1 + '", "sephi_opt":"' + sephi_opt + '"}');
-    } else if (gup('ID') == 'Transport') {
-        with_exped_speed = readData('time_no_AA_type_eject_exped_speed', 'AA');
-        sephi_opt = "eject=yes&ID=Transport"+ ((with_exped_speed == null || with_exped_speed == '') ? '' : "&exped_speed=" + parseInt(with_exped_speed));
-        params = JSON.parse('{ "url": "' + "https://" + univers + "/game/index.php" + '", "page": "page=fleet1", "from": "' + "cp=" + planet_list[planame_list.indexOf(GLOB_cur_planet_name)] + '", "to": "' + "galaxy=" + (GLOB_persistedData['eject'].split(':')[0]) + "&system=" + (GLOB_persistedData['eject'].split(':')[1]) + "&position=" + (GLOB_persistedData['eject'].split(':')[2]) + '", "type_mission": "' + "type=" + ((eject_onLune) ? "3" : "1") + "&mission=4" + '", "fleets": "' + "speed=1&" + ((eject_all) ? fleets_volume_civilships + "&" + fleets_volume_battleships : fleets_volume_civilships) + '", "ressources": "' + ressources + '&' + ress_priority + '", "fleets_opts": "' + "union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0" + '", "token": "' + "token=" + '", "step": "' + 1 + '", "sephi_opt":"' + sephi_opt + '"}');
-    }  else if (gup('ID') == 'Recycl') {
-        with_exped_speed = readData('time_no_AA_type_eject_exped_speed', 'AA');
-        sephi_opt = "eject=yes&ID=Recycl"+ ((with_exped_speed == null || with_exped_speed == '') ? '' : "&exped_speed=" + parseInt(with_exped_speed));
-        [,galaxy,system,position]=cur_planet_coords.match(/\[(\d+):(\d+):(\d+)\]/);
-        params = JSON.parse('{ "url": "' + "https://" + univers + "/game/index.php" + '", "page": "page=fleet1", "from": "' + "cp=" + planet_list[planame_list.indexOf(GLOB_cur_planet_name)] + '", "to": "' + "galaxy=" + galaxy + "&system=" + system + "&position=" + position + '", "type_mission": "' + "type=2&mission=8" + '", "fleets": "' + "speed=1&" + ((eject_all) ? fleets_volume_civilships + "&" + fleets_volume_battleships : fleets_volume_civilships) + '", "ressources": "' + ressources + '&' + ress_priority + '", "fleets_opts": "' + "union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0" + '", "token": "' + "token=" + '", "step": "' + 1 + '", "sephi_opt":"' + sephi_opt + '"}');
+        if (gup('ID') == 'Exped') {
+            with_exped_speed = readData('time_no_AA_type_eject_exped_speed', 'AA');
+            with_exped_time = readData('time_no_AA_type_eject_exped_temps', 'AA')
+            sephi_opt = "eject=yes&ID=Exped" + ((with_exped_speed == null || with_exped_speed == '') ? '' : "&exped_speed=" + parseInt(with_exped_speed)) + ((with_exped_time == null || with_exped_time == '') ? '' : "&exped_time=" + parseInt(with_exped_time));
+            [, galaxy, system] = cur_planet_coords.match(/\[(\d+):(\d+):.*\]/);
+            params = JSON.parse('{ "url": "' + "https://" + univers + "/game/index.php" + '", "page": "page=fleet1", "from": "' + "cp=" + planet_list[planame_list.indexOf(GLOB_cur_planet_name)] + '", "to": "' + "galaxy=" + galaxy + "&system=" + system + "&position=16" + '", "type_mission": "' + "type=1&mission=15" + '", "fleets": "' + "speed=1&" + (fleets_volume_civilships + "&" + fleets_volume_battleships) + '", "ressources": "' + ressources + '&' + ress_priority + '", "fleets_opts": "' + "union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0" + '", "token": "' + "token=" + '", "step": "' + 1 + '", "sephi_opt":"' + sephi_opt + '"}');
+        } else if (gup('ID') == 'Transport') {
+            sephi_opt = "eject=yes&ID=Transport";
+            params = JSON.parse('{ "url": "' + "https://" + univers + "/game/index.php" + '", "page": "page=fleet1", "from": "' + "cp=" + planet_list[planame_list.indexOf(GLOB_cur_planet_name)] + '", "to": "' + "galaxy=" + (GLOB_persistedData['eject'].split(':')[0]) + "&system=" + (GLOB_persistedData['eject'].split(':')[1]) + "&position=" + (GLOB_persistedData['eject'].split(':')[2]) + '", "type_mission": "' + "type=" + ((eject_onLune) ? "3" : "1") + "&mission=4" + '", "fleets": "' + "speed=1&" + ((eject_all) ? fleets_volume_civilships + "&" + fleets_volume_battleships : fleets_volume_civilships) + '", "ressources": "' + ressources + '&' + ress_priority + '", "fleets_opts": "' + "union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0" + '", "token": "' + "token=" + '", "step": "' + 1 + '", "sephi_opt":"' + sephi_opt + '"}');
+        } else if (gup('ID') == 'Recycl') {
+            sephi_opt = "eject=yes&ID=Recycl";
+            [, galaxy, system, position] = cur_planet_coords.match(/\[(\d+):(\d+):(\d+)\]/);
+            params = JSON.parse('{ "url": "' + "https://" + univers + "/game/index.php" + '", "page": "page=fleet1", "from": "' + "cp=" + planet_list[planame_list.indexOf(GLOB_cur_planet_name)] + '", "to": "' + "galaxy=" + galaxy + "&system=" + system + "&position=" + position + '", "type_mission": "' + "type=2&mission=8" + '", "fleets": "' + "speed=1&" + ((eject_all) ? fleets_volume_civilships + "&" + fleets_volume_battleships : fleets_volume_civilships) + '", "ressources": "' + ressources + '&' + ress_priority + '", "fleets_opts": "' + "union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0" + '", "token": "' + "token=" + '", "step": "' + 1 + '", "sephi_opt":"' + sephi_opt + '"}');
+        } else {
+            storeData('eject_selectPlanet', planet_list[planame_list.indexOf(GLOB_cur_planet_name)], 'all');
+            sephi_opt = "eject=yes";
+            params = JSON.parse('{ "url": "' + "https://" + univers + "/game/index.php" + '", "page": "page=fleet1", "from": "' + "cp=" + planet_list[planame_list.indexOf(GLOB_cur_planet_name)] + '", "to": "' + "galaxy=" + (GLOB_persistedData['eject'].split(':')[0]) + "&system=" + (GLOB_persistedData['eject'].split(':')[1]) + "&position=" + (GLOB_persistedData['eject'].split(':')[2]) + '", "type_mission": "' + "type=" + ((eject_onLune) ? "3" : "1") + "&mission=4" + '", "fleets": "' + "speed=1&" + ((eject_all) ? fleets_volume_civilships + "&" + fleets_volume_battleships : fleets_volume_civilships) + '", "ressources": "' + ressources + '&' + ress_priority + '", "fleets_opts": "' + "union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0" + '", "token": "' + "token=" + '", "step": "' + 1 + '", "sephi_opt":"' + sephi_opt + '"}');
+        }
     } else {
-        storeData('eject_selectPlanet', planet_list[planame_list.indexOf(GLOB_cur_planet_name)], 'all');
-        sephi_opt = "eject=yes";
-        params = JSON.parse('{ "url": "' + "https://" + univers + "/game/index.php" + '", "page": "page=fleet1", "from": "' + "cp=" + planet_list[planame_list.indexOf(GLOB_cur_planet_name)] + '", "to": "' + "galaxy=" + (GLOB_persistedData['eject'].split(':')[0]) + "&system=" + (GLOB_persistedData['eject'].split(':')[1]) + "&position=" + (GLOB_persistedData['eject'].split(':')[2]) + '", "type_mission": "' + "type=" + ((eject_onLune) ? "3" : "1") + "&mission=4" + '", "fleets": "' + "speed=1&" + ((eject_all) ? fleets_volume_civilships + "&" + fleets_volume_battleships : fleets_volume_civilships) + '", "ressources": "' + ressources + '&' + ress_priority + '", "fleets_opts": "' + "union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0" + '", "token": "' + "token=" + '", "step": "' + 1 + '", "sephi_opt":"' + sephi_opt + '"}');
+        //define ressources priorities params
+        var ress_priority = "prioMetal=" + gup('prioMetal') + "&prioCrystal=" + gup('prioCrystal') + "&prioDeuterium=" + gup('prioDeuterium');
+
+        var ressremain_metal=parseInt(gup('ressremain_metal'));var ressremain_crystal=parseInt(gup('ressremain_crystal'));var ressremain_deuterium=parseInt(gup('ressremain_deuterium'));
+
+        [capa_metal, capa_crystal, capa_deuterium] = ressources_by_priority(global_fleets_capacity, gup('prioMetal'), gup('prioCrystal'), gup('prioDeuterium'), ress_metal, ress_crystal, ress_deuterium);
+
+        //Define miss transporter to transport all ressource
+        var miss_ressources = (ress_metal - capa_metal) + (ress_crystal - capa_crystal) + (ress_deuterium - capa_deuterium);
+        if (miss_ressources > 0) {
+            var mesg_miss_ressources = "Il manque " + (miss_ressources <= 25000 ? Math.ceil(miss_ressources / 5000) + "PT" : Math.ceil(miss_ressources / 25000) + "GT") + " pour transporter toutes vos ressources depuis " + GLOB_cur_planet_name + ".";
+            setTimeout(function () {
+                blit_message_time("<b style='color:red'>Ressources à quai:</b>" + mesg_miss_ressources, 4000)
+            }, 1000);
+            setTimeout(function () {
+                sendMessage(readData('alert_mail_to', 'all'), "Ressources rapatriement from your planet " + GLOB_cur_planet_name, "Hello,\r\n\r\n" + "Ressources à quai: " + mesg_miss_ressources, "");
+            }, 6000);
+        }
+        //Define ressources capacities params
+        ressources = "metal=" + parseInt(capa_metal-ressremain_metal) + "&crystal=" + parseInt(capa_crystal-ressremain_crystal) + "&deuterium=" + parseInt(capa_deuterium-ressremain_deuterium);
+        var capa_wo_pt=Math.ceil((parseInt(capa_metal-ressremain_metal) + parseInt(capa_crystal-ressremain_crystal) + parseInt(capa_deuterium-ressremain_deuterium)) - PT*5000);
+        var pt_used=(capa_wo_pt>0)?PT:Math.ceil((parseInt(capa_metal-ressremain_metal) + parseInt(capa_crystal-ressremain_crystal) + parseInt(capa_deuterium-ressremain_deuterium))/5000);
+        var gt_used=(capa_wo_pt>0)?Math.ceil(capa_wo_pt/25000):0;
+        var transporters="am202="+pt_used+"&am203="+gt_used;
+        sephi_opt = "rapatriement=yes&ID=Transport";
+        params = JSON.parse('{ "url": "' + "https://" + univers + "/game/index.php" + '", "page": "page=fleet1", "from": "' + "cp=" + planet_list[planame_list.indexOf(GLOB_cur_planet_name)] + '", "to": "' + "galaxy=" + (gup('galaxy')) + "&system=" + (gup('system')) + "&position=" + (gup('position')) + '", "type_mission": "' + "type=" + (gup('type')) + "&mission=4" + '", "fleets": "' + "speed=10&" + transporters + '", "ressources": "' + ressources + '&' + ress_priority + '", "fleets_opts": "' + "union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0" + '", "token": "token=", "step": "1", "sephi_opt":"' + sephi_opt + '"}');
     }
     storeData('data',JSON.stringify(params), 'form');
     PostXMLHttpRequest(params.url+"?"+params.page+"&"+params.from,"",SendFleet);
@@ -4747,7 +4799,7 @@ if (gup('sephiScript') == '1') {
     var threshold:string=(typethreshold == 'volume')?readData('threshold', 'AR'):'';
     sephi_frigos_data+='  <br><span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Seuil basé sur <select id="AR_typethreshold" style="position:relative;margin-right:10px;visibility: visible;"><option value="off" '+(typethreshold == 'off'?'selected':'')+'>Aucun(Off)</option><option value="volume" '+(typethreshold == 'volume'?'selected':'')+'>Volume global ressource</option><option value="desactivationAA" '+(typethreshold == 'desactivationAA'?'selected':'')+'>Désactivation Auto-Attack</option></select>&nbsp;<span id="AR_threshold_show" style="display:'+(typethreshold == 'volume'?'inline-block':'none')+'"> Volume:&nbsp;<input type="number" min="0" style="width:75px;position:relative;margin-right:10px;text-align:center;" value="'+threshold+'" title="Valeur du seuil (Quantité globale de ressources)" id="AR_threshold"/></span> &nbsp;&nbsp; <i><span id="save_AR_threshold" style="display:none;">(enregistré)</span></i></span><br/>';
     if (readData('ressremain', 'AR') == null) storeData('ressremain','0:0:100000','AR');
-    sephi_frigos_data+='  <br><span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Ressources restantes: Metal&nbsp;<input type="number" min="0" style="width:75px;position:relative;margin-right:10px;text-align:center;" value="'+(readData('ressremain','AR') != ''?readData('ressremain','AR').split(":")[0]:'')+'" title="Volume de Metal restant" id="AR_ressremain_metal"/>Cristal&nbsp;<input type="number" min="0" style="width:75px;position:relative;margin-right:10px;text-align:center;" value="'+(readData('ressremain','AR') != ''?readData('ressremain','AR').split(":")[1]:'')+'" title="Volume de Cristal restant" id="AR_ressremain_cristal"/>Deuterium&nbsp;<input type="number" min="0" style="width:75px;position:relative;margin-right:10px;text-align:center;" value="'+(readData('ressremain','AR') != ''?readData('ressremain','AR').split(":")[2]:'')+'" title="Volume de Deuterium restant" id="AR_ressremain_deut"/> &nbsp;&nbsp; <i><span id="save_AR_ressremain" style="display:none;">(enregistré)</span></i></span><br/>';
+    sephi_frigos_data+='  <br><span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Ressources restantes: Metal&nbsp;<input type="number" min="0" style="width:75px;position:relative;margin-right:10px;text-align:center;" value="'+(readData('ressremain','AR') != '0'?readData('ressremain','AR').split(":")[0]:'')+'" title="Volume de Metal restant" id="AR_ressremain_metal"/>Cristal&nbsp;<input type="number" min="0" style="width:75px;position:relative;margin-right:10px;text-align:center;" value="'+(readData('ressremain','AR') != '0'?readData('ressremain','AR').split(":")[1]:'')+'" title="Volume de Cristal restant" id="AR_ressremain_cristal"/>Deuterium&nbsp;<input type="number" min="0" style="width:75px;position:relative;margin-right:10px;text-align:center;" value="'+(readData('ressremain','AR') != '0'?readData('ressremain','AR').split(":")[2]:'')+'" title="Volume de Deuterium restant" id="AR_ressremain_deut"/> &nbsp;&nbsp; <i><span id="save_AR_ressremain" style="display:none;">(enregistré)</span></i></span><br/>';
     if (readData('priority_metal', 'AR') == null) storeData('priority_metal','1','AR');
     if (readData('priority_cristal', 'AR') == null) storeData('priority_cristal','2','AR');
     if (readData('priority_deut', 'AR') == null) storeData('priority_deut','3','AR');
@@ -4961,14 +5013,13 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>'
     document.getElementById('buttonz').innerHTML = sephi_frigos_data;
 
-
     // Config Auto-Rapatriement
     var change_AR_coord=function(){
         storeData('coord',(typeof $('#AR_coord_galaxy') != "undefined"?$('#AR_coord_galaxy').val():'')+':'+(typeof $('#AR_coord_system') != "undefined"?$('#AR_coord_system').val():'')+':'+(typeof $('#AR_coord_position') != "undefined"?$('#AR_coord_position').val():'')+':'+(typeof $('#AR_coord_lune') != "undefined" && $('#AR_coord_lune').is(':checked')?1:0),'AR');
         $('#save_AR_coord').show(1500,function(){$('#save_AR_coord').hide();});
     };
     var change_AR_ressremain=function(){
-        storeData('ressremain',(typeof $('#AR_ressremain_metal') != "undefined"?$('#AR_ressremain_metal').val():'')+':'+(typeof $('#AR_ressremain_cristal') != "undefined"?$('#AR_ressremain_cristal').val():'')+':'+(typeof $('#AR_ressremain_deut') != "undefined"?$('#AR_ressremain_deut').val():''),'AR');
+        storeData('ressremain',(typeof $('#AR_ressremain_metal') != "undefined"?$('#AR_ressremain_metal').val():'0')+':'+(typeof $('#AR_ressremain_cristal') != "undefined"?$('#AR_ressremain_cristal').val():'0')+':'+(typeof $('#AR_ressremain_deut') != "undefined"?$('#AR_ressremain_deut').val():'0'),'AR');
         $('#save_AR_ressremain').show(1500,function(){$('#save_AR_ressremain').hide();});
     }
     var change_AR_typethreshold=function(){
