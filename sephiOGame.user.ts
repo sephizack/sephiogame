@@ -3,7 +3,7 @@
 // @namespace   http://www.sephiogame.com
 // @version     3.8.0
 // @description Script Ogame
-// @author      Sephizack
+// @author      Sephizack,I2T
 //
 // @exclude     /^(http|https)://s.*\.ogame\.gameforge\.com/feed/.*$/
 // @exclude     /^(http|https)://s.*\.ogame\.gameforge\.com/board/.*$/
@@ -22,47 +22,47 @@
 //
 //History Version
 //3.6.0: Sephizack-      Initial version [PROD]
-//3.6.1: Imp2Toulouse-   *Add capability to set the leave slot
-//       Imp2Toulouse-   *Bugs/malwritten correction
-//3.6.2: Imp2Toulouse-   *Optimization code in check frigo
-//                       *Optimization code for the pack detection (factorize via a get_button_information function)
-//                           [En cours] Dans le cas d'une lune avec le pack, sur la page d'installation j'ai 2 erreurs: 
-//                           - Uncaught TypeError: events[i].getElementsByClassName is not a function 
-//                           xhr.onreadystatechange @ VM219314:1462 
-//                           - Cannot read property 'join' of null(anonymous function) 
-//                           TypeError: Cannot read property 'join' of null @ VM219314:2288 
-//                       *Antigame compatibility: Detect evolution of ressources or station (moon or planet)
-//                       *Correction ejection by using existant functions and compatibility with antigame
-//                       *Add last_start in storage in case of first generated rapport using own message results
-//                       *Active "Boite de Réception" and "Corbeille" tabs
-//3.6.3: Imp2Toulouse-   *Google API integration and restricted usage of send mail feature.
-//                       *Add email configuration in sephiOGame page
-//                       *Correction about detection of destFleet on ejection
-//                       *Add the direct retirement of a frigo in Galaxy and message menu
-//3.6.3.1: Imp2Toulouse- *Compatibility correction
-//3.6.3.2: Imp2Toulouse- *Integration of Ogame version 6.0.5
-//                       *Review all frigo integration (from messages)
-//3.6.3.2: Imp2Toulouse- *Review all Auto Attack processus
-//                       *Review the Expedition send
-//3.6.3.4: Imp2Toulouse- *NEW- Internal communication to the attack owner in order to specified its attack has been discovered + config allowed
-//                        (4 different sentences used in random)
-//                       *Bug correction in butin calculation (Thousand 'M' not correctly take into account)
-//                       *Bug correction when more than 1000GT in calculation
-//                       *NEW- Integration of expedition personnal fleet, speed and time to spent in.
-//                       *Bug correction when a disconnection happens during a spy launch.
-//                       *NEW- Integration of a link to a fight report convertisseur on API button in messages' "Rapport de Combat" Tab
+//3.6.1: I2T-   *Add capability to set the leave slot
+//       I2T-   *Bugs/malwritten correction
+//3.6.2: I2T-   *Optimization code in check frigo
+//              *Optimization code for the pack detection (factorize via a get_button_information function)
+//                     Dans le cas d'une lune avec le pack, sur la page d'installation j'ai 2 erreurs:
+//                     - Uncaught TypeError: events[i].getElementsByClassName is not a function
+//                     xhr.onreadystatechange @ VM219314:1462
+//                     - Cannot read property 'join' of null(anonymous function)
+//                     TypeError: Cannot read property 'join' of null @ VM219314:2288
+//              *Antigame compatibility: Detect evolution of ressources or station (moon or planet)
+//              *Correction ejection by using existant functions and compatibility with antigame
+//              *Add last_start in storage in case of first generated rapport using own message results
+//              *Active "Boite de Réception" and "Corbeille" tabs
+//3.6.3: I2T-   *Google API integration and restricted usage of send mail feature.
+//              *Add email configuration in sephiOGame page
+//              *Correction about detection of destFleet on ejection
+//              *Add the direct retirement of a frigo in Galaxy and message menu
+//3.6.3.1: I2T- *Compatibility correction
+//3.6.3.2: I2T- *Integration of Ogame version 6.0.5
+//              *Review all frigo integration (from messages)
+//3.6.3.2: I2T- *Review all Auto Attack processus
+//              *Review the Expedition send
+//3.6.3.4: I2T- *NEW- Internal communication to the attack owner in order to specified its attack has been discovered + config allowed
+//              (4 different sentences used in random)
+//              *Bug correction in butin calculation (Thousand 'M' not correctly take into account)
+//              *Bug correction when more than 1000GT in calculation
+//              *NEW- Integration of expedition personnal fleet, speed and time to spent in.
+//              *Bug correction when a disconnection happens during a spy launch.
+//              *NEW- Integration of a link to a fight report convertisseur on API button in messages' "Rapport de Combat" Tab
 //
-//3.6.4: Imp2Toulouse-   *Official version integrating all beta changes
+//3.6.4: I2T-   *Official version integrating all beta changes
 //
-//3.6.4.1: Imp2Toulouse- *Add functionnalities
-//                         *link with TopRaider on api button in combat and spy report
-//                         *launch specific raid directly by clicking in target button in spy report
-//3.6.4.2: Imp2Toulouse- *Debug functionnalities / Optimizations
-//                         *Tools bar in messages has been debugged and improved
-//                         *Code optimizations
-//3.6.4.3:               * Fixes + prevent auto attack during period
-//         Imp2Toulouse- * Fixes / Optimizations
-//3.6.4.4:               * Many fixes
+//3.6.4.1: I2T- *Add functionnalities
+//              *link with TopRaider on api button in combat and spy report
+//              *launch specific raid directly by clicking in target button in spy report
+//3.6.4.2: I2T- *Debug functionnalities / Optimizations
+//              *Tools bar in messages has been debugged and improved
+//              *Code optimizations
+//3.6.4.3:      * Fixes + prevent auto attack during period
+//         I2T- * Fixes / Optimizations
+//3.6.4.4:      * Many fixes
 //3.7.0: Nouveautés de la version 3.7.0 :
 //         Integration de la version 6.0.5
 //         -Revue de l'integration de l'ensemble des frigos (depuis les messages)
@@ -79,7 +79,7 @@
 //       Bug corrections/Improvements
 //         - Improvement of nb_slot configuration saving
 //         - Improvement of fleets specification on ejection (new function get_fleets_capacity)
-//3.7.2:               * Fixed Save/Load 
+//3.7.2: * Fixed Save/Load
 //3.7.3
 //         - Correction "Report general" when spy report on planet was not a frigo
 //         - Change match regex to improve detection of old spy report on detroyed planet
@@ -107,8 +107,14 @@
 //3.8.0
 //         -Fonction autospy added in galaxy view and allowing to detect&spy all inactive target in a predefined scope.
 //         -Fonction auto-rapatriement added (configurable threshold, target to centralise, ...)
-//         -Minor corrections (users feedback)
+//         -Minor corrections (users feedback as on deletion message avec AutoAttack do not remove the foreign spy report)
+//         -Move SephiScript page from shipyard to galaxy in order as workarround of IG evolution limitation
 declare var $: JQueryStatic;
+
+var debug = false;
+var antiBugTimeout = setTimeout(function(){location.href=location.href;}, 5*60*1000);
+var cur_version = '3.8.0';
+var univers = window.location.href.split('/')[2];
 
 class PersistedData {
     listPrev : string[][];
@@ -116,10 +122,6 @@ class PersistedData {
     frigos : string[][];
     eject : string;
 }
-
-var antiBugTimeout = setTimeout(function(){location.href=location.href;}, 5*60*1000);
-var cur_version = '3.8.0';
-var univers = window.location.href.split('/')[2];
 
 // Multi langues
 var isFR = univers.match('fr');
@@ -256,10 +258,10 @@ function load_important_vars() {
             GLOB_persistedData = JSON.parse(aSerializedData);
         } catch(e) {
             blit_message('<span style="color:red">Unable to load saved data</span>')
-            console.log('e1:'+e)
+            if (debug) console.log('e1:'+e)
             throw e
         }
-        console.log('JSON persisted data retrieved')
+        if (debug) console.log('JSON persisted data retrieved')
         return;
     }
 
@@ -269,13 +271,13 @@ function load_important_vars() {
         try {
             GLOB_persistedData = JSON.parse(aSerializedData);
         } catch(e) {
-            console.log('No JSON found, using old algorithm')
+            if (debug) console.log('No JSON found, using old algorithm')
             try {
                 // Must support old format for compatibility reasons. Can be removed after a long time :/
                 GLOB_persistedData = load_persisted_data_deprecated(aSerializedData)
             } catch (e) {
                 blit_message('<span style="color:red">Unable to load saved data</span>')
-                console.log('e2:'+e)
+                if (debug) console.log('e2:'+e)
                 throw e
             }
         }
@@ -371,7 +373,7 @@ function load_important_vars_in_cloud() {
 
 function get_prev_data(name,id) {
     clock = (GLOB_persistedData["listPrev"][id] == null)?'undefined':GLOB_persistedData["listPrev"][id][cookies_list.indexOf(name)];
-    //Imp2Toulouse: Correction between undifinied par undefined (why do not use 'undefined' ?)
+    //I2T: Correction between undifinied par undefined (why do not use 'undefined' ?)
     if (clock=='undefined') return null;
     else return clock;
 }
@@ -551,7 +553,7 @@ function add_programmation_button() {
                 $('#number').onkeyup = null;
                 $('#number').onkeydown = null;
                 $('#number').onkeypress = null;
-                //Imp2Toulouse- Force the focus on number input to improve ergonomy
+                //I2T- Force the focus on number input to improve ergonomy
                 $('#number').focus();
             }
         }
@@ -659,7 +661,7 @@ function change_actions_tab(action_tab){
                     [,galaxy,system,planet] = coord.match(/\[(.*):(.*):(.*)\]/);
 
                     // Recherche d'un frigo avec ces coordonnées
-                    //Imp2Toulouse- Factorize with is_frigo fonction
+                    //I2T- Factorize with is_frigo fonction
                     var num_frigo=is_frigo(GLOB_persistedData["frigos"],coord);
                     var infrig=(num_frigo>=0)?'yes':'no';
 					//If coord is ours return
@@ -950,7 +952,7 @@ function save_list_in_cookies() {
     }
 
     // Ajout de frigo
-    //imp2Toulouse- Retrait de Frigo
+    //I2T- Retrait de Frigo
     if ((gup('page') == "fleet2" || gup('page') == 'messages' || gup('page') == 'galaxy')
         && (
             (readData('add_racc','all') != null && parseInt(readData('add_racc','all')) > 0)
@@ -999,7 +1001,7 @@ function save_list_in_cookies() {
             if (gup('page') == 'messages') setTimeout(function(){window.location.href = window.location.href;}, 500);
             if (gup('page') == 'galaxy') $("div.btn_blue[onclick^='submitForm()']").trigger("click");
         }
-        //Imp2Toulouse- Ajout de la suppression d'un frigo
+        //I2T- Ajout de la suppression d'un frigo
         if (readData('del_racc','all') != null && readData('del_racc','all').match(':')) {
             //all_del_racc contents coord
             var delid=is_frigo(GLOB_persistedData["frigos"],readData('del_racc','all'));
@@ -1098,7 +1100,7 @@ function add_frigo(infos_frigo_to_add){
     save_important_vars();
 }
 
-//Imp2Toulouse: Add function to factorize
+//I2T: Add function to factorize
 //browse all frigos and return id back else -1
 function is_frigo(frigos,coord:string){
 
@@ -1122,7 +1124,7 @@ function is_frigo(frigos,coord:string){
 function get_frigo_data(idfrigo) {return GLOB_persistedData["frigos"][idfrigo];}
 
 
-//Imp2Toulouse: Add function allowing to get button information
+//I2T: Add function allowing to get button information
 function get_info_button(button){
     var current_level=0, evol_level=0, value="";
     if ($("#"+button+" .ecke").length > 0) {
@@ -1144,7 +1146,7 @@ function set_info_button(button, value){
     if ($("#"+button+" :input:text").length > 0)
         $("#"+button+" :input:text").val(value);
 }
-//Imp2Toulouse: Add function calculating the cool time + transform to be generic (myvalue in param) + show week if needed ==> Change fonction name from get_last_AA_coolTime to get_Time_Remain
+//I2T: Add function calculating the cool time + transform to be generic (myvalue in param) + show week if needed ==> Change fonction name from get_last_AA_coolTime to get_Time_Remain
 function get_Time_Remain(myvalue){
     lastAAcoolTime=null;
     if (myvalue !== null) {
@@ -1207,7 +1209,7 @@ function checkNewScriptVersionFromServer() {
         onload:     function (responseDetails) {
             if (responseDetails.status == 200) {
                 var lastVersion = responseDetails.responseText;
-                console.log('Last version is ' + lastVersion);
+                if (debug) console.log('Last version is ' + lastVersion);
                 if (parseInt(lastVersion.match(/\d/g).join("")) > parseInt(cur_version.match(/\d/g).join(""))){
                     blit_message('<span style="float: none;margin: 0;color:#109E18">Version '+lastVersion
                         +' disponible</span>.<br><a href="http://www.sephiogame.com/Actualites?curVer='+cur_version
@@ -1285,15 +1287,14 @@ function launch_spy(self? : any, override_id? : any){
         $('#auto_attack').css("color", '#808080');
         $('#auto_attack').html('&#9658; En attente des rapports d\'espionnage...');
     }
-    var nb_sondes = parseInt($('#frig_sondes_'+frigo_id_to_spy).val());
-
+    var nb_sondes = parseInt($('#frig_nb_sondes_'+frigo_id_to_spy).val());
     params = {
         mission: 6,
-        galaxy: GLOB_persistedData["frigos"][frigo_id_to_spy][1],
-        system: GLOB_persistedData["frigos"][frigo_id_to_spy][2],
-        position: GLOB_persistedData["frigos"][frigo_id_to_spy][3],
+        galaxy: parseInt(GLOB_persistedData["frigos"][frigo_id_to_spy][1]),
+        system: parseInt(GLOB_persistedData["frigos"][frigo_id_to_spy][2]),
+        position: parseInt(GLOB_persistedData["frigos"][frigo_id_to_spy][3]),
         type: (GLOB_persistedData["frigos"][frigo_id_to_spy][12] === "planet" || GLOB_persistedData["frigos"][frigo_id_to_spy][12] === "")?1:3,//type=1 for spy planet, type=3 for spy moon
-        shipCount: nb_sondes,
+        shipCount: parseInt(nb_sondes),
         token: miniFleetToken
     };
 
@@ -1342,7 +1343,7 @@ function launch_spy(self? : any, override_id? : any){
                 GLOB_abandonne_spy = true;
                 setTimeout(function(){window.location.href = window.location.href.replace(gup('page'), 'overview').replace('&startAA=1', '').replace('&sephiScript=1', '');}, 10000);
                 return;
-                //imp2Toulouse- Simplifacation using regular expression
+                //I2T- Simplifacation using regular expression
             } else if (!dateESP.response.message.match(/[E|e]rreur/)) {
                 blit_message('Espionnage sur '+GLOB_persistedData["frigos"][frigo_id_to_spy][0]+' <span style="float: none;margin: 0;color:#109E18">démarré avec succès</span>');
                 $('#spy_isok_'+frigo_id_to_spy).css("display", 'block');
@@ -1386,7 +1387,7 @@ function launch_spy(self? : any, override_id? : any){
                 return;
             } else {
                 GLOB_next_id = frigo_id_to_spy;
-                //Imp2Toulouse- Increase de delay for waiting spy back
+                //I2T- Increase de delay for waiting spy back
                 wait_sec=rand(6,15);
                 setTimeout(function(){blit_message('<span style="float: none;margin: 0;">Erreur d\'espionnage : '+dateESP.response.message+'<br>Nouvel essai dans '+wait_sec+' secondes</span>');}, 2000);
                 $('#spy_all').html('&#9658; Espionnage des frigos en cours... (Nouvel essai dans '+wait_sec+' secondes)');
@@ -1488,7 +1489,7 @@ function autospy(self? : any, override_id? : any){
 
     var spyTimeout = setTimeout(function(){
         blit_message('<span style="float: none;margin: 0;color:#d43635">Pas de réponse</span>. Nouvel essai ('+(GLOB_nb_spy_fail+1)+'/10).');
-        //Imperator2Toulouse- If nb fails reached, abandon the spy process which will return to the overview
+        //I2T- If nb fails reached, abandon the spy process which will return to the overview
         if ( GLOB_nb_spy_fail > 10 ) {
             GLOB_abandonne_spy=true;
             clearTimeout(spyTimeout);
@@ -1504,7 +1505,7 @@ function autospy(self? : any, override_id? : any){
         type: "POST",
         success: function(dateESP) {
             if(typeof(dateESP.newToken) != "undefined") {
-                miniFleetToken = dateESP.newToken;
+                var miniFleetToken = dateESP.newToken;
             }
             GLOB_nb_tries++;
             if (dateESP.response == undefined) {
@@ -1521,7 +1522,7 @@ function autospy(self? : any, override_id? : any){
                 GLOB_abandonne_spy = true;
                 setTimeout(function(){window.location.href = window.location.href.replace(gup('page'), 'overview');}, 10000);
                 return;
-                //imp2Toulouse- Simplifacation using regular expression
+                //I2T- Simplifacation using regular expression
             } else if (!dateESP.response.message.match(/[E|e]rreur/)) {
                 $('#autospy_notif').html('&#9658; Espionnage des frigos en cours...');
                 blit_message('Espionnage sur '+GLOB_TAB_INACTIF[inactif_id_to_spy]["name"]+' <span style="float: none;margin: 0;color:#109E18">démarré avec succès</span>');
@@ -1553,7 +1554,7 @@ function autospy(self? : any, override_id? : any){
                 return;
             } else {
                 GLOB_next_id = inactif_id_to_spy;
-                //Imp2Toulouse- Increase de delay for waiting spy back
+                //I2T- Increase de delay for waiting spy back
                 wait_sec=rand(6,15);
                 setTimeout(function(){blit_message('<span style="float: none;margin: 0;">Erreur d\'espionnage : '+dateESP.response.message+'<br>Nouvel essai dans '+wait_sec+' secondes</span>');}, 2000);
                 $('#autospy_notif').html('&#9658; Espionnage des frigos en cours... (Nouvel essai dans '+wait_sec+' secondes)');
@@ -1587,7 +1588,7 @@ function save_alert_mail() {
     var mail : string = document.getElementById('alert_mail_to').value;
     var body : string = document.getElementById('alert_mail_body').value;
     var freq : string = document.getElementById('alert_mail_freq').value;
-    //Imp2Toulouse- Get back information about mail checking.
+    //I2T- Get back information about mail checking.
     if (checkmail(mail) == true) {
         storeData('alert_mail_to',mail,'all');
         storeData('alert_mail_body',body,'all');
@@ -1595,16 +1596,13 @@ function save_alert_mail() {
         blit_message('Vous pouvez <span style="float: none;margin: 0;color:#109E18">tester</span> l\'envoi d\'un mail.');
         document.getElementById('test-mail').style.display = 'inline';
         return ('enregistrée');
-    } else {
-        if (mail=='') {
+    } else if (mail=='') {
             storeData('alert_mail_to',mail,'all');
             storeData('alert_mail_body',mail,'all');
             storeData('alert_mail_freq',freq,'all');
-            //blit_message('La fonction d\'alerte <span style="float: none;margin: 0;color:#109E18">à été désactivée</span>.');
             document.getElementById('test-mail').style.display = 'none';
             return ('supprimée');
-        } else return ('incorrecte');//blit_message('Votre adresse mail est <span style="float: none;margin: 0;color:#d43635">est incorrecte</span>.');
-    }
+    } else return ('incorrecte');
 }
 
 function send_to_webhook(cp_attacked,coords,isOnLune,time_attack,time_arrival,planet_origin,coords_origin, total_fleets_origin,liste_fleets_origin) {
@@ -1623,21 +1621,20 @@ function send_to_webhook(cp_attacked,coords,isOnLune,time_attack,time_arrival,pl
         type: "POST",
         success: function(call) {
             blit_message_time("<font color=green><b>Avertissement</b> par message votre discord.</font>", 2000);
-            console.log("Notification de votre discord.");
+            if (debug) console.log("Notification de votre discord.");
         }
     });
 }
 
 function send_alert_mail(cp_attacked,coords,isOnLune,time_attack) {
-    sendMessage(readData('alert_mail_to','all'),'Ogame Attack Alert',readData('alert_mail_body','all').replace("[CP_NAME]",cp_attacked).replace("[CP_COORDS]",coords).replace("[CP_ISLUNE]",(isOnLune)?"Lune":"Planet").replace("[CP_IMPACTTIME]",getFormatedTime(time_attack).replace(/:/," hours, ").replace(/:/, " minutes and ")+ " seconds"),'https://'+univers+'/game/index.php?page=shipyard&sephiScript=1');
+    sendMessage(readData('alert_mail_to','all'),'Ogame Attack Alert',readData('alert_mail_body','all').replace("[CP_NAME]",cp_attacked).replace("[CP_COORDS]",coords).replace("[CP_ISLUNE]",(isOnLune)?"Lune":"Planet").replace("[CP_IMPACTTIME]",getFormatedTime(time_attack).replace(/:/," hours, ").replace(/:/, " minutes and ")+ " seconds"),'https://'+univers+'/game/index.php?page=galaxy&sephiScript=1');
     storeData('attack_advert', time().toString(), 'all');
 }
 
-//Imp2Toulouse- Take into account eject time set
+//I2T- Take into account eject time set
 function get_start_after_less(info){ return ((info == "never")?0:parseInt(info.match(/\d/g).join(""))*60); }
 
 function check_attack() {
-    //if (have_played_alert == false && $(document.body).html().match('<div id="attack_alert" class="tooltip eventToggle')){
     if (have_played_alert == false && $("div#attack_alert").length > 0){
         xhr.onreadystatechange  = function()
         {
@@ -1649,17 +1646,10 @@ function check_attack() {
                             setTimeout(function(){if (readData("desactive_alarm", 'all') !== 'yes') bruit_alert('http://www.sephiogame.com/script/alert_nuclear_bomb3.ogg');}, 4000);
 							have_played_alert = true;
                         }
-
-						//if (xhr.responseText.match("allianceAttack").length >0)
-						//	Attaque_groupee=true
-
-                        // Auto-Eject
-                        //events = xhr.responseText.split('eventFleet');
 						events = xhr.responseText.split('<tr class="');
                         for (i=1 ; i<events.length ; i++) {
                             if (events[i].match('Flotte ennemie') && !events[i].match("https://gf3.geo.gfsrv.net/cdnb7/60a018ae3104b4c7e5af8b2bde5aee.gif") && !events[i].match("https://gf3.geo.gfsrv.net/cdne8/583cd7016e56770a23028cba6b5d2c.gif")) {
-								//Imp2Toulouse- Compatibility with antigame
-                                //isOnLune = events[i].getElementsByClassName('destFleet')[0].innerHTML.match('moon'); // Impossible d'utiliser GEBCN sur cet objet
+								//I2T- Compatibility with antigame
                                 isOnLune=events[i].split(/<td class="destFleet">/)[1].split(/<\/td>/)[0].match("moon");
 
                                 coords = '['+events[i].split('destCoords')[1].split('[')[1].split(']')[0]+']';
@@ -1674,12 +1664,10 @@ function check_attack() {
 								liste_fleets_origin = events[i].split('icon_movement">')[1].split('Vaisseaux:')[1].split('&lt;/table&gt;')[0].replace(/(<(?:.|\n)*?>)/gm, ' ').replace(/(&lt;(?:.|\n)*?&gt;)/gm, ' ').replace(/\s+/gm, ' ');
                                 //Get attaker playerid
                                 attaker_playerid=parseInt(events[i].match(/data-playerId="(\d+)"/)[1]);
-                                //If using Antigame
-                                //if ($("#eventboxContent #eventContent .ago_eventlist_activity img")) {
                                 if ( GLOB_cur_planet == cp_attacked && readData("advertAttaker", 'all') === "1" && readData("attakerNotified", "AA") != cp_attacked)
                                     setTimeout(send_internal_message(attaker_playerid,cp_attacked),parseInt(rand(3,5))*60000);
 
-                                //Imp2Toulouse- Add frequency defined in param
+                                //I2T- Add frequency defined in param
                                 if (alert_mail_to !== '' && (readData('attack_advert','all') == null || (time()-parseInt(readData('attack_advert','all'))) > parseInt(readData('alert_mail_freq','all'))*60*1000) )
                                     setTimeout(send_alert_mail(planame_list[planet_list_coords.indexOf(coords)],coords,isOnLune,time_attack),2000);
 
@@ -1706,7 +1694,7 @@ function check_attack() {
                                         blit_message("Auto-eject dans 10 secondes...");
                                         setTimeout(function(){
                                             storeData('escaped_'+cp_attacked, time().toString(), 'all');
-                                            //Imp2Toulouse- adapt type regarding target moon
+                                            //I2T- adapt type regarding target moon
                                             window.location.href = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+eject_gal+'&system='+eject_sys+'&position='+eject_pla+'&type='+(isOnLune?3:1)+'&mission=3&eject=yes&cp='+cp_attacked;
                                         }, 10000);
                                         return;
@@ -1767,7 +1755,7 @@ function send_internal_message(attakerChatID, cp_attacked){
         success: function(call) {
             storeData("attakerNotified", cp_attacked, "AA");
             blit_message_time("<font color=green><b>Avertissement</b> de l'attaquant par message interne.</font>", 6000);
-            console.log("internal message sent '"+text+"'.");
+            if (debug) console.log("internal message sent '"+text+"'.");
         }
     });
 }
@@ -2095,7 +2083,7 @@ function gestion_cook() {
                         blit_message('Changement de planète annulé dans l\'<span style="float: none;margin: 0;color:#109E18">attente d\'une construction</span>.');
                     }
                 }
-                //Imp2Toulouse- Add this condition cause getting error on Galaxy page where info_prog_time is not used
+                //I2T- Add this condition cause getting error on Galaxy page where info_prog_time is not used
                 h = document.getElementById('info_prog_time_'+programationId);
                 if (h != null) {
                     if (h.innerHTML.match('>') || !h.innerHTML.match('Prêt')) break;
@@ -2128,7 +2116,7 @@ function delete_msg(id){
         data: params,
         type: "POST",
         success: function(response) {return true;},
-        failed: function(response) {console.log("Fail to delete message '"+id+"'.");return false;}
+        failed: function(response) {if (debug) console.log("Fail to delete message '"+id+"'.");return false;}
     });
 }
 
@@ -2154,29 +2142,29 @@ function read_rapports_and_create_table() {
         type: "POST",
         success: function(response) {
             if (tot_mail_page == 0 ) tot_mail_page=parseInt($(response).find("li.curPage").html().split("/")[1]);
-            console.log("Look for message(s) on page "+cur_mail_page+"...");
+            if (debug) console.log("Look for message(s) on page "+cur_mail_page+"...");
             elems=$(response).find("li."+class_bonus);
 
             if (elems.length == 0 || (cur_mail_page > tot_mail_page)) {
                 no_more_new_esp = true;
                 stopMail = true;
-                console.log("   no message found on this page ....");
-            } else console.log("   "+elems.length+" message(s) found on this page ....");
+                if (debug) console.log("   no message found on this page ....");
+            } else if (debug) console.log("   "+elems.length+" message(s) found on this page ....");
 
             $(elems).each(function(index){
                 //Stop point if all message read
                 if (stopMail == true) return;
                 if (document.getElementById('with_readed_RG').checked && count_esp>=nb_limit*2) return;
 
-                console.log("Message n°"+index+" title="+$(this).find("span.msg_title").text());
-                console.log("  --> action=reading");
+                if (debug) console.log("Message n°"+index+" title="+$(this).find("span.msg_title").text());
+                if (debug) console.log("  --> action=reading");
                 if ($(this).find("span.msg_title").text().match(/Rapport d`espionnage de.*\[\d+:\d+:\d+\]/) != null) {
 
-                    console.log("  --> action=checking ok, treat this message");
+                    if (debug) console.log("  --> action=checking ok, treat this message");
                     no_more_new_esp = false;
                     [,planame,galaxy,system,planet]=$(this).find("span.msg_title a").text().trim().match(/(.*) \[(\d+):(\d+):(\d+)\]/);
                     coord = '['+galaxy+":"+system+":"+planet+']';
-                    //Imp2Toulouse: Replace by function
+                    //I2T: Replace by function
                     var idFrig:number=is_frigo(GLOB_persistedData["frigos"],coord);
                     if (idFrig>=0) { //|| gup('RG') !== 'OUI') {
                         count_esp++;
@@ -2216,17 +2204,17 @@ function read_rapports_and_create_table() {
                         data += '<td id="rap_general_butin_'+count_esp+'" style="border: 1px solid #303030;padding: 5px 8px;text-align:center;font-weight:bold;color:#FF9600;">-</td>';
                         data += '<td id="rap_general_attack_'+count_esp+'" style="border: 1px solid #303030;padding: 5px 8px;text-align: center;">Veuillez Patienter...</td>';
                         data += '</tr>';
-                        console.log("  --> action=treating ok");
+                        if (debug) console.log("  --> action=treating ok");
                     }
                 }
             });
             $(elems).each(function(index) {
                 if (stopMail == true) return;
                 if (document.getElementById('with_readed_RG').checked && count_esp>=nb_limit*2) return;
-                console.log("Message n°"+index+" title="+$(this).find(".msg_head span.msg_title").text());
+                if (debug) console.log("Message n°"+index+" title="+$(this).find(".msg_head span.msg_title").text());
                 if ($(this).find('.msg_head .fright .js_actionKill') && $(this).find(".msg_head span.msg_title").text().match(/Rapport d`espionnage de.*\[\d+:\d+:\d+\]/) != null) {
                     delete_msg($(this).attr("data-msg-id"));
-                    console.log("  --> action=deleting");
+                    if (debug) console.log("  --> action=deleting");
                 }
             });
             if (document.getElementById('with_readed_RG').checked && count_esp>=nb_limit*2) {
@@ -2268,7 +2256,7 @@ function start_rapport_general() {
         planet = 16;
         if (system<1) system = rand(1,4);
         if (system>499) system = rand(495,499);
-        //Imperator2Toulouse- Launch expedition with flotte_perso
+        //I2T- Launch expedition with flotte_perso
         data+='<iframe style="display:none;" id="ifr_AA_exped" src="https://'+univers+'/game/index.php?page=fleet1&galaxy='+galaxy+'&system='+system+'&position='+planet+'&type=1&mission=15&auto=yes&ID=Exped&GT='+parseInt(with_exped)+'&flotte_perso='+with_exped_perso+'&blockswitchplanet=yes"></iframe>';
         data +='<div id="exped_launch" style="color:#999;padding:5px;text-align:left;color: #A52592;">Démarrage d\'une expédition...</div>';
         storeData('AA_Exp','wait','all')
@@ -2302,7 +2290,7 @@ function start_rapport_general() {
 }
 
 
-//Imp2Toulouse- Change function for using jquery and adapt to the new version 6.0.5
+//I2T- Change function for using jquery and adapt to the new version 6.0.5
 function process_espionnage_data(data) {
     type_multip = 0.5;
     if ($(data).text().match('status_abbr_honorableTarget')) type_multip = 0.75;
@@ -2370,7 +2358,7 @@ function fill_rapport_general() {
         [,galaxy,system,planet] = $('#rap_general_coord_' + GLOB_rgID+' a').html().match(/\[(\d+):(\d+):(\d+)\]/);
         curplanet_name = $('#rap_general_planet_name_'+GLOB_rgID).html();
 
-        //Imp2Toulouse- Replace this block with equivalent one in order to use id_frigo function
+        //I2T- Replace this block with equivalent one in order to use id_frigo function
         // Recherche d'un frigo avec ces coordonnées et qui a une flote personnalisée
 
         flotte_perso='';
@@ -2378,7 +2366,7 @@ function fill_rapport_general() {
         //If 5 items set so a "flotte_perso" exist
         if (idFrig>=0 && GLOB_persistedData["frigos"][idFrig].length > 5) flotte_perso = GLOB_persistedData["frigos"][idFrig][5];
         mail_url = document.getElementById('url_rap_esp_' + GLOB_rgID).innerHTML.replace(/&amp;/g, '&');
-        //Imperator2Toulouse- If second attack, middle butin is set
+        //I2T- If second attack, middle butin is set
         butin = (mail_url !== "second") ? parseInt(mail_url.replace('puredata:', '')) : parseInt(parseInt(document.getElementById('url_rap_esp_' + (GLOB_rgID - 1)).innerHTML.replace('puredata:', '')) / 2);
 
         //Check if flotte perso need to be improved because of opponant flotte and def has changed or if flotte or def exist and flotteperso is empty
@@ -2393,13 +2381,13 @@ function fill_rapport_general() {
         GLOB_rgButins = GLOB_rgButins.sort(function(a,b) { return b[0] - a[0] });
 
         // On affiche le tableau
-        for (k=0 ; k<GLOB_rgButins.length-1 ; k++) GLOB_rgEndData += '<tr>'+document.getElementById('rap_general_line_'+GLOB_rgButins[k][1]).innerHTML+'</tr>';
+        for (var k=0 ; k<GLOB_rgButins.length-1 ; k++) GLOB_rgEndData += '<tr>'+document.getElementById('rap_general_line_'+GLOB_rgButins[k][1]).innerHTML+'</tr>';
         document.getElementById('rap_general_table').innerHTML = GLOB_rgEndData;
 
-        //Imp2Toulouse- clean lastRap
+        //I2T- clean lastRap
         removeData('lastRap', 'AA');
         storeData('lastRap', document.getElementById('rap_general_table').innerHTML, 'AA');
-        //Imp2Toulouse- Add last_start in storage because it miss on first generated rapport with auto_AA (using own message results)
+        //I2T- Add last_start in storage because it miss on first generated rapport with auto_AA (using own message results)
         storeData('last_start', time().toString(), 'AA');
 
         document.getElementById('rapport_gen').innerHTML = '&#9658; Rapport général réalisé avec succès';
@@ -2491,7 +2479,7 @@ function check_AA_feedback() { // Checkout Auto Attack feedback
         flotte_succes = false;
 
         if (readData('AA_feed','all').match('IS_OK')) {
-            console.log ("e:"+e);
+            if (debug) console.log ("e:"+e);
             e.innerHTML = '<span title="Flotte envoyée">[OK]</span> ' + clean_name(e.innerHTML); e.style.color='#109E18'; flotte_succes = true;
             // On augmente l'importance du frigo
             frigid = parseInt(document.getElementById('frigoID_'+ID).innerHTML);
@@ -2532,7 +2520,7 @@ function check_AA_feedback() { // Checkout Auto Attack feedback
 
 function countdownAA() {
     t=parseInt(readData('progTime','AA')) - time();
-    //Imp2Toulouse
+    //I2T
     //Add condition to avoid error when countdownAA is null
     var countdownObj = $('#countdownAA');
     if (countdownObj.length > 0) {
@@ -2600,19 +2588,26 @@ function update_slots() {
 function startEject(){
     blit_message_time("<b>Desactivation des Auto attaques</b><br>Lancement de l'ejection complète de votre flotte via le mode "+readData('time_no_AA_type_eject','AA')+" dans quelques secondes!",2000)
     sephi_opt="&eject=yes&ID="+readData('time_no_AA_type_eject','AA');
+    with_exped_speed = readData('time_no_AA_type_eject_exped_speed', 'AA');
     switch(readData('time_no_AA_type_eject','AA')) {
         case "Exped":
 //            [,galaxy,system,position]=cur_planet_coords.match(/\[(\d+):(\d+):(\d+)\]/);
             sephi_opt+='&galaxy='+gup('galaxy')+'&system='+gup('system')+'&position=16&type=1&mission=15';
-            with_exped_speed = readData('time_no_AA_type_eject_exped_speed', 'AA');
             with_exped_time = readData('time_no_AA_type_eject_exped_temps', 'AA');
             sephi_opt+=((with_exped_speed == null || with_exped_speed == '')?'':"&exped_speed="+parseInt(with_exped_speed)) + ((with_exped_time == null || with_exped_time == '')?'':"&exped_time="+parseInt(with_exped_time));
             break;
         case "Transport":
-            sephi_opt+='&galaxy='+eject_gal+'&system='+eject_sys+'&position='+eject_pla+'&type=1&mission=3';
+            sephi_opt+='&galaxy='+eject_gal+'&system='+eject_sys+'&position='+eject_pla+'&type='+((eject_onLune) ? "3" : "1")+'&mission=4';
+            sephi_opt+=((with_exped_speed == null || with_exped_speed == '')?'':"&speed="+parseInt(with_exped_speed));
+            break;
+        case "MoveRessources":
+            //debugger;
+            sephi_opt='&rapatriement=yes&ID=Transport&galaxy='+eject_gal+'&system='+eject_sys+'&position='+eject_pla+'&type='+((eject_onLune) ? "3" : "1")+'&mission=4&prioMetal=' + readData("priority_metal","AR") + '&prioCrystal=' + readData("priority_cristal","AR") + '&prioDeuterium=' + readData("priority_deut","AR") + '&ressremain_metal='+parseInt(readData("ressremain","AR").split(":")[0])+'&ressremain_crystal='+parseInt(readData("ressremain","AR").split(":")[1])+'&ressremain_deuterium='+parseInt(readData("ressremain","AR").split(":")[2]);
+            sephi_opt+=((with_exped_speed == null || with_exped_speed == '')?'':"&speed="+parseInt(with_exped_speed));
             break;
         case "Recycl":
             sephi_opt+='&galaxy='+eject_gal+'&system='+eject_sys+'&position='+eject_pla+'&type=2&mission=8';
+            sephi_opt+=((with_exped_speed == null || with_exped_speed == '')?'':"&speed="+parseInt(with_exped_speed));
             break;
     }
     // On démarre l'Eject configuré
@@ -2637,11 +2632,11 @@ function startAA() {
     } else storeData('isProg', 'non', 'AA');
 
     // On démarre l'AA
-    window.location.href='https://'+univers+'/game/index.php?page=shipyard&sephiScript=1&cp='+GLOB_cur_planet+'&startAA=1';
+    window.location.href='https://'+univers+'/game/index.php?page=galaxy&sephiScript=1&cp='+GLOB_cur_planet+'&startAA=1';
 }
 
 function add_auto_attack_bar() {
-    if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page') !== 'galaxy'
+    if (gup('page') !== 'traderOverview' && gup('page') !== 'premium'
         && gup('page') !== 'highscore' && gup('page') !== 'fleet1' && gup('page') !== 'fleet2'
         && gup('page') !== 'fleet3' && gup('page') != 'preferences'
         && readData('isProg','AA') == 'oui' && readData('progTime','AA') !== null) {
@@ -2815,7 +2810,7 @@ function calc_ID_flotte () {
 }
 
 // Eject
-//Imp2Toulouse
+//I2T
 //Note: type=1 - GoTo Planet - setTType(1); modifyPlanetName(); checkOk(); focusContinueButton();
 //      type=2 - GoTo recycs - setTType(2); modifyPlanetName(); checkOk(); focusContinueButton();
 //      type=3 - GoTo Moon   - setTType(3); modifyPlanetName(); checkOk(); focusContinueButton();
@@ -2859,7 +2854,7 @@ function PostXMLHttpRequest(_url,_data,_callback){
     xmlhttp = getXmlHttp();
     xmlhttp.onreadystatechange =function(){
         if (xmlhttp.readyState==4) {
-            _callback(xmlhttp.responseText);
+            _callback(xmlhttp.responseText);//xmlhttp.statusText
         }
     }
     xmlhttp.open("POST", _url, true);
@@ -2908,7 +2903,7 @@ function SendFleet(response){
                 params.page=params.page.replace(page,"fleet2"); // Replace for next fleet2 page
                 storeData('data',JSON.stringify(params), 'form'); // Save params
                 PostXMLHttpRequest(params.url+"?"+params.page,params.to +"&"+ params.type_mission +"&"+ params.fleets,SendFleet);
-                console.log("Request step1:"+params.url+"?"+params.page+", option="+params.to +"&"+ params.type_mission +"&"+ params.fleets);
+                if (debug) console.log("Request step1:"+params.url+"?"+params.page+", option="+params.to +"&"+ params.type_mission +"&"+ params.fleets);
             } else {
                 if (params.step ==4) SendFleetSuccess(params);
                 else SendFleetFailed(params);
@@ -2917,8 +2912,9 @@ function SendFleet(response){
         case 'fleet2':
 			//Info('Response >',response,'<');
             if (params.step ==2){ //If second step
-                var token=SmartCut(response,["token'","='"],"'");
+                var token=SmartCut(response,["token'","='"],"'"); token=(token == false)?"":token;
                 //var token=SmartCut(response, ["Token", "=\""], "\"");
+                params.token+=token;
                 params.step++;
                 params.page=params.page.replace(page,"fleet3"); // Replace for next fleet3 page
                 storeData('data',JSON.stringify(params), 'form');
@@ -2941,8 +2937,8 @@ function SendFleet(response){
                             break;
                     }
                 }
-                PostXMLHttpRequest(params.url+"?"+params.page,params.type_mission +"&"+ params.fleets +"&"+ params.to +"&"+ params.token+token,SendFleet);
-                console.log("Request step2:"+params.url+"?"+params.page+", option="+params.type_mission +"&"+ params.fleets +"&"+ params.to +"&"+ params.token+token);
+                PostXMLHttpRequest(params.url+"?"+params.page,params.type_mission +"&"+ params.fleets +"&"+ params.to +"&"+ params.token,SendFleet);
+                if (debug) console.log("Request step2:"+params.url+"?"+params.page+", option="+params.type_mission +"&"+ params.fleets +"&"+ params.to +"&"+ params.token);
             } else {
                 SendFleetFailed(params);
             }
@@ -2950,9 +2946,10 @@ function SendFleet(response){
         case 'fleet3':
             //Info('Response >',response,'<');
             if (params.step ==3){ //If third step
-                var token=SmartCut(response,["token'","='"],"'");
+                var token=SmartCut(response,["token'","='"],"'"); token=(token == false)?"":token;
                 //var token=SmartCut(response, ["Token", "=\""], "\"");
                 //Info('Token >',token,'<');
+                params.token+=token;
                 params.step++;
                 params.page=params.page.replace(page,"movement"); // Replace for next movement page
                 if ((params.sephi_opt.match('auto=yes') || params.sephi_opt.match('eject=yes')) && params.sephi_opt.match(/ID=(\w+)/) != null && params.sephi_opt.match(/ID=(\w+)/)[1] == 'Exped') {
@@ -2961,23 +2958,23 @@ function SendFleet(response){
                     if (params.sephi_opt.match(/exped_time=(\w+)/) !== null ) params.fleets_opts=params.fleets_opts.replace(/expeditiontime=\d+/,"expeditiontime="+params.sephi_opt.match(/exped_time=(\w+)/)[1]);
                 }
                 storeData('data',JSON.stringify(params), 'form');
-                PostXMLHttpRequest(params.url+"?"+ params.page,params.fleets_opts +"&"+ params.to +"&"+ params.type_mission +"&"+ params.fleets +"&"+ params.ressources +"&"+ params.token+token,SendFleet);
+                PostXMLHttpRequest(params.url+"?"+ params.page,params.fleets_opts +"&"+ params.to +"&"+ params.type_mission +"&"+ params.fleets +"&"+ params.ressources +"&"+ params.token,SendFleet);
             } else {
                 SendFleetFailed(params);
             }
-            console.log("Request step3:"+params.url+"?"+params.page+", option="+params.type_mission +"&"+ params.fleets +"&"+ params.to +"&"+ params.token+token);
+            if (debug) console.log("Request step3:"+params.url+"?"+params.page+", option="+params.type_mission +"&"+ params.fleets +"&"+ params.to +"&"+ params.token);
             break;
-        /*no more necessary since version 6.0.5 where return is done on fleet1
+        /*no more necessary since version 6.0.5 where return is done on fleet1*/
          case 'movement':
          //if( parseInt(readCookie('step','form')) == 4){
          //Conf the coming back fleet
          if (params.step ==4){ //If fourth step
-         createCookie('retour_auto', 'oui', 'eject'); createCookie('ejection_time', time().toString(), 'eject');
-         SendFleetSuccess();
+         //createCookie('retour_auto', 'oui', 'eject'); createCookie('ejection_time', time().toString(), 'eject');
+            SendFleetSuccess(params);
          } else {
-         SendFleetFailed();
+            SendFleetFailed(params);
          }
-         break;*/
+         break;//*/
         default:
             SendFleetFailed()
     }
@@ -2985,7 +2982,7 @@ function SendFleet(response){
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 function SendFleetSuccess(params){
-    console.log("Attack success (params=" +JSON.stringify(params)+ ").");
+    if (debug) console.log("Attack success (params=" +JSON.stringify(params)+ ").");
     if (params.sephi_opt.match('rapatriement=yes')) {
         blit_message("<b>Rapatriement</b> correctement lancé depuis " + GLOB_cur_planet_name + " vers "+params.to.replace(/\w+=(\d+)/g,"$1 ").replace(/&/g,"").trim().replace(/ /g,":")+".");
         storeData('done','1','AR');
@@ -3030,7 +3027,7 @@ function SendFleetSuccess(params){
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 function SendFleetFailed(params){
-    console.log("Attack failled (params=" +JSON.stringify(params)+ ").");
+    if (debug) console.log("Attack failled (params=" +JSON.stringify(params)+ ").");
     if (params.sephi_opt.match('rapatriement=yes')) {
         blit_message("<b>Rapatriement</b> en erreur depuis " + GLOB_cur_planet_name + " vers "+params.to.replace(/\w+=(\d+)/g,"$1 ").replace(/&/g,"").trim().replace(/ /g,":")+".");
         storeData('fail',(readData('fail','AR') != null)?(parseInt(readData('fail','AR'))+1).toString():'1','AR');
@@ -3256,7 +3253,7 @@ function hasEnoughSlots() : boolean {
 	[,cur_nb_flotte,max_nb_flotte] = $('.fleft span').first().html().match(/<\/span> (\d+)\/(\d+)/);
 	// Calcule si le lancement d'une flotte est possible en fonction des slots disponibles
 	if (readData('AA_leave_slot','AA') == 'oui') {
-		//add Imp2Toulouse- Read nb of leave slot
+		//add I2T- Read nb of leave slot
 		nb_slot_leave=(readData('AA_nb_slot','AA') == '' || readData('AA_nb_slot','AA') == null) ? defaut_AA_nb_slot:parseInt(readData('AA_nb_slot','AA'));
 		// Replace by the number read
 		if ((max_nb_flotte - cur_nb_flotte) <= nb_slot_leave) hasEnoughSlots=false;
@@ -3525,7 +3522,6 @@ var nb_trucs_supprimed = 0;
 var prev_positions = new Array();
 var haveMoved = false;
 var haveDel = false;
-//Imp2Toulouse- Wording: change 'have_to_cahnge' by 'have_to_change'
 var have_to_change_dropid = true;
 
 //Variable pour AA
@@ -3834,8 +3830,8 @@ if (data !== null && data.split(":").length > 2) {
     eject_onLune = data.match('OnLune');
     eject_type = data.match('Type');
 
-    //Imp2Toulouse- Preset the type of mission if the moon is used
-    eject_url = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+eject_gal+'&system='+eject_sys+'&position='+eject_pla
+    //I2T- Preset the type of mission if the moon is used
+    var eject_url = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+eject_gal+'&system='+eject_sys+'&position='+eject_pla
     eject_url+= '&type='+((eject_onLune)?3:1)+'&mission=3&cp='+(planet_list[planame_list.indexOf(GLOB_cur_planet_name)])+'&eject=yes';
 
     $('#helper').append('<div style="width:0px;height:0px;position:relative;top:-79px;left:566px;">'
@@ -3848,7 +3844,7 @@ if (data !== null && data.split(":").length > 2) {
 
     //Vérification du eject
     if (rand(1,20) == 1 && !gup('page').match('fleet')) {
-        //Imp2Toulouse- Preset the type of mission if the moon is used
+        //I2T- Preset the type of mission if the moon is used
         eject_url = 'https://'+univers+'/game/index.php?page=fleet1&galaxy='+eject_gal+'&system='+eject_sys+'&position='+eject_pla
         eject_url+= '&type='+((eject_onLune)?3:1)+'&mission=3&cp='+(planet_list[planame_list.indexOf(GLOB_cur_planet_name)])+'&eject=yes';
         $.ajax(eject_url, {
@@ -3943,7 +3939,7 @@ if (readData('retour_auto', 'eject') == 'oui') {
         count_progs++;
         GLOB_nb_special_bars++;
         data += "\n"+'<div style="height:0px;position:relative;top:'+(27*(count_progs-1))+'px;"><div style="cursor:default;word-wrap: normal;height:20px;font: 700 12px Verdana,Arial,Helvetica,sans-serif;position:relative;left:-8px;padding-top:7px;background: url(http://www.sephiogame.com/images/barre_fond.gif) no-repeat;background-position:0px -1px;width:640px;margin-bottom:0px;color:#A0A0A0;padding-left:40px;font-weight:normal;">';
-        //Imp2Toulouse malwritten correction countdonwRetour by countdownRetour
+        //I2T malwritten correction countdonwRetour by countdownRetour
         data += '<p style="width:600px;height:20px;white-space: nowrap"><b>Demande du retour de la flotte ejectée dans <span id="countdownRetour">'+get_cool_time((retour_time - time() + parseInt(readData('ejection_time', 'eject')))/1000)+'</span></b></p>';
         data += "\n"+'<div id="request_fleet_back" style="height:0px;position:relative;left:558px;top:-20px;"><img style="cursor:pointer;width:16px;height:auto;" src="https://gf2.geo.gfsrv.net/cdnd9/f9cb590cdf265f499b0e2e5d91fc75.gif" title="Demander le retour immédiat de la flotte ejectée" onclick="localStorage.setItem(\''+GLOB_cur_planet+'_eject_ejection_time\', \''+retour_time+'\');"/></div>';
         data += "\n"+'<div id="del_button_retour" style="height:0px;position:relative;left:578px;top:-20px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/newsletter-close-button.png" title="Annuler le retour de la flotte ejectée" onclick="localStorage.setItem(\''+GLOB_cur_planet+'_eject_retour_auto\', \'non\');window.location.href=window.location.href;"/></div>';
@@ -3963,11 +3959,11 @@ var enable_quick_pack:boolean = false;
 if ((gup('page') == "resources" && !cur_planetIsLune) || (gup('page') == "station" && cur_planetIsLune)) {
     var lvlMineMetal:number = 10;
     var lvlMineCris:number = 10;
-    //Imp2Toulouse- Maybe we could need
+    //I2T- Maybe we could need
     var lvlSynthDeut:number = 10;
     var lvlSolar:number = 10;
     var lvlBaseLunaire:number = 10;
-    //Imp2Toulouse- Factorization + Antigame compatibility
+    //I2T- Factorization + Antigame compatibility
     //Call function get_info_button returns back current button level and evolution (if one running)
     //Allow to answer to the bug
     var lvlMineMetal_Next:number = 0;
@@ -4020,7 +4016,7 @@ if ((gup('page') == "resources" && !cur_planetIsLune) || (gup('page') == "statio
         data += "\n"+'</div>';
     }
 
-    //Imp2Toulouse- Clean Up
+    //I2T- Clean Up
     lvlMineMetal = null;
     lvlMineCris = null;
     lvlSynthDeut = null;
@@ -4039,7 +4035,7 @@ if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page')
         && gup('sephiScript') != '1' && gup('page') !== 'fleet1' && gup('page') !== 'fleet2' && gup('page') !== 'fleet3'
     ) {
     ////////////////
-    //Imp2Toulouse- FIRST IMPACT 6.0.5
+    //I2T- FIRST IMPACT 6.0.5
     ////////////////
     if (gup('page')!=='resourceSettings' && gup('page')!=='messages' && gup('page')!=='chat') $('#planet').removeClass('shortHeader').addClass('Header');
     ////////////////
@@ -4096,10 +4092,11 @@ if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page')
     }
 }
 
-if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' && gup('page') !== 'galaxy'
+if (gup('page') !== 'traderOverview' && gup('page') !== 'premium' //&& gup('page') !== 'galaxy'
         && gup('page') !== 'highscore' && gup('page') !== 'fleet1' && gup('page') !== 'fleet2'
         && gup('page') !== 'fleet3'
     ) {
+    //debugger;
     // Affichage des commmandes programmées
     head_height=$('#'+id_prev).height();
     (gup('page') != 'messages')?decalTop=270:decalTop=0;
@@ -4189,7 +4186,7 @@ for (i=0 ; i<nb_planet ; i++) {
 
 //Gestion des messages
 if (gup('page') == 'messages') {
-    // Imp2Toulouse- Add id_prev pour le nouveau systeme de message
+    // I2T- Add id_prev pour le nouveau systeme de message
     $( '#buttonz' ).prepend( '<div id="planet" style="height:1px"> </div>' );
     setInterval(change_message_actiontab,500);
 }
@@ -4209,6 +4206,12 @@ if (gup('page') == 'overview' && readData('typethreshold','AR') == 'volume') {
         && (readData('done','AR') == null || readData('done','AR') == false)
         && (readData('fail','AR') == null || readData('fail','AR') < 3)
     ) {
+        if (parseInt(readData('full_slot','all'))-parseInt(readData('used_slot','all'))-parseInt(readData('AA_nb_slot','AA')) <= 0 ) {
+            storeData('fail',3,'AR');
+            blit_message_time("<b><span style='float: none;margin: 0;color:red'>Plus de slot disponible</span>, le rappatriement des ressources est reporté !</b>",5000)
+            return;
+        }
+
         blit_message('L\'auto-rapatriement des ressources de cette planete va être lancé dans 10 secs.');
 
         var galaxy:number, system:number, position:number, islune:boolean;
@@ -4353,23 +4356,21 @@ if (gup('page') == "fleet1" && (gup('eject') == 'yes' || gup('rapatriement') == 
 
         //Define ressources capacities params
         ressources = "metal=" + parseInt(capa_metal) + "&crystal=" + parseInt(capa_crystal) + "&deuterium=" + parseInt(capa_deuterium);
-
+        var sephi_opt = "eject=yes";
         if (gup('ID') == 'Exped') {
-            with_exped_speed = readData('time_no_AA_type_eject_exped_speed', 'AA');
-            with_exped_time = readData('time_no_AA_type_eject_exped_temps', 'AA')
-            sephi_opt = "eject=yes&ID=Exped" + ((with_exped_speed == null || with_exped_speed == '') ? '' : "&exped_speed=" + parseInt(with_exped_speed)) + ((with_exped_time == null || with_exped_time == '') ? '' : "&exped_time=" + parseInt(with_exped_time));
-            [, galaxy, system] = cur_planet_coords.match(/\[(\d+):(\d+):.*\]/);
-            params = JSON.parse('{ "url": "' + "https://" + univers + "/game/index.php" + '", "page": "page=fleet1", "from": "' + "cp=" + planet_list[planame_list.indexOf(GLOB_cur_planet_name)] + '", "to": "' + "galaxy=" + galaxy + "&system=" + system + "&position=16" + '", "type_mission": "' + "type=1&mission=15" + '", "fleets": "' + "speed=1&" + (fleets_volume_civilships + "&" + fleets_volume_battleships) + '", "ressources": "' + ressources + '&' + ress_priority + '", "fleets_opts": "' + "union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0" + '", "token": "' + "token=" + '", "step": "' + 1 + '", "sephi_opt":"' + sephi_opt + '"}');
+            with_exped_speed = gup("exped_speed");//readData('time_no_AA_type_eject_exped_speed', 'AA');
+            with_exped_time = gup("exped_time");//readData('time_no_AA_type_eject_exped_temps', 'AA')
+            sephi_opt += "&ID="+gup('ID')+ ((with_exped_speed == null || with_exped_speed == '') ? '' : "&exped_speed=" + parseInt(with_exped_speed)) + ((with_exped_time == null || with_exped_time == '') ? '' : "&exped_time=" + parseInt(with_exped_time));
+            //[, galaxy, system] = cur_planet_coords.match(/\[(\d+):(\d+):.*\]/);
+            params = JSON.parse('{ "url": "' + "https://" + univers + "/game/index.php" + '", "page": "page=fleet1", "from": "' + "cp=" + planet_list[planame_list.indexOf(GLOB_cur_planet_name)] + '", "to": "' + "galaxy=" + gup("galaxy") + "&system=" + gup("system") + "&position=" + gup("position") + '", "type_mission": "' + "type="+gup("type")+"&mission="+gup("mission")+ '", "fleets": "' + "speed=1&" + (fleets_volume_civilships + "&" + fleets_volume_battleships) + '", "ressources": "' + ressources + '&' + ress_priority + '", "fleets_opts": "' + "union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0" + '", "token": "' + "token=" + '", "step": "' + 1 + '", "sephi_opt":"' + sephi_opt + '"}');
         } else if (gup('ID') == 'Transport') {
-            sephi_opt = "eject=yes&ID=Transport";
-            params = JSON.parse('{ "url": "' + "https://" + univers + "/game/index.php" + '", "page": "page=fleet1", "from": "' + "cp=" + planet_list[planame_list.indexOf(GLOB_cur_planet_name)] + '", "to": "' + "galaxy=" + (GLOB_persistedData['eject'].split(':')[0]) + "&system=" + (GLOB_persistedData['eject'].split(':')[1]) + "&position=" + (GLOB_persistedData['eject'].split(':')[2]) + '", "type_mission": "' + "type=" + ((eject_onLune) ? "3" : "1") + "&mission=4" + '", "fleets": "' + "speed=1&" + ((eject_all) ? fleets_volume_civilships + "&" + fleets_volume_battleships : fleets_volume_civilships) + '", "ressources": "' + ressources + '&' + ress_priority + '", "fleets_opts": "' + "union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0" + '", "token": "' + "token=" + '", "step": "' + 1 + '", "sephi_opt":"' + sephi_opt + '"}');
+            sephi_opt += "&ID="+gup('ID');
+            params = JSON.parse('{ "url": "' + "https://" + univers + "/game/index.php" + '", "page": "page=fleet1", "from": "' + "cp=" + planet_list[planame_list.indexOf(GLOB_cur_planet_name)] + '", "to": "' + "galaxy=" + gup("galaxy") + "&system=" + gup("system") + "&position=" + gup("position") + '", "type_mission": "' + "type=" +gup("type")+ "&mission=" +gup("mission")+ '", "fleets": "' + "speed="+((gup("speed") == "")?10:parseInt(gup("speed")))+"&" + ((eject_all) ? fleets_volume_civilships + "&" + fleets_volume_battleships : fleets_volume_civilships) + '", "ressources": "' + ressources + '&' + ress_priority + '", "fleets_opts": "' + "union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0" + '", "token": "' + "token=" + '", "step": "' + 1 + '", "sephi_opt":"' + sephi_opt + '"}');
         } else if (gup('ID') == 'Recycl') {
-            sephi_opt = "eject=yes&ID=Recycl";
-            [, galaxy, system, position] = cur_planet_coords.match(/\[(\d+):(\d+):(\d+)\]/);
-            params = JSON.parse('{ "url": "' + "https://" + univers + "/game/index.php" + '", "page": "page=fleet1", "from": "' + "cp=" + planet_list[planame_list.indexOf(GLOB_cur_planet_name)] + '", "to": "' + "galaxy=" + galaxy + "&system=" + system + "&position=" + position + '", "type_mission": "' + "type=2&mission=8" + '", "fleets": "' + "speed=1&" + ((eject_all) ? fleets_volume_civilships + "&" + fleets_volume_battleships : fleets_volume_civilships) + '", "ressources": "' + ressources + '&' + ress_priority + '", "fleets_opts": "' + "union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0" + '", "token": "' + "token=" + '", "step": "' + 1 + '", "sephi_opt":"' + sephi_opt + '"}');
+            sephi_opt += "&ID="+gup('ID');
+            params = JSON.parse('{ "url": "' + "https://" + univers + "/game/index.php" + '", "page": "page=fleet1", "from": "' + "cp=" + planet_list[planame_list.indexOf(GLOB_cur_planet_name)] + '", "to": "' + "galaxy=" + gup("galaxy") + "&system=" + gup("system") + "&position=" + gup("position") + '", "type_mission": "' + "type=" +gup("type")+ "&mission=" +gup("mission")+ '", "fleets": "' + "speed="+((gup("speed") == "")?10:parseInt(gup("speed")))+"&" + ((eject_all) ? fleets_volume_civilships + "&" + fleets_volume_battleships : fleets_volume_civilships) + '", "ressources": "' + ressources + '&' + ress_priority + '", "fleets_opts": "' + "union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0" + '", "token": "' + "token=" + '", "step": "' + 1 + '", "sephi_opt":"' + sephi_opt + '"}');
         } else {
             storeData('eject_selectPlanet', planet_list[planame_list.indexOf(GLOB_cur_planet_name)], 'all');
-            sephi_opt = "eject=yes";
             params = JSON.parse('{ "url": "' + "https://" + univers + "/game/index.php" + '", "page": "page=fleet1", "from": "' + "cp=" + planet_list[planame_list.indexOf(GLOB_cur_planet_name)] + '", "to": "' + "galaxy=" + (GLOB_persistedData['eject'].split(':')[0]) + "&system=" + (GLOB_persistedData['eject'].split(':')[1]) + "&position=" + (GLOB_persistedData['eject'].split(':')[2]) + '", "type_mission": "' + "type=" + ((eject_onLune) ? "3" : "1") + "&mission=4" + '", "fleets": "' + "speed=1&" + ((eject_all) ? fleets_volume_civilships + "&" + fleets_volume_battleships : fleets_volume_civilships) + '", "ressources": "' + ressources + '&' + ress_priority + '", "fleets_opts": "' + "union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0" + '", "token": "' + "token=" + '", "step": "' + 1 + '", "sephi_opt":"' + sephi_opt + '"}');
         }
     } else {
@@ -4394,15 +4395,15 @@ if (gup('page') == "fleet1" && (gup('eject') == 'yes' || gup('rapatriement') == 
         //Define ressources capacities params
         ressources = "metal=" + parseInt(capa_metal-ressremain_metal) + "&crystal=" + parseInt(capa_crystal-ressremain_crystal) + "&deuterium=" + parseInt(capa_deuterium-ressremain_deuterium);
         var capa_wo_pt=Math.ceil((parseInt(capa_metal-ressremain_metal) + parseInt(capa_crystal-ressremain_crystal) + parseInt(capa_deuterium-ressremain_deuterium)) - PT*5000);
-        var pt_used=(capa_wo_pt>0)?PT:Math.ceil((parseInt(capa_metal-ressremain_metal) + parseInt(capa_crystal-ressremain_crystal) + parseInt(capa_deuterium-ressremain_deuterium))/5000);
-        var gt_used=(capa_wo_pt>0)?Math.ceil(capa_wo_pt/25000):0;
-        var transporters="am202="+pt_used+"&am203="+gt_used;
+        var pt_used:number=(capa_wo_pt>0)?PT:Math.ceil((parseInt(capa_metal-ressremain_metal) + parseInt(capa_crystal-ressremain_crystal) + parseInt(capa_deuterium-ressremain_deuterium))/5000);
+        var gt_used:number=(capa_wo_pt>0)?Math.ceil(capa_wo_pt/25000):0;
+        var transporters="am202="+(pt_used>0?pt_used+1:pt_used)+"&am203="+(gt_used>0?gt_used+1:gt_used);
         sephi_opt = "rapatriement=yes&ID=Transport";
         params = JSON.parse('{ "url": "' + "https://" + univers + "/game/index.php" + '", "page": "page=fleet1", "from": "' + "cp=" + planet_list[planame_list.indexOf(GLOB_cur_planet_name)] + '", "to": "' + "galaxy=" + (gup('galaxy')) + "&system=" + (gup('system')) + "&position=" + (gup('position')) + '", "type_mission": "' + "type=" + (gup('type')) + "&mission=4" + '", "fleets": "' + "speed=10&" + transporters + '", "ressources": "' + ressources + '&' + ress_priority + '", "fleets_opts": "' + "union2=0&holdingOrExpTime=0&acsValues=-&holdingtime=1&expeditiontime=1&retreatAfterDefenderRetreat=0" + '", "token": "token=", "step": "1", "sephi_opt":"' + sephi_opt + '"}');
     }
     storeData('data',JSON.stringify(params), 'form');
     PostXMLHttpRequest(params.url+"?"+params.page+"&"+params.from,"",SendFleet);
-//    console.log("Request:"+params.url+"?"+params.page+"&"+params.from);
+    if (debug) console.log("Request:"+params.url+"?"+params.page+"&"+params.from);
     params=null;ressources=null;fleets_volume_battleships=null;fleets_volume_civilships=null,ress_priority=null,ressources=null,capa_metal=null,capa_crystal=null,capa_deuterium=null;
 }
 
@@ -4435,7 +4436,7 @@ if (gup('page') == "movement" && readData('retour_auto', 'eject') == 'oui' && ti
 
 // Recyclage
 if (gup('page') == "fleet1" && gup('setRecy') !== null && gup('setRecy') !== '') {
-    nbRecy = parseInt(gup('setRecy'));
+    var nbRecy:number = parseInt(gup('setRecy'));
     document.getElementById('shipsChosen').action += "&recyclPLZ=oui";
     setTimeout(function(){document.getElementById('button209').getElementsByTagName('a')[0].click();},100);
     setTimeout(function(){document.getElementById('ship_209').value=nbRecy;},300);
@@ -4524,7 +4525,7 @@ if (gup('page') == "fleet1" && gup('auto') == 'yes') {
 
         }
         var fleets="speed=10&am202="+(nbPT)+"&am203="+(nbGT)+fleets_perso;
-        console.log("fleets sent from "+GLOB_cur_planet_name+"="+fleets);
+        if (debug) console.log("fleets sent from "+GLOB_cur_planet_name+"="+fleets);
 
         params=JSON.parse('{ "url": "'+url+'", "page": "page=fleet1", "from": "'+cp+'", "to": "'+to+'", "type_mission": "'+type_mission+'", "fleets": "'+fleets+'", "ressources": "'+ressources+'", "fleets_opts": "'+fleets_opts+'", "token": "'+token+'", "step": "'+step+'", "sephi_opt": "'+sephi_opt+'"}');
 
@@ -4546,12 +4547,13 @@ if (gup('page') == "movement" && gup('auto') == 'yes') {
 
 // Total retours
 if (gup('page') == 'movement') {
-    flottes = document.getElementsByClassName('fleetDetails');
-    planets = new Array();
-    quant_metal = new Array();
-    quant_crystal = new Array();
-    quant_deut = new Array();
-    nb_vaisseaux = new Array();
+    var flottes = document.getElementsByClassName('fleetDetails');
+    var planets = new Array();
+    var metal:number, quant_metal = new Array();
+    var crystal:number, quant_crystal = new Array();
+    var deut:number, quant_deut = new Array();
+    var vaisseaux:number, nb_vaisseaux = new Array();
+    var id:number, id_dep:number, dep:number, id_dest:number, dest:number;
 
     data='<div id="buttonz" style="min-height: 0px;margin:0px;position:relative;top:'+(document.getElementById("planet").offsetHeight-27)+'px;left:-8px;"><div class="header"><p style="width:665px;text-align:center;height:20px;white-space: nowrap;padding-top:8px;color:#6f9fc8;"><b>Arrivées prévues</b></p></div></div>';
     data+='<table id="tab_coming_soon" style="width:656px;position:relative;top:'+(document.getElementById("planet").offsetHeight-27)+'px;left:-2px;border: 1px solid #000000;color: #777;background:#0D1014;margin:auto;margin-bottom:16px;"><tbody><tr style="background:#1b1b1b;color: #999;"><th style="border: 1px solid #303030;padding: 5px 8px;">Planète</th><th style="border: 1px solid #303030;padding: 5px 8px;">Métal</th><th style="border: 1px solid #303030;padding: 5px 8px;">Cristal</th><th style="border: 1px solid #303030;padding: 5px 8px;">Deuterium</th><th style="border: 1px solid #303030;padding: 5px 8px;">Vaisseaux</th></tr>';
@@ -4566,7 +4568,7 @@ if (gup('page') == 'movement') {
         deut = parseInt(flottes[i].innerHTML.split('<td>Deutérium:')[1].split('class="value">')[1].split('<')[0].match(/\d/g).join(""));
         vaisseaux = 0;
         tmp = flottes[i].innerHTML.split('Vaisseaux:')[1].split('Chargement:')[0].split('class="value">');
-        for (j=1 ; j<tmp.length ; j++) {
+        for (var j=1 ; j<tmp.length ; j++) {
             vaisseaux += parseInt(tmp[j].split('</td>')[0]);
         }
 
@@ -4726,7 +4728,7 @@ if (gup('page') == 'messages') {
             butin = parseInt($('#rap_general_butin_'+GLOB_rgID).html().match(/\d/g).join(""));
             [,galaxy,system,planet]=$('#rap_general_coord_' + GLOB_rgID+' a').html().match(/\[(\d+):(\d+):(\d+)\]/)
 
-            //Imp2Toulouse- Replace this block with equivalent one in order to use id_frigo function
+            //I2T- Replace this block with equivalent one in order to use id_frigo function
             // Recherche d'un frigo avec ces coordonnées et qui a une flote personnalisée
             flotte_perso='';
             idFrig=is_frigo(GLOB_persistedData["frigos"],$('#rap_general_coord_'+GLOB_rgID+' a').html());
@@ -4779,20 +4781,24 @@ var verif=setTimeout(gestion_cook, rand(2,4)*1000);
 
 /* Page Sephi Script */
 if (gup('sephiScript') == '1') {
-    document.getElementById('planetList').innerHTML = document.getElementById('planetList').innerHTML.replace(/page=shipyard/g,'page=shipyard&sephiScript=1');
-    var bonus_class:string="selected";
-    var bonus_style:string=" background-position:0px 27px;";
-    document.getElementById('menuTable').innerHTML = document.getElementById('menuTable').innerHTML.replace('shipyard highlighted','shipyard').replace('menubutton  selected','menubutton');
-
-    document.getElementById('planet').style.backgroundImage = 'url(http://www.sephiogame.com/script/cadre_sephi_script_page.png)';
-    document.getElementById('header_text').innerHTML = document.getElementById('header_text').innerHTML.replace('Chantier spatial','SephiOGame');
+    var bonus_class: string = "selected";
+    var bonus_style: string = " background-position:0px 27px;";
     var sephi_frigos_data:string= '';
+    document.getElementById('planetList').innerHTML = document.getElementById('planetList').innerHTML.replace(/page=galaxy/g,'page=galaxy&sephiScript=1');
+    document.getElementById('galaxyHeader').remove();
+    document.getElementById('galaxyLoading').remove();
+    sephi_frigos_data+='<div id="planet" style="background-image: url(&quot;http://www.sephiogame.com/script/cadre_sephi_script_page.png&quot;); height: 272px;" class="Header">\
+        <div id="header_text">\
+            <h2>SephiOGame - '+GLOB_cur_planet_name+'</h2>\
+        </div>\
+        <div id="info_prog" style="position:relative;top:220px;">'+data+'</div>\
+    </div>';
 
-    //Imp2toulouse- Factorize this part to the get_Time_Remain (previously get_last_AA_coolTime) function
+    //I2T- Factorize this part to the get_Time_Remain (previously get_last_AA_coolTime) function
     var lastAAcoolTime:string=get_Time_Remain(readData("last_start", "AA"));
     // Gestion Auto-Rapatriement
-    sephi_frigos_data+='<div class="header"><h2>Gestion Auto-Rapatriement de vos ressources</h2></div>';
-    sephi_frigos_data+='<div class="content" style="min-height: 100px;positon:relative;z-index:10;margin-bottom:50px;padding-top:15px;">';
+    sephi_frigos_data+='<div class="header" style="background-image: url(https://gf1.geo.gfsrv.net/cdn63/10e31cd5234445e4084558ea3506ea.gif);background-repeat: no-repeat;"><h2>Gestion Auto-Rapatriement de vos ressources</h2></div>';
+    sephi_frigos_data+='<div class="content" style="background: url(//gf1.geo.gfsrv.net/cdn03/db530b4ddcbe680361a6f837ce0dd7.gif) repeat-y;min-height: 100px;positon:relative;z-index:10;margin-bottom:10px;padding-top:15px;">';
     sephi_frigos_data+=' <p style="padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">';
     sephi_frigos_data+='  Le script vous permet de rapatrier vos ressources selon votre besoin vers une de vos colonies. Si besoin de garder des ressources à quai, il faudra le spécifier dans la partie "Ressources restantes".</i><br><br><br/>';
     if (readData('coord', 'AR') == null) storeData('coord',cur_planet_coords.replace('[','').replace(']','').replace('Lune','')+':1','AR');
@@ -4810,90 +4816,91 @@ if (gup('sephiScript') == '1') {
     var AR_priority_deut:number = readData('priority_deut', 'AR');
     sephi_frigos_data+='  <br><span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Prioriser les ressources Métal: <select id="AR_priority_metal" style="visibility: visible;"><option value="1" '+(AR_priority_metal == '1' ? 'selected':'')+'>Priority 1</option><option value="2" '+(AR_priority_metal == '2' ? 'selected':'')+'>Priority 2</option><option value="3" '+(AR_priority_metal == '3' ? 'selected':'')+'>Priority 3</option></select>&nbsp;Crystal: <select id="AR_priority_cristal" style="visibility: visible;"><option value="1" '+(AR_priority_cristal == '1' ? 'selected':'')+'>Priority 1</option><option value="2" '+(AR_priority_cristal == '2' ? 'selected':'')+'>Priority 2</option><option value="3" '+(AR_priority_cristal == '3' ? 'selected':'')+'>Priority 3</option></select>&nbsp;Deut: <select id="AR_priority_deut" style="visibility: visible;"><option value="1" '+(AR_priority_deut == '1' ? 'selected':'')+'>Priority 1</option><option value="2" '+(AR_priority_deut == '2' ? 'selected':'')+'>Priority 2</option><option value="3" '+(AR_priority_deut == '3' ? 'selected':'')+'>Priority 3</option></select><i><span id="save_AR_priority" style="display:none;">(enregistré)</span></i></span></span><br/>';
     sephi_frigos_data+=' </p><br>';
-    sephi_frigos_data+='  <div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div>';
+    sephi_frigos_data+='  <div class="footer" style="background-image: url(https://gf3.geo.gfsrv.net/cdnbe/997fd607a76c0b713e24cb7f2d41f5.png);background-repeat: no-repeat;positon:relative;height:50px;bottom:-40px;"></div>';
     sephi_frigos_data+='</div>';
-    sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>';
+    //sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>';
 
     // Les frigos et ses actions
     var titletext:string = 'Mes frigos';
     if (GLOB_persistedData["frigos"].length == 1) titletext = 'Mon frigo';
     if (GLOB_persistedData["frigos"].length>1) titletext = 'Mes '+GLOB_persistedData["frigos"].length+' frigos';
-    sephi_frigos_data+='<div class="header" style=""><h2>'+titletext+'</h2></div>';
-    sephi_frigos_data+='<div class="content" style="min-height: 90px;positon:relative;z-index:10;margin-bottom:40px;padding-top:25px;padding-left:30px;">';
+    sephi_frigos_data+='<div class="header" style="background-image: url(https://gf1.geo.gfsrv.net/cdn63/10e31cd5234445e4084558ea3506ea.gif);background-repeat: no-repeat;"><h2>'+titletext+'</h2></div>';
+    sephi_frigos_data+='<div class="content" style="background: url(//gf1.geo.gfsrv.net/cdn03/db530b4ddcbe680361a6f837ce0dd7.gif) repeat-y;min-height: 90px;positon:relative;z-index:10;margin-bottom:10px;padding-top:25px;padding-left:30px;">';
     if (lastAAcoolTime != null) sephi_frigos_data+='<p style="color:#A52592;position:relative;top:-10px;margin-bottom:5px;padding-left:20px;">Dernier rapport global généré il y a ' + lastAAcoolTime+ '</p>';
 
-    sephi_frigos_data+='<span id="spy_all" style="cursor:pointer;color:#6f9fc8;padding-left:20px;position:relative;top:px;">&#9658; <b>Espionner tout mes frigos</b> (ne quittez pas la page avant que tous soient cochés)</span><br><br>';
-    sephi_frigos_data+='<span id="rap_gene" style="cursor:pointer;color:#6f9fc8;padding-left:20px;position:relative;top:px;">&#9658; Demander un <b>Rapport Général</b> (patientez ici avant d\'avoir votre rapport)</span><br><br>';
-    sephi_frigos_data+='<div style="width:80%;height:1px;background:#404040;position:relative;top:-15px;left:7%;margin-top:20px"></div>';
+    sephi_frigos_data+='  <span id="spy_all" style="cursor:pointer;color:#6f9fc8;padding-left:20px;position:relative;top:px;">&#9658; <b>Espionner tout mes frigos</b> (ne quittez pas la page avant que tous soient cochés)</span><br><br>';
+    sephi_frigos_data+='  <span id="rap_gene" style="cursor:pointer;color:#6f9fc8;padding-left:20px;position:relative;top:px;">&#9658; Demander un <b>Rapport Général</b> (patientez ici avant d\'avoir votre rapport)</span><br><br>';
+    sephi_frigos_data+='  <div style="width:80%;height:1px;background:#404040;position:relative;top:-15px;left:7%;margin-top:20px"></div>';
 
-    sephi_frigos_data+='<span id="auto_attack" style="cursor:pointer;color:#6f9fc8;padding-left:20px;">&#9658; Lancer un <b>rapport général</b> sur mes frigos avec les options configurées (laisser faire le script).</span><br><br>';
-    sephi_frigos_data+='<div style="background:#404040;position:relative;top:-25px;left:7%;margin-top:20px"></div>';
-    sephi_frigos_data+='<span style="text-align:left;color:#c0c0c0;position:relative;top:-12px;padding-left:40px;font-weight:normal;">Configuration de l\'Auto-Attaque:</span><br><br>';
-    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-2px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="prog_AA" style="position:relative;top:2px;"/> Lancer l\'action dans <input type="text" id="time_AA_h" value="1" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onfocus="document.getElementById(\'prog_AA\').checked = true;">h<input type="text" id="time_AA_m" value="0" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onfocus="document.getElementById(\'prog_AA\').checked = true;">  <i><span id="save_AA_prog" style="display:none;">(enregistré)</span></i></span><br><br>';
-    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-7px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="repeat_AA" style="position:relative;top:2px;"'+((readData('repeat','AA') == 'oui')?'checked':'')+'/> Répéter cette action toutes les <input type="text" id="repeat_AA_h" value="'+((readData('repeat_AA_h','AA') == null)?'6':parseInt('0'+readData('repeat_AA_h','AA')))+'" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;">h<input type="text" id="repeat_AA_m" value="'+((readData('repeat_AA_m','AA') == null)?'0':parseInt('0'+readData('repeat_AA_m','AA')))+'" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;">  <i><span id="save_AA_repeatTime" style="display:none;">(enregistré)</span></i></span><br><br>';
-    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-7px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="time_no_AA" style="position:relative;top:2px;"'+((readData('time_no_AA','AA') == 'oui')?'checked':'')+'/> Désactiver l\'action entre <input type="text" id="time_no_AA_h_start" value="'+((readData('time_no_AA_start','AA') == null)?'23':parseInt('0'+(readData('time_no_AA_h_start','AA') == null?'0':readData('time_no_AA_h_start','AA'))))+'" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;">h<input type="text" id="time_no_AA_m_start" value="'+((readData('time_no_AA_start','AA') == null)?'00':parseInt('0'+(readData('time_no_AA_m_start','AA') == null?'0':readData('time_no_AA_m_start','AA'))))+'" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;"> et <input type="text" id="time_no_AA_h_end" value="'+((readData('time_no_AA_end','AA') == null)?'6':parseInt('0'+(readData('time_no_AA_h_end','AA') == null?'0':readData('time_no_AA_h_end','AA'))))+'" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;">h<input type="text" id="time_no_AA_m_end" value="'+((readData('time_no_AA_end','AA') == null)?'0':parseInt('0'+(readData('time_no_AA_m_end','AA') == null?'0':readData('time_no_AA_m_end','AA'))))+'" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;">  <i><span id="save_time_no_AA" style="display:none;">(enregistré)</span></i></span><br>';
-    sephi_frigos_data+='<table style="text-align:left;color:#808080;position:relative;top:-7px;left:23px;padding-left:40px;font-weight:normal;"><tr width="100%"><td><select id="time_no_AA_eject_choice" style="position:relative;top:-1px;visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;"/><option value="avec" '+((readData('time_no_AA_eject_choice','AA') == 'avec')?'selected':'')+'>Avec</option><option value="sans" '+((readData('time_no_AA_eject_choice','AA') == 'sans' || readData('time_no_AA_eject_choice','AA') == null)?'selected':'')+'>Sans</option></select> une éjection</td><td id="time_no_AA_with_eject" style="display: '+((readData('time_no_AA_eject_choice','AA') == 'avec')?'block':'none')+'">&nbsp;par&nbsp;<select id="time_no_AA_type_eject" style="visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;"/><option value="Transport" '+((readData('time_no_AA_type_eject','AA') == 'Transport' || readData('time_no_AA_type_eject','AA') == '') ? 'selected':'')+'>défaut (transport)</option><option value="Transport" '+(readData('time_no_AA_type_eject','AA') == 'Transport' ? 'selected':'')+'>transports (visible)</option><option value="Exped" '+(readData('time_no_AA_type_eject','AA') == 'Exped' ? 'selected':'')+'>une expedition (ghosted)</option><option value="Recycl" '+(readData('time_no_AA_type_eject','AA') == 'Recycl' ? 'selected':'')+'>le recyclage (ghosted)</option></select>, Speed:<select id="time_no_AA_type_eject_exped_speed" style="visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;" '+((readData('time_no_AA_eject_choice','AA') == 'avec' && readData('time_no_AA_type_eject','AA') == 'Exped') ? '' : 'disabled')+'><option value="1"'+(readData('time_no_AA_type_eject_exped_speed','AA') == '1' ? 'selected' : '')+'>10%</option><option value="2" '+(readData('time_no_AA_type_eject_exped_speed','AA') == '2' ? 'selected' : '')+'>20%</option><option value="3" '+(readData('time_no_AA_type_eject_exped_speed','AA') == '3' ? 'selected' : '')+'>30%</option><option value="4"'+(readData('time_no_AA_type_eject_exped_speed','AA') == '4' ? 'selected' : '')+'>40%</option><option value="5" '+(readData('time_no_AA_type_eject_exped_speed','AA') == '5' ? 'selected' : '')+'>50%</option><option value="6" '+(readData('time_no_AA_type_eject_exped_speed','AA') == '6' ? 'selected' : '')+'>60%</option><option value="7" '+(readData('time_no_AA_type_eject_exped_speed','AA') == '7' ? 'selected' : '')+'>70%</option><option value="8" '+(readData('time_no_AA_type_eject_exped_speed','AA') == '8' ? 'selected' : '')+'>80%</option><option value="9" '+(readData('time_no_AA_type_eject_exped_speed','AA') == '9' ? 'selected' : '')+'>90%</option><option value="10" '+(readData('time_no_AA_type_eject_exped_speed','AA') == '10' ? 'selected' : '')+'>100%</option></select>, Temps:<select id="time_no_AA_type_eject_exped_temps" style="visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;" '+((readData('time_no_AA_eject_choice','AA') == 'avec'  && readData('time_no_AA_type_eject','AA') == 'Exped') ? '' : 'disabled')+'><option value="1"'+(readData('time_no_AA_type_eject_exped_temps','AA') == '1' ? 'selected' : '')+'>1</option><option value="2"'+(readData('time_no_AA_type_eject_exped_temps','AA') == '2' ? 'selected' : '')+'>2</option><option value="3"'+(readData('time_no_AA_type_eject_exped_temps','AA') == '3' ? 'selected' : '')+'>3</option><option value="4"'+(readData('time_no_AA_type_eject_exped_temps','AA') == '4' ? 'selected' : '')+'>4</option><option value="5"'+(readData('time_no_AA_type_eject_exped_temps','AA') == '5' ? 'selected' : '')+'>5</option><option value="6"'+(readData('time_no_AA_type_eject_exped_temps','AA') == '6' ? 'selected' : '')+'>6</option><option value="7" '+(readData('time_no_AA_type_eject_exped_temps','AA') == '7' ? 'selected' : '')+'>7</option><option value="8" '+(readData('time_no_AA_type_eject_exped_temps','AA') == '8' ? 'selected' : '')+'>8</option><option value="9"'+(readData('time_no_AA_type_eject_exped_temps','AA') == '9' ? 'selected' : '')+'>9</option><option value="10" '+(readData('time_no_AA_type_eject_exped_temps','AA') == '10' ? 'selected' : '')+'>10</option><option value="11" '+(readData('time_no_AA_type_eject_exped_temps','AA') == '11' ? 'selected' : '')+'>11</option><option value="12" '+(readData('time_no_AA_type_eject_exped_temps','AA') == '12' ? 'selected' : '')+'>12</option><option value="13" '+(readData('time_no_AA_type_eject_exped_temps','AA') == '13' ? 'selected' : '')+'>13</option><option value="14" '+(readData('time_no_AA_type_eject_exped_temps','AA') == '14' ? 'selected' : '')+'>14</option><option value="15" '+(readData('time_no_AA_type_eject_exped_temps','AA') == '15' ? 'selected' : '')+'>15</option></select></td><td>&nbsp;<i><span id="save_time_no_AA_eject_choice" style="display:none;">(enregistré)</span></i></td></tr></table>';
-    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-2px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="aa_enable" style="position:relative;top:2px;"'+((readData('aa_enable','AA') == 'oui')?'checked':'')+'/> Lancer une Auto-Attaque suite à la génération. <i><span id="save_AA_enable" style="display:none;">(enregistré)</span></i></span><br><br>';
-    sephi_frigos_data+='<div style="background:#404040;position:relative;top:-25px;left:7%;margin-top:20px"></div>';
-    sephi_frigos_data+='<span style="text-align:left;color:#c0c0c0;position:relative;top:-12px;padding-left:40px;font-weight:normal;">Options spécifiques à cette planète :</span><br><br>';
-    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:60px;font-weight:normal;">• Attaquer seulement les frigos dont le butin dépasse <input type="text" id="butin_AA_RG" value="'+defaut_AA_butin+'" style="text-align:center; width:50px;margin-left:5px;margin-right:5px;height: 15px;"/>  <i><span id="save_AA_butin" style="display:none;">(enregistré)</span></i></span><br><br>';
-    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:60px;font-weight:normal;">• Démarrer aussi une expédition avec <select id="do_exp_AA" style="position:relative;top:-1px;visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;"><option value="non">Aucune flotte</option><option value="perso" '+(with_exped == 'perso' ? 'selected' : '')+'>Une flotte personalisée</option><option value="50" '+(with_exped == '50' ? 'selected' : '')+'>50 GT (Optimal si le 1er a moins de 100k points)</option><option value="100" '+(with_exped == '100' ? 'selected' : '')+'>100 GT (Optimal si le 1er a moins de 1M points)</option><option value="150" '+(with_exped == '150' ? 'selected' : '')+'>150 GT (Optimal si le 1er a moins de 5M points)</option><option value="200" '+(with_exped == '200' ? 'selected' : '')+'>200 GT (Optimal si le 1er a plus de 5M points)</option><option value="250" '+(with_exped == '250' ? 'selected' : '')+'>250 GT (Mode MadMax pour les warriors)</option></select> <i><span id="save_AA_do_exp" style="display:none;">(enregistré)</span></i></span><br><br>';
-    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:150px;font-weight:normal;" id="do_exp_AA_flotte_perso" style="display: '+(with_exped != 'perso' ? 'none' : 'block')+';">Flotte personnalisée<span style="cursor:help;" title="Rendez vous sur la page Flotte pour créer un tag de flotte personalisé.">(?)</span> <input id="do_exp_AA_perso" type="text" style="position:relative;top:-1px;visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;width:80px" '+(with_exped == 'perso' ? '' : 'disabled')+' value="'+(with_exped_perso)+'">, Speed:<select id="do_exp_AA_perso_speed" style="position:relative;top:-1px;visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;width:60px;" '+(with_exped == 'perso' ? '' : 'disabled')+'><option value="1"'+(with_exped_speed == '1' ? 'selected' : '')+'>10%</option><option value="2" '+(with_exped_speed == '2' ? 'selected' : '')+'>20%</option><option value="3" '+(with_exped_speed == '3' ? 'selected' : '')+'>30%</option><option value="4"'+(with_exped_speed == '4' ? 'selected' : '')+'>40%</option><option value="5" '+(with_exped_speed == '5' ? 'selected' : '')+'>50%</option><option value="6" '+(with_exped_speed == '6' ? 'selected' : '')+'>60%</option><option value="7" '+(with_exped_speed == '7' ? 'selected' : '')+'>70%</option><option value="8" '+(with_exped_speed == '8' ? 'selected' : '')+'>80%</option><option value="9" '+(with_exped_speed == '9' ? 'selected' : '')+'>90%</option><option value="10" '+(with_exped_speed == '10' ? 'selected' : '')+'>100%</option></select>, Temps:<select id="do_exp_AA_perso_temps" style="position:relative;top:-1px;visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;width:60px;" '+(with_exped == 'perso' ? '' : 'disabled')+'><option value="1"'+(with_exped_time == '1' ? 'selected' : '')+'>1</option><option value="2"'+(with_exped_time == '2' ? 'selected' : '')+'>2</option><option value="3"'+(with_exped_time == '3' ? 'selected' : '')+'>3</option><option value="4"'+(with_exped_time == '4' ? 'selected' : '')+'>4</option><option value="5"'+(with_exped_time == '5' ? 'selected' : '')+'>5</option><option value="6"'+(with_exped_time == '6' ? 'selected' : '')+'>6</option><option value="7" '+(with_exped_time == '7' ? 'selected' : '')+'>7</option><option value="8" '+(with_exped_time == '8' ? 'selected' : '')+'>8</option><option value="9"'+(with_exped_time == '9' ? 'selected' : '')+'>9</option><option value="10" '+(with_exped_time == '10' ? 'selected' : '')+'>10</option><option value="11" '+(with_exped_time == '11' ? 'selected' : '')+'>11</option><option value="12" '+(with_exped_time == '12' ? 'selected' : '')+'>12</option><option value="13" '+(with_exped_time == '13' ? 'selected' : '')+'>13</option><option value="14" '+(with_exped_time == '14' ? 'selected' : '')+'>14</option><option value="15" '+(with_exped_time == '15' ? 'selected' : '')+'>15</option></select></span></span><br><br>';
-    //Imp2Toulouse- Added an input to specify the number of free slot
-    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-18px;padding-left:60px;font-weight:normal;"><input type="checkbox" id="leave_slot_AA" style="position:relative;top:2px;" '+leave_slot+'/> Laisser <input type="text" size="1" id="nb_slot_AA" value="'+defaut_AA_nb_slot+'" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;"/> slot(s) de flotte libre <i><span id="save_AA_slot" style="display:none;">(enregistré)</span></i></span><br><br>';
-    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-18px;padding-left:60px;font-weight:normal;">Lors d\'une auto-attaque, envoyer <select id="type_vaisseaux_AA" style="position:relative;top:-1px;visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;"><option value="1" '+(type_vaisseaux_AA == '1' ? 'selected' : '')+'>Les Petits Transporteurs en prioritée, puis les Grands</option><option value="2" '+(type_vaisseaux_AA == '2' ? 'selected' : '')+'>Les Grands Transporteurs en prioritée, puis les Petits</option><option value="3" '+(type_vaisseaux_AA == '3' ? 'selected' : '')+'>Des Petits Transporteurs uniquement</option><option value="4" '+(type_vaisseaux_AA == '4' ? 'selected' : '')+'>Des Grands Transporteurs uniquement</option></select><i><span id="save_type_vaisseaux_AA" style="display:none;">(enregistré)</span></i></span><br><br>';
-    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-18px;padding-left:60px;font-weight:normal;"><input type="checkbox" id="force_AA" style="position:relative;top:2px;" '+forceAA+'/> Envoyer la flotte même si il manque des transporteurs <i><span id="save_AA_force" style="display:none;">(enregistré)</span></i></span><br><br>';
-    sephi_frigos_data+='<div style="width:80%;height:1px;background:#404040;position:relative;top:-25px;left:7%;margin-top:20px"></div>';
+    sephi_frigos_data+='  <span id="auto_attack" style="cursor:pointer;color:#6f9fc8;padding-left:20px;">&#9658; Lancer un <b>rapport général</b> sur mes frigos avec les options configurées (laisser faire le script).</span><br><br>';
+    sephi_frigos_data+='  <div style="background:#404040;position:relative;top:-25px;left:7%;margin-top:20px"></div>';
+    sephi_frigos_data+='  <span style="text-align:left;color:#c0c0c0;position:relative;top:-12px;padding-left:40px;font-weight:normal;">Configuration de l\'Auto-Attaque:</span><br><br>';
+    sephi_frigos_data+='  <span style="text-align:left;color:#808080;position:relative;top:-2px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="prog_AA" style="position:relative;top:2px;"/> Lancer l\'action dans <input type="text" id="time_AA_h" value="1" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onfocus="document.getElementById(\'prog_AA\').checked = true;">h<input type="text" id="time_AA_m" value="0" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;" onfocus="document.getElementById(\'prog_AA\').checked = true;">  <i><span id="save_AA_prog" style="display:none;">(enregistré)</span></i></span><br><br>';
+    sephi_frigos_data+='  <span style="text-align:left;color:#808080;position:relative;top:-7px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="repeat_AA" style="position:relative;top:2px;"'+((readData('repeat','AA') == 'oui')?'checked':'')+'/> Répéter cette action toutes les <input type="text" id="repeat_AA_h" value="'+((readData('repeat_AA_h','AA') == null)?'6':parseInt('0'+readData('repeat_AA_h','AA')))+'" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;">h<input type="text" id="repeat_AA_m" value="'+((readData('repeat_AA_m','AA') == null)?'0':parseInt('0'+readData('repeat_AA_m','AA')))+'" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;">  <i><span id="save_AA_repeatTime" style="display:none;">(enregistré)</span></i></span><br><br>';
+    sephi_frigos_data+='  <span style="text-align:left;color:#808080;position:relative;top:-7px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="time_no_AA" style="position:relative;top:2px;"'+((readData('time_no_AA','AA') == 'oui')?'checked':'')+'/> Désactiver l\'action entre <input type="text" id="time_no_AA_h_start" value="'+((readData('time_no_AA_start','AA') == null)?'23':parseInt('0'+(readData('time_no_AA_h_start','AA') == null?'0':readData('time_no_AA_h_start','AA'))))+'" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;">h<input type="text" id="time_no_AA_m_start" value="'+((readData('time_no_AA_start','AA') == null)?'00':parseInt('0'+(readData('time_no_AA_m_start','AA') == null?'0':readData('time_no_AA_m_start','AA'))))+'" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;"> et <input type="text" id="time_no_AA_h_end" value="'+((readData('time_no_AA_end','AA') == null)?'6':parseInt('0'+(readData('time_no_AA_h_end','AA') == null?'0':readData('time_no_AA_h_end','AA'))))+'" title="Heures" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;">h<input type="text" id="time_no_AA_m_end" value="'+((readData('time_no_AA_end','AA') == null)?'0':parseInt('0'+(readData('time_no_AA_m_end','AA') == null?'0':readData('time_no_AA_m_end','AA'))))+'" title="Minutes" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;">  <i><span id="save_time_no_AA" style="display:none;">(enregistré)</span></i></span><br>';
+    sephi_frigos_data+='  <table style="text-align:left;color:#808080;position:relative;top:-7px;left:23px;padding-left:40px;font-weight:normal;"><tr width="100%"><td><select id="time_no_AA_eject_choice" style="position:relative;top:-1px;visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;"/><option value="avec" '+((readData('time_no_AA_eject_choice','AA') == 'avec')?'selected':'')+'>Avec</option><option value="sans" '+((readData('time_no_AA_eject_choice','AA') == 'sans' || readData('time_no_AA_eject_choice','AA') == null)?'selected':'')+'>Sans</option></select> une éjection</td><td id="time_no_AA_with_eject" style="display: '+((readData('time_no_AA_eject_choice','AA') == 'avec')?'block':'none')+'">&nbsp;par&nbsp;<select id="time_no_AA_type_eject" style="visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;"/><option value="Transport" '+((readData('time_no_AA_type_eject','AA') == 'Transport' || readData('time_no_AA_type_eject','AA') == '') ? 'selected':'')+'>Défaut (Stationnement)</option><option value="Transport" '+(readData('time_no_AA_type_eject','AA') == 'Transport' ? 'selected':'')+'>un stationnement</option><option value="Exped" '+(readData('time_no_AA_type_eject','AA') == 'Exped' ? 'selected':'')+'>une expedition (ghosted)</option><option value="Recycl" '+(readData('time_no_AA_type_eject','AA') == 'Recycl' ? 'selected':'')+'>le recyclage</option><option value="MoveRessources" '+(readData('time_no_AA_type_eject','AA') == 'MoveRessources' ? 'selected':'')+'>un rapatriement</option></select>, Speed:<select id="time_no_AA_type_eject_exped_speed" style="visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;" '+((readData('time_no_AA_eject_choice','AA') == 'avec') ? '' : 'disabled')+'><option value="1"'+(readData('time_no_AA_type_eject_exped_speed','AA') == '1' ? 'selected' : '')+'>10%</option><option value="2" '+(readData('time_no_AA_type_eject_exped_speed','AA') == '2' ? 'selected' : '')+'>20%</option><option value="3" '+(readData('time_no_AA_type_eject_exped_speed','AA') == '3' ? 'selected' : '')+'>30%</option><option value="4"'+(readData('time_no_AA_type_eject_exped_speed','AA') == '4' ? 'selected' : '')+'>40%</option><option value="5" '+(readData('time_no_AA_type_eject_exped_speed','AA') == '5' ? 'selected' : '')+'>50%</option><option value="6" '+(readData('time_no_AA_type_eject_exped_speed','AA') == '6' ? 'selected' : '')+'>60%</option><option value="7" '+(readData('time_no_AA_type_eject_exped_speed','AA') == '7' ? 'selected' : '')+'>70%</option><option value="8" '+(readData('time_no_AA_type_eject_exped_speed','AA') == '8' ? 'selected' : '')+'>80%</option><option value="9" '+(readData('time_no_AA_type_eject_exped_speed','AA') == '9' ? 'selected' : '')+'>90%</option><option value="10" '+(readData('time_no_AA_type_eject_exped_speed','AA') == '10' ? 'selected' : '')+'>100%</option></select>, Temps:<select id="time_no_AA_type_eject_exped_temps" style="visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;" '+((readData('time_no_AA_eject_choice','AA') == 'avec' && readData('time_no_AA_type_eject','AA') == 'Exped') ? '' : 'disabled')+'><option value="1"'+(readData('time_no_AA_type_eject_exped_temps','AA') == '1' ? 'selected' : '')+'>1</option><option value="2"'+(readData('time_no_AA_type_eject_exped_temps','AA') == '2' ? 'selected' : '')+'>2</option><option value="3"'+(readData('time_no_AA_type_eject_exped_temps','AA') == '3' ? 'selected' : '')+'>3</option><option value="4"'+(readData('time_no_AA_type_eject_exped_temps','AA') == '4' ? 'selected' : '')+'>4</option><option value="5"'+(readData('time_no_AA_type_eject_exped_temps','AA') == '5' ? 'selected' : '')+'>5</option><option value="6"'+(readData('time_no_AA_type_eject_exped_temps','AA') == '6' ? 'selected' : '')+'>6</option><option value="7" '+(readData('time_no_AA_type_eject_exped_temps','AA') == '7' ? 'selected' : '')+'>7</option><option value="8" '+(readData('time_no_AA_type_eject_exped_temps','AA') == '8' ? 'selected' : '')+'>8</option><option value="9"'+(readData('time_no_AA_type_eject_exped_temps','AA') == '9' ? 'selected' : '')+'>9</option><option value="10" '+(readData('time_no_AA_type_eject_exped_temps','AA') == '10' ? 'selected' : '')+'>10</option><option value="11" '+(readData('time_no_AA_type_eject_exped_temps','AA') == '11' ? 'selected' : '')+'>11</option><option value="12" '+(readData('time_no_AA_type_eject_exped_temps','AA') == '12' ? 'selected' : '')+'>12</option><option value="13" '+(readData('time_no_AA_type_eject_exped_temps','AA') == '13' ? 'selected' : '')+'>13</option><option value="14" '+(readData('time_no_AA_type_eject_exped_temps','AA') == '14' ? 'selected' : '')+'>14</option><option value="15" '+(readData('time_no_AA_type_eject_exped_temps','AA') == '15' ? 'selected' : '')+'>15</option></select></td><td>&nbsp;<i><span id="save_time_no_AA_eject_choice" style="display:none;">(enregistré)</span></i></td></tr></table>';
+    sephi_frigos_data+='  <span style="text-align:left;color:#808080;position:relative;top:-2px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="aa_enable" style="position:relative;top:2px;"'+((readData('aa_enable','AA') == 'oui')?'checked':'')+'/> Lancer une Auto-Attaque suite à la génération. <i><span id="save_AA_enable" style="display:none;">(enregistré)</span></i></span><br><br>';
+    sephi_frigos_data+='  <div style="background:#404040;position:relative;top:-25px;left:7%;margin-top:20px"></div>';
+    sephi_frigos_data+='  <span style="text-align:left;color:#c0c0c0;position:relative;top:-12px;padding-left:40px;font-weight:normal;">Options spécifiques à cette planète :</span><br><br>';
+    sephi_frigos_data+='  <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:60px;font-weight:normal;">• Attaquer seulement les frigos dont le butin dépasse <input type="text" id="butin_AA_RG" value="'+defaut_AA_butin+'" style="text-align:center; width:50px;margin-left:5px;margin-right:5px;height: 15px;"/>  <i><span id="save_AA_butin" style="display:none;">(enregistré)</span></i></span><br><br>';
+    sephi_frigos_data+='  <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:60px;font-weight:normal;">• Démarrer aussi une expédition avec <select id="do_exp_AA" style="position:relative;top:-1px;visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;"><option value="non">Aucune flotte</option><option value="perso" '+(with_exped == 'perso' ? 'selected' : '')+'>Une flotte personalisée</option><option value="50" '+(with_exped == '50' ? 'selected' : '')+'>50 GT (Optimal si le 1er a moins de 100k points)</option><option value="100" '+(with_exped == '100' ? 'selected' : '')+'>100 GT (Optimal si le 1er a moins de 1M points)</option><option value="150" '+(with_exped == '150' ? 'selected' : '')+'>150 GT (Optimal si le 1er a moins de 5M points)</option><option value="200" '+(with_exped == '200' ? 'selected' : '')+'>200 GT (Optimal si le 1er a plus de 5M points)</option><option value="250" '+(with_exped == '250' ? 'selected' : '')+'>250 GT (Mode MadMax pour les warriors)</option></select> <i><span id="save_AA_do_exp" style="display:none;">(enregistré)</span></i></span><br><br>';
+    sephi_frigos_data+='  <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:150px;font-weight:normal;" id="do_exp_AA_flotte_perso" style="display: '+(with_exped != 'perso' ? 'none' : 'block')+';">Flotte personnalisée<span style="cursor:help;" title="Rendez vous sur la page Flotte pour créer un tag de flotte personalisé.">(?)</span> <input id="do_exp_AA_perso" type="text" style="position:relative;top:-1px;visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;width:80px" '+(with_exped == 'perso' ? '' : 'disabled')+' value="'+(with_exped_perso)+'">, Speed:<select id="do_exp_AA_perso_speed" style="position:relative;top:-1px;visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;width:60px;" '+(with_exped == 'perso' ? '' : 'disabled')+'><option value="1"'+(with_exped_speed == '1' ? 'selected' : '')+'>10%</option><option value="2" '+(with_exped_speed == '2' ? 'selected' : '')+'>20%</option><option value="3" '+(with_exped_speed == '3' ? 'selected' : '')+'>30%</option><option value="4"'+(with_exped_speed == '4' ? 'selected' : '')+'>40%</option><option value="5" '+(with_exped_speed == '5' ? 'selected' : '')+'>50%</option><option value="6" '+(with_exped_speed == '6' ? 'selected' : '')+'>60%</option><option value="7" '+(with_exped_speed == '7' ? 'selected' : '')+'>70%</option><option value="8" '+(with_exped_speed == '8' ? 'selected' : '')+'>80%</option><option value="9" '+(with_exped_speed == '9' ? 'selected' : '')+'>90%</option><option value="10" '+(with_exped_speed == '10' ? 'selected' : '')+'>100%</option></select>, Temps:<select id="do_exp_AA_perso_temps" style="position:relative;top:-1px;visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;width:60px;" '+(with_exped == 'perso' ? '' : 'disabled')+'><option value="1"'+(with_exped_time == '1' ? 'selected' : '')+'>1</option><option value="2"'+(with_exped_time == '2' ? 'selected' : '')+'>2</option><option value="3"'+(with_exped_time == '3' ? 'selected' : '')+'>3</option><option value="4"'+(with_exped_time == '4' ? 'selected' : '')+'>4</option><option value="5"'+(with_exped_time == '5' ? 'selected' : '')+'>5</option><option value="6"'+(with_exped_time == '6' ? 'selected' : '')+'>6</option><option value="7" '+(with_exped_time == '7' ? 'selected' : '')+'>7</option><option value="8" '+(with_exped_time == '8' ? 'selected' : '')+'>8</option><option value="9"'+(with_exped_time == '9' ? 'selected' : '')+'>9</option><option value="10" '+(with_exped_time == '10' ? 'selected' : '')+'>10</option><option value="11" '+(with_exped_time == '11' ? 'selected' : '')+'>11</option><option value="12" '+(with_exped_time == '12' ? 'selected' : '')+'>12</option><option value="13" '+(with_exped_time == '13' ? 'selected' : '')+'>13</option><option value="14" '+(with_exped_time == '14' ? 'selected' : '')+'>14</option><option value="15" '+(with_exped_time == '15' ? 'selected' : '')+'>15</option></select></span></span><br><br>';
+    //I2T- Added an input to specify the number of free slot
+    sephi_frigos_data+='  <span style="text-align:left;color:#808080;position:relative;top:-18px;padding-left:60px;font-weight:normal;"><input type="checkbox" id="leave_slot_AA" style="position:relative;top:2px;" '+leave_slot+'/> Laisser <input type="text" size="1" id="nb_slot_AA" value="'+defaut_AA_nb_slot+'" style="position:relative;top:-3px;text-align:center; width:15px;margin-left:5px;margin-right:5px;height: 15px;"/> slot(s) de flotte libre <i><span id="save_AA_slot" style="display:none;">(enregistré)</span></i></span><br><br>';
+    sephi_frigos_data+='  <span style="text-align:left;color:#808080;position:relative;top:-18px;padding-left:60px;font-weight:normal;">Lors d\'une auto-attaque, envoyer <select id="type_vaisseaux_AA" style="position:relative;top:-1px;visibility: visible;color: #000;background-color: #b3c3cb;border: 1px solid #668599;height:18px;"><option value="1" '+(type_vaisseaux_AA == '1' ? 'selected' : '')+'>Les Petits Transporteurs en prioritée, puis les Grands</option><option value="2" '+(type_vaisseaux_AA == '2' ? 'selected' : '')+'>Les Grands Transporteurs en prioritée, puis les Petits</option><option value="3" '+(type_vaisseaux_AA == '3' ? 'selected' : '')+'>Des Petits Transporteurs uniquement</option><option value="4" '+(type_vaisseaux_AA == '4' ? 'selected' : '')+'>Des Grands Transporteurs uniquement</option></select><i><span id="save_type_vaisseaux_AA" style="display:none;">(enregistré)</span></i></span><br><br>';
+    sephi_frigos_data+='  <span style="text-align:left;color:#808080;position:relative;top:-18px;padding-left:60px;font-weight:normal;"><input type="checkbox" id="force_AA" style="position:relative;top:2px;" '+forceAA+'/> Envoyer la flotte même si il manque des transporteurs <i><span id="save_AA_force" style="display:none;">(enregistré)</span></i></span><br><br>';
+    sephi_frigos_data+='  <div style="width:80%;height:1px;background:#404040;position:relative;top:-25px;left:7%;margin-top:20px"></div>';
 
-    sephi_frigos_data+='<span style="text-align:left;color:#c0c0c0;position:relative;top:-12px;padding-left:40px;font-weight:normal;">Configuration des frigos:</span><br>';
-    sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:-2px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="Prog_AF" '+ ((readData('Prog_AF','all') == "true")?'checked':'')+' style="position:relative;top:2px;"/> Auto ajouter les cibles espionnées.<i><span id="save_AF_Prog" style="display:none;">(enregistré)</span></i></span><br><br>';
-    sephi_frigos_data+='<ul style="text-align:left;color:#808080;position:relative;top:-2px;padding-left:40px;font-weight:normal;">Conditions optionnelles:';
-    sephi_frigos_data+='  <li><input type="checkbox" id="Activ_AF_SameGAL" '+((readData('Prog_AF','all') == "true")?'':'disabled')+' '+ ((readData('SameGAL_AF','all') == "true")?'checked':'')+' style="position:relative;top:2px;" onfocus="document.getElementById(\'Prog_AF\').checked = true;"> Dans la même galaxy (conseillée).<i><span id="save_AF_SameGAL" style="display:none;">(enregistré)</span></i></li>';
-    sephi_frigos_data+='  <li><input type="checkbox" id="Activ_AF_WithoutFLEET_DEF" '+((readData('Prog_AF','all') == "true")?'':'disabled')+' '+ ((readData('WithoutFLEET_DEF_AF','all') == "true")?'checked':'')+' style="position:relative;top:2px;" onfocus="document.getElementById(\'Prog_AF\').checked = true;"> Sans flottes & sans défense (conseillé).<i><span id="save_AF_WithoutFLEET_DEF" style="display:none;">(enregistré)</span></i></li>';
-    sephi_frigos_data+='  <li><input type="checkbox" id="Activ_AF_Seuil_Auto_ADD" '+((readData('Prog_AF','all') == "true")?'':'disabled')+' '+ ((readData('Seuil_Auto_ADD_AF','all') == "true")?'checked':'')+' style="position:relative;top:2px;" onfocus="document.getElementById(\'Prog_AF\').checked = true;"> Dont les ressources dépassent <input type="text" id="AF_Seuil_Auto_ADD_VAL" '+((readData('Prog_AF','AF') == "true" && readData('Seuil_Auto_ADD_AF','all') == "true")?'':'disabled')+' value="'+ ((readData('Seuil_Auto_ADD_VAL_AF','all') != "" && readData('Seuil_Auto_ADD_VAL_AF','all') != null)?readData('Seuil_Auto_ADD_VAL_AF','all'):'200000')+'" title="Seuil de ressource globale déclenchant l\'auto ajout de la cible en frigo" style="position:relative;top:-3px;text-align:center; width:45px;margin-left:5px;margin-right:5px;height: 15px;">.<i><span id="save_AF_Seuil_Auto_ADD" style="display:none;">(enregistré)</span></i></li>';
-    sephi_frigos_data+='</ul><br><br>';
-    sephi_frigos_data+='<table style="width:604px;color:#6f9fc8;"><tr>';
-    sephi_frigos_data+='<th style="border-right: #09d0ff dashed 0px;text-align:right;width:90px;"><span style="width:80px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;">Ignorer</span><br><span><input type="checkbox" title="Tout cocher/décocher" id="check_all"/></span></th>';
-    sephi_frigos_data+='<th style="border-right: #09d0ff dashed 0px;text-align:center;width:75px;"><span style="width:70px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;">Nom</span><br><span>&nbsp;</span></th>';
-    sephi_frigos_data+='<th style="border-right: #09d0ff dashed 0px;text-align:center;width:35px;"><span style="width:20px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;">#Pil-</span><br><span>lage</span></th>';
-    sephi_frigos_data+='<th style="border-right: #09d0ff dashed 0px;text-align:center;width:30px;"><span style="font-size:x-small;position:relative;margin-left:5px;left:0px;">Status</span><br><span>&nbsp;</span></th>';
-    sephi_frigos_data+='<th style="border-right: #09d0ff dashed 0px;text-align:center;width:80px;"><span style="width:70px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;">Flotte</span><br><span style="cursor:help;position:relative;" title="Rendez vous sur la page Flotte pour créer un tag de flotte personalisé.">perso. (?)</span></th>';
-    sephi_frigos_data+='<th style="border-right: #09d0ff dashed 0px;text-align:center;width:40px;"><span style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;">Flotte</span><br><span>ennemie</span></th><th style="width:5px;height:5px;">&nbsp;</th>';
-    sephi_frigos_data+='<th style="border-right: #09d0ff dashed 0px;text-align:center;width:40px;"><span style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" disabled title="Volume actuel de la flotte ennemie" >Flotte</span><br><span>courante</span></th>';
-    sephi_frigos_data+='<th style="border-right: #09d0ff dashed 0px;text-align:center;width:40px;"><span style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" title="Volume de la defense ennemie">Defense</span><br><span>ennemie</span></th><th style="width:5px;height:5px;">&nbsp;</th>';
-    sephi_frigos_data+='<th style="border-right: #09d0ff dashed 0px;text-align:center;width:40px;"><span style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" disabled title="Volume actuel de la defense ennemie">Defense</span><br><span>courante</span></th>';
-    sephi_frigos_data+='</tr></table>';
+    sephi_frigos_data+='  <span style="text-align:left;color:#c0c0c0;position:relative;top:-12px;padding-left:40px;font-weight:normal;">Configuration des frigos:</span><br>';
+    sephi_frigos_data+='  <span style="text-align:left;color:#808080;position:relative;top:-2px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="Prog_AF" '+ ((readData('Prog_AF','all') == "true")?'checked':'')+' style="position:relative;top:2px;"/> Auto ajouter les cibles espionnées.<i><span id="save_AF_Prog" style="display:none;">(enregistré)</span></i></span><br><br>';
+    sephi_frigos_data+='  <ul style="text-align:left;color:#808080;position:relative;top:-2px;padding-left:40px;font-weight:normal;">Conditions optionnelles:';
+    sephi_frigos_data+='    <li><input type="checkbox" id="Activ_AF_SameGAL" '+((readData('Prog_AF','all') == "true")?'':'disabled')+' '+ ((readData('SameGAL_AF','all') == "true")?'checked':'')+' style="position:relative;top:2px;" onfocus="document.getElementById(\'Prog_AF\').checked = true;"> Dans la même galaxy (conseillée).<i><span id="save_AF_SameGAL" style="display:none;">(enregistré)</span></i></li>';
+    sephi_frigos_data+='    <li><input type="checkbox" id="Activ_AF_WithoutFLEET_DEF" '+((readData('Prog_AF','all') == "true")?'':'disabled')+' '+ ((readData('WithoutFLEET_DEF_AF','all') == "true")?'checked':'')+' style="position:relative;top:2px;" onfocus="document.getElementById(\'Prog_AF\').checked = true;"> Sans flottes & sans défense (conseillé).<i><span id="save_AF_WithoutFLEET_DEF" style="display:none;">(enregistré)</span></i></li>';
+    sephi_frigos_data+='    <li><input type="checkbox" id="Activ_AF_Seuil_Auto_ADD" '+((readData('Prog_AF','all') == "true")?'':'disabled')+' '+ ((readData('Seuil_Auto_ADD_AF','all') == "true")?'checked':'')+' style="position:relative;top:2px;" onfocus="document.getElementById(\'Prog_AF\').checked = true;"> Dont les ressources dépassent <input type="text" id="AF_Seuil_Auto_ADD_VAL" '+((readData('Prog_AF','AF') == "true" && readData('Seuil_Auto_ADD_AF','all') == "true")?'':'disabled')+' value="'+ ((readData('Seuil_Auto_ADD_VAL_AF','all') != "" && readData('Seuil_Auto_ADD_VAL_AF','all') != null)?readData('Seuil_Auto_ADD_VAL_AF','all'):'200000')+'" title="Seuil de ressource globale déclenchant l\'auto ajout de la cible en frigo" style="position:relative;top:-3px;text-align:center; width:45px;margin-left:5px;margin-right:5px;height: 15px;">.<i><span id="save_AF_Seuil_Auto_ADD" style="display:none;">(enregistré)</span></i></li>';
+    sephi_frigos_data+='  </ul><br><br>';
+    sephi_frigos_data+='  <table style="width:604px;color:#6f9fc8;"><tr>';
+    sephi_frigos_data+='    <th style="border-right: #09d0ff dashed 0px;text-align:right;width:90px;"><span style="width:80px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;">Ignorer</span><br><span><input type="checkbox" title="Tout cocher/décocher" id="check_all"/></span></th>';
+    sephi_frigos_data+='    <th style="border-right: #09d0ff dashed 0px;text-align:center;width:75px;"><span style="width:70px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;">Nom</span><br><span>&nbsp;</span></th>';
+    sephi_frigos_data+='    <th style="border-right: #09d0ff dashed 0px;text-align:center;width:35px;"><span style="width:20px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;">#Pil-</span><br><span>lage</span></th>';
+    sephi_frigos_data+='    <th style="border-right: #09d0ff dashed 0px;text-align:center;width:30px;"><span style="font-size:x-small;position:relative;margin-left:5px;left:0px;">Status</span><br><span>&nbsp;</span></th>';
+    sephi_frigos_data+='    <th style="border-right: #09d0ff dashed 0px;text-align:center;width:80px;"><span style="width:70px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;">Flotte</span><br><span style="cursor:help;position:relative;" title="Rendez vous sur la page Flotte pour créer un tag de flotte personalisé.">perso. (?)</span></th>';
+    sephi_frigos_data+='    <th style="border-right: #09d0ff dashed 0px;text-align:center;width:40px;"><span style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;">Flotte</span><br><span>ennemie</span></th><th style="width:5px;height:5px;">&nbsp;</th>';
+    sephi_frigos_data+='    <th style="border-right: #09d0ff dashed 0px;text-align:center;width:40px;"><span style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" disabled title="Volume actuel de la flotte ennemie" >Flotte</span><br><span>courante</span></th>';
+    sephi_frigos_data+='    <th style="border-right: #09d0ff dashed 0px;text-align:center;width:40px;"><span style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" title="Volume de la defense ennemie">Defense</span><br><span>ennemie</span></th><th style="width:5px;height:5px;">&nbsp;</th>';
+    sephi_frigos_data+='    <th style="border-right: #09d0ff dashed 0px;text-align:center;width:40px;"><span style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" disabled title="Volume actuel de la defense ennemie">Defense</span><br><span>courante</span></th>';
+    sephi_frigos_data+='  </tr></table>';
 
     for (var i=0;i<GLOB_persistedData["frigos"].length && GLOB_persistedData["frigos"][i] ;i++) {
         if (GLOB_persistedData["frigos"][i].length == 5) {GLOB_persistedData["frigos"][i][5] = '';}
-        sephi_frigos_data+='<table style="width:604px;color:#6f9fc8;"><tr>';
-        sephi_frigos_data+='<th style="width:70px;text-align:center;position:relative;top:-2px;left:10px;"><span onClick="window.location.href = \'https://'+univers+'/game/index.php?page=galaxy&no_header=1&galaxy='+GLOB_persistedData["frigos"][i][1]+'&system='+GLOB_persistedData["frigos"][i][2]+'&planet='+GLOB_persistedData["frigos"][i][3]+'\'" style="cursor:pointer;" title="Voir dans la galaxie">['+GLOB_persistedData["frigos"][i][1]+':'+GLOB_persistedData["frigos"][i][2]+':'+GLOB_persistedData["frigos"][i][3]+']</span></th>';
+        sephi_frigos_data+='  <table style="width:604px;color:#6f9fc8;"><tr>';
+        sephi_frigos_data+='    <th style="width:70px;text-align:center;position:relative;top:-2px;left:10px;"><span onClick="window.location.href = \'https://'+univers+'/game/index.php?page=galaxy&no_header=1&galaxy='+GLOB_persistedData["frigos"][i][1]+'&system='+GLOB_persistedData["frigos"][i][2]+'&planet='+GLOB_persistedData["frigos"][i][3]+'\'" style="cursor:pointer;" title="Voir dans la galaxie">['+GLOB_persistedData["frigos"][i][1]+':'+GLOB_persistedData["frigos"][i][2]+':'+GLOB_persistedData["frigos"][i][3]+']</span></th>';
         checkouPAS = '';
         if (GLOB_persistedData["frigos"][i][6] == '1') checkouPAS = 'checked';
-        sephi_frigos_data+='<th style="text-align:left;width:20px;"><input type="checkbox" style="width:20px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" id="frig_ignore_'+i+'" '+checkouPAS+' /></th>';
-        sephi_frigos_data+='<th style="text-align:left;width:55px;"><figure class="planetIcon '+((GLOB_persistedData["frigos"][i][12] != "moon" && GLOB_persistedData["frigos"][i][12] != "planet")?'planet':GLOB_persistedData["frigos"][i][12])+' tooltip js_hideTipOnMobile" title=""></figure><input type="text" style="width:55px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" id="frig_name_'+i+'" value="'+GLOB_persistedData["frigos"][i][0]+'" /></th>';
-        sephi_frigos_data+='<th style="text-align:right;width:12px;"><input type="text" style="width:12px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" id="frig_sondes_'+i+'" title="Importance du frigo" value="'+GLOB_persistedData["frigos"][i][4]+'" /></th>';
-        sephi_frigos_data+='<th style="text-align:left;width:30px;"><span style="font-size:x-small;position:relative;margin-left:5px;left:0px;">&nbsp;</span></th>';
-        sephi_frigos_data+='<th style="text-align:right;width:70px;"><input type="text" style="width:70px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" id="frig_flotte_perso_'+i+'" title="Flotte personalisée" placeholder="Flottes militaire" value="'+GLOB_persistedData["frigos"][i][5]+'" /></th>';
-        sephi_frigos_data+='<th style="text-align:right;width:37px;"><input type="text" style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;'+((GLOB_persistedData["frigos"][i][7] < GLOB_persistedData["frigos"][i][9])?"background-color: #09d0ff;":"")+'" id="frig_flotte_'+i+'" title="Volume de la flotte ennemie" value="'+GLOB_persistedData["frigos"][i][7]+'" /></th><th style="width:5px;heigth:5px;"><a style="width:5px;height:5px;position:relative;top:-4px;right:-4px;cursor: hand;" title="Aligner" href="javascript:void(0);" onclick="$(&quot;#frig_flotte_'+i+'&quot;).val($(&quot;#frig_cur_flotte_'+i+'&quot;).val()); $(&quot;#frig_flotte_'+i+'&quot;).css(&quot;background-color&quot;,&quot;white&quot);$(&quot;#frig_flotte_'+i+'&quot;).change();">&lt;</a></th>';
-        sephi_frigos_data+='<th style="text-align:right;width:37px;"><input type="text" style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" disabled id="frig_cur_flotte_'+i+'" title="Volume actuel de la flotte ennemie" value="'+GLOB_persistedData["frigos"][i][9]+'"></input></th>';
-        sephi_frigos_data+='<th style="text-align:right;width:37px;"><input type="text" style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;'+((GLOB_persistedData["frigos"][i][8] < GLOB_persistedData["frigos"][i][10])?"background-color: #09d0ff;":"")+'" id="frig_defense_'+i+'" title="Volume de la defense ennemie" value="'+GLOB_persistedData["frigos"][i][8]+'" /></th><th style="width:5px;heigth:5px;"><a style="width:5px;height:5px;position:relative;top:-4px;right:-4px;cursor: hand;" title="Aligner" href="javascript:void(0);" onclick="$(&quot;#frig_defense_'+i+'&quot;).val($(&quot;#frig_cur_defense_'+i+'&quot;).val());$(&quot;#frig_defense_'+i+'&quot;).css(&quot;background-color&quot;,&quot;white&quot);$(&quot;#frig_defense_'+i+'&quot;).change();">&lt;</a></th>';
-        sephi_frigos_data+='<th style="text-align:right;width:37px;"><input type="text" style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" disabled id="frig_cur_defense_'+i+'" title="Volume actuel de la defense ennemie" value="'+GLOB_persistedData["frigos"][i][10]+'"></input></th>';
-        sephi_frigos_data+='</tr></table>';
-        sephi_frigos_data+= "\n"+'<div id="del_button_'+i+'" style="height:0px;position:relative;left:-5px;top:-22px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/newsletter-close-button.png" title="Supprimer le frigo"/></div>';
-        sephi_frigos_data+='<div style="width:0px;height:0px;position:relative;top:-29px;left:230px;"><img src="http://www.sephiogame.com/script/icon_spy.png" style="width:30px;height:auto;cursor:pointer;" title="Espionner" id="spy_button_'+i+'"/><img src="http://www.sephiogame.com/script/icon-tick.png" style="position:relative;left:18px;top:-17px;display:none;" id="spy_isok_'+i+'"/></div>';
+        sephi_frigos_data+='    <th style="text-align:left;width:20px;"><input type="checkbox" style="width:20px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" id="frig_ignore_'+i+'" '+checkouPAS+' /></th>';
+        sephi_frigos_data+='    <th style="text-align:left;width:55px;"><figure class="planetIcon '+((GLOB_persistedData["frigos"][i][12] != "moon" && GLOB_persistedData["frigos"][i][12] != "planet")?'planet':GLOB_persistedData["frigos"][i][12])+' tooltip js_hideTipOnMobile" title=""></figure><input type="text" style="width:55px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" id="frig_name_'+i+'" value="'+GLOB_persistedData["frigos"][i][0]+'" /></th>';
+        sephi_frigos_data+='    <th style="text-align:right;width:12px;"><input type="text" style="width:12px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" id="frig_sondes_'+i+'" title="Importance du frigo" value="'+GLOB_persistedData["frigos"][i][4]+'" /></th>';
+        sephi_frigos_data+='    <th style="text-align:left;width:30px;"><input type="text" style="width:12px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;display:none;" id="frig_nb_sondes_'+i+'" value="'+(GLOB_persistedData["frigos"][i][11]!=''?GLOB_persistedData["frigos"][i][11]:parseInt(readData("nb_sondes", "options") || 5))+'" /><span style="font-size:x-small;position:relative;margin-left:5px;left:0px;">&nbsp;</span></th>';
+        sephi_frigos_data+='    <th style="text-align:right;width:70px;"><input type="text" style="width:70px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" id="frig_flotte_perso_'+i+'" title="Flotte personalisée" placeholder="Flottes militaire" value="'+GLOB_persistedData["frigos"][i][5]+'" /></th>';
+        sephi_frigos_data+='    <th style="text-align:right;width:37px;"><input type="text" style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;'+((GLOB_persistedData["frigos"][i][7] < GLOB_persistedData["frigos"][i][9])?"background-color: #09d0ff;":"")+'" id="frig_flotte_'+i+'" title="Volume de la flotte ennemie" value="'+GLOB_persistedData["frigos"][i][7]+'" /></th><th style="width:5px;heigth:5px;"><a style="width:5px;height:5px;position:relative;top:-4px;right:-4px;cursor: hand;" title="Aligner" href="javascript:void(0);" onclick="$(&quot;#frig_flotte_'+i+'&quot;).val($(&quot;#frig_cur_flotte_'+i+'&quot;).val()); $(&quot;#frig_flotte_'+i+'&quot;).css(&quot;background-color&quot;,&quot;white&quot);$(&quot;#frig_flotte_'+i+'&quot;).change();">&lt;</a></th>';
+        sephi_frigos_data+='    <th style="text-align:right;width:37px;"><input type="text" style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" disabled id="frig_cur_flotte_'+i+'" title="Volume actuel de la flotte ennemie" value="'+GLOB_persistedData["frigos"][i][9]+'"></input></th>';
+        sephi_frigos_data+='    <th style="text-align:right;width:37px;"><input type="text" style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;'+((GLOB_persistedData["frigos"][i][8] < GLOB_persistedData["frigos"][i][10])?"background-color: #09d0ff;":"")+'" id="frig_defense_'+i+'" title="Volume de la defense ennemie" value="'+GLOB_persistedData["frigos"][i][8]+'" /></th><th style="width:5px;heigth:5px;"><a style="width:5px;height:5px;position:relative;top:-4px;right:-4px;cursor: hand;" title="Aligner" href="javascript:void(0);" onclick="$(&quot;#frig_defense_'+i+'&quot;).val($(&quot;#frig_cur_defense_'+i+'&quot;).val());$(&quot;#frig_defense_'+i+'&quot;).css(&quot;background-color&quot;,&quot;white&quot);$(&quot;#frig_defense_'+i+'&quot;).change();">&lt;</a></th>';
+        sephi_frigos_data+='    <th style="text-align:right;width:37px;"><input type="text" style="width:37px;font-size:x-small;position:relative;margin-left:5px;left:0px;text-align:center;" disabled id="frig_cur_defense_'+i+'" title="Volume actuel de la defense ennemie" value="'+GLOB_persistedData["frigos"][i][10]+'"></input></th>';
+        sephi_frigos_data+='  </tr></table>';
+        sephi_frigos_data+='  <div id="del_button_'+i+'" style="height:0px;position:relative;left:-5px;top:-22px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/newsletter-close-button.png" title="Supprimer le frigo"/></div>';
+        sephi_frigos_data+='  <div style="width:0px;height:0px;position:relative;top:-29px;left:230px;"><img src="http://www.sephiogame.com/script/icon_spy.png" style="width:30px;height:auto;cursor:pointer;" title="Espionner" id="spy_button_'+i+'"/><img src="http://www.sephiogame.com/script/icon-tick.png" style="position:relative;left:18px;top:-17px;display:none;" id="spy_isok_'+i+'"/></div>';
 
-        sephi_frigos_data+='<div style="background:#202020;height:1px;width:80%;margin:auto;margin-top:14px;"></div><br>';
+        sephi_frigos_data+='  <div style="background:#202020;height:1px;width:80%;margin:auto;margin-top:14px;"></div><br>';
         cur_check_all_state = cur_check_all_state || GLOB_persistedData["frigos"][i][6] == '0';
     }
 
-    if (GLOB_persistedData["frigos"].length == 0) sephi_frigos_data+='<p style="padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;width:500px;height:80px;">Aucun frigo n\'a été ajouté pour cette planète.<br><br>Pour ajouter un nouveau frigo, vous devez l\'espionner puis l\'ajouter ou le rechercher dans galaxy et l\'ajouter.</p>'
-    sephi_frigos_data+='<div class="footer" style="positon:relative;z-index:1;bottom:-30px;"></div></div>';
-    sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-45px;z-index:10;left:70px;"></div></div>'
+    if (GLOB_persistedData["frigos"].length == 0) sephi_frigos_data+='  <p style="padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;width:500px;height:80px;">Aucun frigo n\'a été ajouté pour cette planète.<br><br>Pour ajouter un nouveau frigo, vous devez l\'espionner puis l\'ajouter ou le rechercher dans galaxy et l\'ajouter.</p>'
+    sephi_frigos_data+='  <div class="footer" style="background-image: url(https://gf3.geo.gfsrv.net/cdnbe/997fd607a76c0b713e24cb7f2d41f5.png);background-repeat: no-repeat;positon:relative;height:50px;z-index:1;bottom:-30px;"></div>';
+    sephi_frigos_data+='</div>';
+    sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>';
 
     // Options du script
-    sephi_frigos_data+='<div class="header"><h2>Options du script</h2></div>';
-    sephi_frigos_data+='<div class="content" style="min-height: 100px;positon:relative;z-index:10;margin-bottom:50px;padding-top:15px;">';
+    sephi_frigos_data+='<div class="header" style="background-image: url(https://gf1.geo.gfsrv.net/cdn63/10e31cd5234445e4084558ea3506ea.gif);background-repeat: no-repeat;"><h2>Options du script</h2></div>';
+    sephi_frigos_data+='<div class="content" style="background: url(//gf1.geo.gfsrv.net/cdn03/db530b4ddcbe680361a6f837ce0dd7.gif) repeat-y;min-height: 100px;positon:relative;z-index:10;margin-bottom:10px;padding-top:15px;">';
 
     sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="alarmeONOFF" style="position:relative;top:2px;" '+(readData("desactive_alarm", 'all') == 'yes' ? 'checked' : '')+'/> Désactiver l\'alarme lors des attaques <i><span id="save_alarmeONOFF" style="display:none;">(enregistré)</span></i></span><br><br>';
     sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:px;padding-left:40px;font-weight:normal;"><input type="checkbox" id="noplaplaChange" style="position:relative;top:2px;" '+(readData("noplaplaChange", 'all') == 'oui' ? 'checked' : '')+'/> Désactiver le changement automatique de planètes <i><span id="save_noplaplaChange" style="display:none;">(enregistré)</span></i></span><br><br>';
@@ -4901,12 +4908,12 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:px;padding-left:40px;font-weight:normal;">Changement de planète toutes les <input type="input" id="changeTime1" style="position:relative;top:2px;width:30px;text-align:center;" value="'+plapla_change_time1+'"/> à <input type="input" id="changeTime2" style="position:relative;top:2px;width:30px;text-align:center;" value="'+plapla_change_time2+'"/> minutes <i><span id="save_timechange" style="display:none;">(enregistré)</span></i></span><br><br>';
     sephi_frigos_data+='<span style="text-align:left;color:#808080;position:relative;top:px;padding-left:40px;font-weight:normal;">Configuration notification webhook: <input type="input" id="url_webhook" style="position:relative;top:2px;width:300px;text-align:center;" value="'+url_webhook+'"/> <i><span id="save_url_webhook" style="display:none;">(enregistré)</span></i></span><br><br>';
 
-    sephi_frigos_data+='<div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div></div>';
+    sephi_frigos_data+='<div class="footer" style="background-image: url(https://gf3.geo.gfsrv.net/cdnbe/997fd607a76c0b713e24cb7f2d41f5.png);background-repeat: no-repeat;positon:relative;height:50px;z-index:1;bottom:-40px;"></div></div>';
     sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>'
 
     // Mail alerte
-    sephi_frigos_data+='<div class="header"><h2>Alertes sur missions hostiles</h2></div>';
-    sephi_frigos_data+='<div class="content" style="min-height: 100px;positon:relative;z-index:10;margin-bottom:50px;padding-top:15px;">';
+    sephi_frigos_data+='<div class="header" style="background-image: url(https://gf1.geo.gfsrv.net/cdn63/10e31cd5234445e4084558ea3506ea.gif);background-repeat: no-repeat;"><h2>Alertes sur missions hostiles</h2></div>';
+    sephi_frigos_data+='<div class="content" style="background: url(//gf1.geo.gfsrv.net/cdn03/db530b4ddcbe680361a6f837ce0dd7.gif) repeat-y;min-height: 100px;positon:relative;z-index:10;margin-bottom:10px;padding-top:15px;">';
     sephi_frigos_data+='  <table><tr><th><img src="http://www.sephiogame.com/script/Earth_Alert.png" style="width:100px;height:auto;margin-left:30px;" /></th><th>';
     sephi_frigos_data+='    <p style="width:480px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Le script met à votre disposition un envoi de mail via google, sous condition de lui donner l\'autorisation d\'envoyer des mails pour vous et que vous possediez un compte google.<br> Le script peut alors vous alerter par mail lorsqu\'une mission hostile est en cours. Un mail vous sera envoyé à l\'adresse indiqué toutes les 15 minutes.<br><br><i>Sans autorisation, aucun mail ne sera envoyé et elle couvre <u>l\'envoi du mail seulement</u>.</i><br><br>';
     sephi_frigos_data+='      <table id="alertmail-div" style="display: none;"><tr><td colspan=2><span style="padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Pour configurer l\'envoi de message électronique, merci de spécifier:<br><br></td></tr>';
@@ -4963,13 +4970,13 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='      </table>';
     sephi_frigos_data+='    <br><br></p>';
     sephi_frigos_data+='  </th></tr></table>';
-    sephi_frigos_data+='  <div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div>';
+    sephi_frigos_data+='  <div class="footer" style="background-image: url(https://gf3.geo.gfsrv.net/cdnbe/997fd607a76c0b713e24cb7f2d41f5.png);background-repeat: no-repeat;positon:relative;height:50px;z-index:1;bottom:-40px;"></div>';
     sephi_frigos_data+='</div>';
-    sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>';
+    //sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>';
 
     // EJECT
-    sephi_frigos_data+='<div class="header"><h2>Bouton EJECT</h2></div>';
-    sephi_frigos_data+='<div class="content" style="min-height: 100px;positon:relative;z-index:10;margin-bottom:50px;padding-top:15px;">';
+    sephi_frigos_data+='<div class="header" style="background-image: url(https://gf1.geo.gfsrv.net/cdn63/10e31cd5234445e4084558ea3506ea.gif);background-repeat: no-repeat;"><h2>Bouton EJECT</h2></div>';
+    sephi_frigos_data+='<div class="content" style="background: url(//gf1.geo.gfsrv.net/cdn03/db530b4ddcbe680361a6f837ce0dd7.gif) repeat-y;min-height: 100px;positon:relative;z-index:10;margin-bottom:10px;padding-top:15px;">';
     sephi_frigos_data+='  <table><tr>';
     sephi_frigos_data+='    <th><img src="http://www.sephiogame.com/script/eject_button.png" style="width:100px;height:auto;margin-left:30px;" /></th>';
     sephi_frigos_data+='    <th><p style="width:480px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">';
@@ -4984,24 +4991,24 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='        </p><br>';
     sephi_frigos_data+='    </th>';
     sephi_frigos_data+='  </tr></table>';
-    sephi_frigos_data+='  <div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div>';
+    sephi_frigos_data+='  <div class="footer" style="background-image: url(https://gf3.geo.gfsrv.net/cdnbe/997fd607a76c0b713e24cb7f2d41f5.png);background-repeat: no-repeat;positon:relative;height:50px;z-index:1;bottom:-40px;"></div>';
     sephi_frigos_data+='</div>';
-    sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>';
+    //sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>';
 
     // Sauvegarde
-    sephi_frigos_data+='<div class="header"><h2>Gestion des données</h2></div>';
-    sephi_frigos_data+='  <div class="content" style="min-height: 100px;positon:relative;z-index:10;margin-bottom:50px;padding-top:15px;">';
+    sephi_frigos_data+='<div class="header" style="background-image: url(https://gf1.geo.gfsrv.net/cdn63/10e31cd5234445e4084558ea3506ea.gif);background-repeat: no-repeat;"><h2>Gestion des données</h2></div>';
+    sephi_frigos_data+='<div class="content" style="background: url(//gf1.geo.gfsrv.net/cdn03/db530b4ddcbe680361a6f837ce0dd7.gif) repeat-y;min-height: 100px;positon:relative;z-index:10;margin-bottom:10px;padding-top:15px;">';
     sephi_frigos_data+='  <table style="width:95%;positon:relative;z-index:2;"><tr style="vertical-align:top;">'
     sephi_frigos_data+='    <th style="width:70%"><p style="padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Vos données relatives au script sont enregistrées <b>uniquement grâce à votre navigateur internet</b>. Si vous souhaitez pouvoir les retrouver à tout moment, vous pouvez <b>les enregistrer</b> grâce à cette page.<br><br>Ainsi si vos données sont perdues, si vous souhaitez changer d\'ordinateur ou de navigateur, ou bien passer vos frigos à un ami, il vous suffit de cliquer sur le bouton \'\'Sauvegarder\'\' pour obtenir un fichier stockant les données de votre planète. Et plus tard de cliquer sur le bouton \'\'Restaurer\'\' pour rétablir le fichier.<br/><br/><br>En cas de disfonctionnement du script sur cette planète, vous pouvez également reinitialiser vos données de cette planète pour tenter de résoudre le problème.<br><br></p></th>';
     sephi_frigos_data+='    <th style="width:20%;text-align:right;"><table><tr><th colspan=2><center><span class="factorbutton"><input id="save_button" class="btn_blue" style="position:relative;top:110px;" type="button" value="Sauvegarder"></span></center></th></tr><tr><th><span class="factorbutton"><input type="file" id="fileupload" name="file" style="position:relative;top:130px;display:inline"/></span></th><th><span class="factorbutton"><input id="load_button" class="btn_blue" style="position:relative;top:130px;" type="button" value="Restaurer"></span></th></tr><tr><th colspan=2><center><span class="factorbutton"><input id="init_button" class="btn_blue" style="position:relative;top:195px;" type="button" value="Réinitialiser"></span></center></th></tr></table></th>';
     sephi_frigos_data+='  </tr></table>';
-    sephi_frigos_data+='  <div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div>';
+    sephi_frigos_data+='  <div class="footer" style="background-image: url(https://gf3.geo.gfsrv.net/cdnbe/997fd607a76c0b713e24cb7f2d41f5.png);background-repeat: no-repeat;positon:relative;height:50px;z-index:1;bottom:-40px;"></div>';
     sephi_frigos_data+='</div>';
-    sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>';
+    //sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>';
 
     // Repport de bug
-    sephi_frigos_data+='<div class="header"><h2>Site officiel du script</h2></div>';
-    sephi_frigos_data+='  <div class="content" style="min-height: 100px;positon:relative;z-index:10;margin-bottom:50px;padding-top:15px;">';
+    sephi_frigos_data+='<div class="header" style="background-image: url(https://gf1.geo.gfsrv.net/cdn63/10e31cd5234445e4084558ea3506ea.gif);background-repeat: no-repeat;"><h2>Site officiel du script</h2></div>';
+    sephi_frigos_data+='  <div class="content" style="background: url(//gf1.geo.gfsrv.net/cdn03/db530b4ddcbe680361a6f837ce0dd7.gif) repeat-y;min-height: 100px;positon:relative;z-index:10;margin-bottom:10px;padding-top:15px;">';
     sephi_frigos_data+='  <table><tr><th><img src="http://www.sephiogame.com/script/Software_Update_icon.png" style="width:100px;height:auto;margin-left:30px;" /></th><th>';
     sephi_frigos_data+='    <p style="width:470px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Depuis notre site web vous pouvez apprendre à uiliser le script, et nous repporter les bugs que vous trouvez pour nous aider à améliorer sephiOGame. Nous ferons notre possible pour les corriger dans les futures mises à jour du script :<br><br>'
     sephi_frigos_data+='      <span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com\',\'_blank\');">• Accéder au site de SephiOGame</span>';
@@ -5010,10 +5017,22 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='      <br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Actualites#reportBug\',\'_blank\');">• Repporter un bug</span>';
     sephi_frigos_data+='    </p><br>';
     sephi_frigos_data+='  </th></tr></table>';
-    sephi_frigos_data+='  <div class="footer" style="positon:relative;z-index:1;bottom:-40px;"></div>';
+    sephi_frigos_data+='  <div class="footer" style="background-image: url(https://gf3.geo.gfsrv.net/cdnbe/997fd607a76c0b713e24cb7f2d41f5.png);background-repeat: no-repeat;positon:relative;height:50px;z-index:1;bottom:-40px;"></div>';
     sephi_frigos_data+='</div>';
     sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>'
-    document.getElementById('buttonz').innerHTML = sephi_frigos_data;
+
+    //Hide Galaxy page content
+    document.getElementById('galaxyContent').style.display = "none";
+    //Show sephyScript page
+    document.getElementById('inhalt').innerHTML = document.getElementById('inhalt').innerHTML + sephi_frigos_data;
+    $('#retard_AA_button').on('click',function(){
+        new_prog_time = parseInt(readData('progTime','AA')) + 15*60*1000; // retarde de 15 min
+        localStorage.setItem(GLOB_cur_planet+'_AA_progTime', new_prog_time);
+    });
+    $('#launch_AA_button').on('click',function(){
+        new_prog_time = time()+ 10*1000; // lancer dans 10 secondes
+        localStorage.setItem(GLOB_cur_planet+'_AA_progTime', new_prog_time);
+    });
 
     // Config Auto-Rapatriement
     var change_AR_coord=function(){
@@ -5077,12 +5096,6 @@ if (gup('sephiScript') == '1') {
         window.location.href = window.location.href;
     }
 
-    /*document.getElementById('prog_AA').onclick =function(){
-        //programmé oui démarrage direct, auquel cas : le prog time vaut le repeat time
-        if (document.getElementById('prog_AA').checked) {
-            $('#save_AA_prog').show(1500,function(){$('#save_AA_prog').hide();});
-        }
-    }*/
     var update_repeat_AA_time =function(){
         $('#repeat_AA').prop("checked", true );
         storeData('repeat', 'oui','AA');
@@ -5224,8 +5237,9 @@ if (gup('sephiScript') == '1') {
                 storeData('time_no_AA_type_eject_exped_speed', $('#time_no_AA_type_eject_exped_speed').val(), 'AA');
                 storeData('time_no_AA_type_eject_exped_temps', $('#time_no_AA_type_eject_exped_temps').val(), 'AA');
             } else {
-                $('#time_no_AA_type_eject_exped_speed').prop("disabled",true);
+                $('#time_no_AA_type_eject_exped_speed').prop("disabled",false);
                 $('#time_no_AA_type_eject_exped_temps').prop("disabled",true);
+                storeData('time_no_AA_type_eject_exped_speed', $('#time_no_AA_type_eject_exped_speed').val(), 'AA');
             }
         }else{
             $('#time_no_AA_type_eject_exped_speed').prop("disabled",true);
@@ -5264,7 +5278,7 @@ if (gup('sephiScript') == '1') {
 
     // Block Ejection
     document.getElementById('eject_save_button').onclick =function(){
-        eject_data = document.getElementById('eject_galaxy').value+':';
+        var eject_data = document.getElementById('eject_galaxy').value+':';
         eject_data += document.getElementById('eject_system').value+':';
         eject_data += document.getElementById('eject_planet').value+':';
 
@@ -5329,7 +5343,7 @@ if (gup('sephiScript') == '1') {
         document.getElementById('authorize-button').onclick=function(){checkAuth_NEW(event);};
     }
     if (checkmail(document.getElementById('alert_mail_to').value)) document.getElementById('test-mail').style.display="inline";
-    document.getElementById('test-mail').onclick=function(){sendMessage(document.getElementById('alert_mail_to').value,'Ogame TEST Notification "Attack Alert"','Hello,\r\n\r\nYou received this email to confirm you the good reception of mail during attack alert on OGame. This body will be sent on attack alert:\r\n"'+readData('alert_mail_body','all')+'"\r\n','https://'+univers+'/game/index.php?page=shipyard&sephiScript=1');};
+    document.getElementById('test-mail').onclick=function(){sendMessage(document.getElementById('alert_mail_to').value,'Ogame TEST Notification "Attack Alert"','Hello,\r\n\r\nYou received this email to confirm you the good reception of mail during attack alert on OGame. This body will be sent on attack alert:\r\n"'+readData('alert_mail_body','all')+'"\r\n','https://'+univers+'/game/index.php?page=galaxy&sephiScript=1');};
     document.getElementById('advertAttaker').onclick =function(){
         if (this.checked) storeData('advertAttaker', 1, 'all');
         else storeData('advertAttaker', 0, 'all');
@@ -5368,8 +5382,6 @@ if (gup('sephiScript') == '1') {
     document.getElementById('butin_AA_RG').onchange =function(){
         storeData('AA_butin', document.getElementById('butin_AA_RG').value.match(/\d/g).join(""), 'AA');
         $('#save_AA_butin').show(1500,function(){$('#save_AA_butin').hide();});
-        /*document.getElementById('save_AA_butin').style.display = 'inline';
-        setTimeout(function() {document.getElementById('save_AA_butin').style.display = 'none';},1000);*/
     };
 
     if ($('#do_exp_AA').val() != "perso") $("#do_exp_AA_flotte_perso").css("display","none");
@@ -5459,7 +5471,8 @@ if (gup('sephiScript') == '1') {
     //Start AA
     if (gup('startAA') == '1') launch_spy('', 'auto_attack');
 }
-document.getElementById('menuTable').innerHTML = '<li style="height:0px;position: relative;top: -31px;"><span class="menu_icon"><div class="menuImage shipyard" style="background:url(http://www.sephiogame.com/script/sephi_script_logo.png);background-position-x:0px;'+bonus_style+'"></div></span><a class="menubutton '+bonus_class+'" href="https://'+univers+'/game/index.php?page=shipyard&sephiScript=1" target="_self"><span class="textlabel">SephiOGame</span></a></li>'+document.getElementById('menuTable').innerHTML;
+//document.getElementById('menuTable').innerHTML = '<li style="height:0px;position: relative;top: -31px;"><span class="menu_icon"><div class="menuImage shipyard" style="background:url(http://www.sephiogame.com/script/sephi_script_logo.png);background-position-x:0px;'+bonus_style+'"></div></span><a class="menubutton '+bonus_class+'" href="https://'+univers+'/game/index.php?page=shipyard&sephiScript=1" target="_self"><span class="textlabel">SephiOGame</span></a></li>'+document.getElementById('menuTable').innerHTML;
+document.getElementById('menuTable').innerHTML = '<li style="height:0px;position: relative;top: -31px;"><span class="menu_icon"><div class="menuImage galaxy" style="background:url(http://www.sephiogame.com/script/sephi_script_logo.png);background-position-x:0px;'+bonus_style+'"></div></span><a class="menubutton '+bonus_class+'" href="https://'+univers+'/game/index.php?page=galaxy&sephiScript=1" target="_self"><span class="textlabel">SephiOGame</span></a></li>'+document.getElementById('menuTable').innerHTML;
 document.getElementById('links').style.overflow = "visible";
 
 // Page actualité
@@ -5469,7 +5482,7 @@ if (lastActuSecu == null) {
     storeData('lastActuTimeSecu', time().toString(), 'all');
     lastActuSecu = time();
 }
-/*if (lastActu !== null) {
+if (lastActu !== null) {
     lastActu = time() - parseInt(lastActu);
     lastActuSecu = time() - parseInt(lastActuSecu);
     if (lastActu > 16*60*60*1000 && lastActuSecu>10*60*1000) {
@@ -5485,8 +5498,8 @@ if (lastActuSecu == null) {
 } else {
     storeData('lastActuTime', time().toString(), 'all');
 }
-*/
-// Affiche les frigos sur la page galaxie et ajouter un bouton "ajouter aux frigos" //Imp2Toulouse- et ajouter un bouton "Supprimer des frigos"
+
+// Affiche les frigos sur la page galaxie et ajouter un bouton "ajouter aux frigos" //I2T- et ajouter un bouton "Supprimer des frigos"
 var last_gal_state="",cur_gal_state="",GAL_check_cur_gal="",GAL_check_cur_sys="";
 if (gup('page') == "galaxy") {
     if ($('#autospy').length == 0) $('#contentWrapper #galaxyHeader .btn_blue').first().after('<div id="autospy" class="btn_blue float_center">Auto-Spy</div>');
@@ -5502,7 +5515,7 @@ if (gup('page') == "galaxy") {
             }
         } else {
             $('#autospy').css("color","darkred");
-            setTimeout(launch_autospy(parseInt($('#contentWrapper #galaxyHeader #galaxy_input').val()), parseInt($('#contentWrapper #galaxyHeader #system_input').val()), parseInt(storeData("nb_sondes", this.value, "options") || 5),$('#scope').val()),2000);
+            setTimeout(launch_autospy(parseInt($('#contentWrapper #galaxyHeader #galaxy_input').val()), parseInt($('#contentWrapper #galaxyHeader #system_input').val()), parseInt(readData("nb_sondes", "options") || 5),$('#scope').val()),2000);
         }
     });
     setInterval(check_galaxy_frigs,100);
