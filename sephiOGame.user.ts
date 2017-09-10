@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.8.0
+// @version     3.8.1
 // @description Script Ogame
 // @author      Sephizack,I2T
 //
@@ -109,6 +109,8 @@
 //         -Fonction auto-rapatriement added (configurable threshold, target to centralise, ...)
 //         -Minor corrections (users feedback as on deletion message avec AutoAttack do not remove the foreign spy report)
 //         -Move SephiScript page from shipyard to galaxy in order as workarround of IG evolution limitation
+//3.8.1
+//         -Resolv bugs in auto-spy and auto-attack bar in sephiScript page.
 declare var $: JQueryStatic;
 
 var debug = false;
@@ -1505,7 +1507,7 @@ function autospy(self? : any, override_id? : any){
         type: "POST",
         success: function(dateESP) {
             if(typeof(dateESP.newToken) != "undefined") {
-                var miniFleetToken = dateESP.newToken;
+                miniFleetToken = dateESP.newToken;
             }
             GLOB_nb_tries++;
             if (dateESP.response == undefined) {
@@ -1555,7 +1557,7 @@ function autospy(self? : any, override_id? : any){
             } else {
                 GLOB_next_id = inactif_id_to_spy;
                 //I2T- Increase de delay for waiting spy back
-                wait_sec=rand(6,15);
+                wait_sec=rand(2,5);
                 setTimeout(function(){blit_message('<span style="float: none;margin: 0;">Erreur d\'espionnage : '+dateESP.response.message+'<br>Nouvel essai dans '+wait_sec+' secondes</span>');}, 2000);
                 $('#autospy_notif').html('&#9658; Espionnage des frigos en cours... (Nouvel essai dans '+wait_sec+' secondes)');
 
@@ -3427,7 +3429,7 @@ function espionne_inactif(nb_sondes : number, current_galaxy : number, system1 :
         setTimeout(function(){
             $('#autospy_data').html(prepare_spy_inactif(current_galaxy,system1,system2, tab_systems,tab_colonies_by_systems,scope));
             $('#autospy_data #rescope').on("click",function(){
-                setTimeout(launch_autospy(parseInt($('#contentWrapper #galaxyHeader #galaxy_input').val()), parseInt($('#contentWrapper #galaxyHeader #system_input').val()), parseInt(parseInt(readData('nb_sondes', 'options')) || 5),parseInt($('#scope').val())),2000);
+                setTimeout(launch_autospy(parseInt($('#contentWrapper #galaxyHeader #galaxy_input').val()), parseInt($('#contentWrapper #galaxyHeader #system_input').val()), parseInt(parseInt(readData('nb_sondes', 'options')) | 5),parseInt($('#scope').val())),2000);
             });
             $('#autospy_data #launch_autospy').on("click",function() {
                 var compteur:number=0;
@@ -3554,6 +3556,7 @@ var new_prog_time = 0;
 var retard_AA_button = false;
 var curY_decal = 0;
 var isDragingPrev=false;
+var miniFleetToken:string;
 
 //######################
 // Declaration variables
@@ -4781,6 +4784,7 @@ var verif=setTimeout(gestion_cook, rand(2,4)*1000);
 
 /* Page Sephi Script */
 if (gup('sephiScript') == '1') {
+    if (document.referrer.match(/page=(\w+)/)[1] != "galaxy") window.location.href = window.location.href.replace(/page=\w+/,'page=galaxy');
     var bonus_class: string = "selected";
     var bonus_style: string = " background-position:0px 27px;";
     var sephi_frigos_data:string= '';
@@ -5488,11 +5492,11 @@ if (lastActu !== null) {
     if (lastActu > 16*60*60*1000 && lastActuSecu>10*60*1000) {
        $(document.body).on("click",function(){
             storeData('lastActuTimeSecu', time().toString(), 'all');
-            document.getElementById('menuTable').innerHTML += '<form id="actuSephiOgame" action="http://www.sephiogame.com/Actualites?curVer='+cur_version+'&serv='+univers+'#Infos" style="display:none" target="sephiogame" method="post"><input type="submit" id="submitpopup"></form>';
-            document.getElementById('submitpopup').click();
-            $(document.body).on("click",function(){});
-            window.focus();
-            setTimeout(function(){window.focus();},1000);
+//            document.getElementById('menuTable').innerHTML += '<form id="actuSephiOgame" action="http://www.sephiogame.com/Actualites?curVer='+cur_version+'&serv='+univers+'#Infos" style="display:none" target="sephiogame" method="post"><input type="submit" id="submitpopup"></form>';
+//            document.getElementById('submitpopup').click();
+//            $(document.body).on("click",function(){});
+//            window.focus();
+//            setTimeout(function(){window.focus();},1000);
         });
     }
 } else {
@@ -5515,7 +5519,7 @@ if (gup('page') == "galaxy") {
             }
         } else {
             $('#autospy').css("color","darkred");
-            setTimeout(launch_autospy(parseInt($('#contentWrapper #galaxyHeader #galaxy_input').val()), parseInt($('#contentWrapper #galaxyHeader #system_input').val()), parseInt(readData("nb_sondes", "options") || 5),$('#scope').val()),2000);
+            setTimeout(launch_autospy(parseInt($('#contentWrapper #galaxyHeader #galaxy_input').val()), parseInt($('#contentWrapper #galaxyHeader #system_input').val()), parseInt(readData("nb_sondes", "options") | 5),$('#scope').val()),2000);
         }
     });
     setInterval(check_galaxy_frigs,100);
