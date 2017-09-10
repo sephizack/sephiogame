@@ -4784,6 +4784,7 @@ var verif=setTimeout(gestion_cook, rand(2,4)*1000);
 
 /* Page Sephi Script */
 if (gup('sephiScript') == '1') {
+    if (document.referrer.match(/page=(\w+)/)[1] != "galaxy") window.location.href = window.location.href.replace(/page=\w+/,'page=galaxy');
     var bonus_class: string = "selected";
     var bonus_style: string = " background-position:0px 27px;";
     var sephi_frigos_data:string= '';
