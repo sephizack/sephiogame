@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.8.0
+// @version     3.8.1
 // @description Script Ogame
 // @author      Sephizack,I2T
 //
@@ -109,6 +109,8 @@
 //         -Fonction auto-rapatriement added (configurable threshold, target to centralise, ...)
 //         -Minor corrections (users feedback as on deletion message avec AutoAttack do not remove the foreign spy report)
 //         -Move SephiScript page from shipyard to galaxy in order as workarround of IG evolution limitation
+//3.8.1
+//         -Resolv bugs in auto-spy and auto-attack bar in sephiScript page.
 declare var $: JQueryStatic;
 
 var debug = false;
