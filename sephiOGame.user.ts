@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.8.1
+// @version     3.8.2
 // @description Script Ogame
 // @author      Sephizack,I2T
 //
@@ -111,11 +111,13 @@
 //         -Move SephiScript page from shipyard to galaxy in order as workarround of IG evolution limitation
 //3.8.1
 //         -Resolv bugs in auto-spy and auto-attack bar in sephiScript page.
+//3.8.2
+//         - Fix token corruption issue caused by typescript
 declare var $: JQueryStatic;
 
 var debug = false;
 var antiBugTimeout = setTimeout(function(){location.href=location.href;}, 5*60*1000);
-var cur_version = '3.8.0';
+var cur_version = '3.8.2';
 var univers = window.location.href.split('/')[2];
 
 class PersistedData {
