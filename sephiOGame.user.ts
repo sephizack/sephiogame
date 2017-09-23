@@ -111,7 +111,11 @@
 //         -Move SephiScript page from shipyard to galaxy in order as workarround of IG evolution limitation
 //3.8.1
 //         -Resolv bugs in auto-spy and auto-attack bar in sephiScript page.
+//         -Correct update ogame 6.5.2 avoiding to launch spy regarding the document referrer out of fleets, galaxy and messages pages.
 declare var $: JQueryStatic;
+
+//Compatibility with ogame update 6.5.2
+if (gup('sephiScript') == '1' && document.referrer.match(/page=(\w+)/)[1] != "galaxy" && document.referrer.match(/page=(\w+)/)[1] != "message") window.location.href = window.location.href.replace(/page=\w+/,'page=galaxy');
 
 var debug = false;
 var antiBugTimeout = setTimeout(function(){location.href=location.href;}, 5*60*1000);
@@ -1390,7 +1394,7 @@ function launch_spy(self? : any, override_id? : any){
             } else {
                 GLOB_next_id = frigo_id_to_spy;
                 //I2T- Increase de delay for waiting spy back
-                wait_sec=rand(6,15);
+                wait_sec=rand(4,8);
                 setTimeout(function(){blit_message('<span style="float: none;margin: 0;">Erreur d\'espionnage : '+dateESP.response.message+'<br>Nouvel essai dans '+wait_sec+' secondes</span>');}, 2000);
                 $('#spy_all').html('&#9658; Espionnage des frigos en cours... (Nouvel essai dans '+wait_sec+' secondes)');
 
@@ -3556,6 +3560,7 @@ var new_prog_time = 0;
 var retard_AA_button = false;
 var curY_decal = 0;
 var isDragingPrev=false;
+var isDragingPla:bool= false;
 var miniFleetToken:string;
 
 //######################
@@ -3647,7 +3652,7 @@ if (gup('servResponse') == '1') {
 [,miniFleetToken]=($(document.body).html().match(/miniFleetToken="(\w+)"/).length > 1)? $(document.body).html().match(/miniFleetToken="(\w+)"/) : [,""];
 
 //get username
-username=($('span.textBeefy a.overlay.textBeefy').length > 0)?$('span.textBeefy a.overlay.textBeefy').html().replace(/ /g,'').replace("\n",''):"unloged";
+var username:string=($('span.textBeefy a.overlay.textBeefy').length > 0)?$('span.textBeefy a.overlay.textBeefy').html().replace(/ /g,'').replace("\n",''):"unloged";
 
 //get current token
 cur_token=($(document.body).find("#planet input[name='token']").length > 0)?$(document.body).find("#planet input[name='token']").val():"";
@@ -4195,7 +4200,7 @@ if (gup('page') == 'messages') {
 }
 
 //Gestion de l'auto-rapatriement
-if (gup('page') == 'overview' && readData('typethreshold','AR') == 'volume') {
+if (gup('page') == 'overview' && readData('automized', 'AR') == '1' && readData('typethreshold','AR') == 'volume') {
     //Define global ressources
     var ress_metal = parseInt($('#resources_metal').text().replace(/\./g, ""));
     var ress_crystal = parseInt($('#resources_crystal').text().replace(/\./g, ""));
@@ -4226,7 +4231,7 @@ if (gup('page') == 'overview' && readData('typethreshold','AR') == 'volume') {
 }
 
 curY_decal = 0;
-isDragingPla= false;
+var isDragingPla:bool= false;
 // Retour vue d'ensemble
 if (gup('page') !== 'overview'
     && (
@@ -4784,9 +4789,11 @@ var verif=setTimeout(gestion_cook, rand(2,4)*1000);
 
 /* Page Sephi Script */
 if (gup('sephiScript') == '1') {
-    if (document.referrer.match(/page=(\w+)/)[1] != "galaxy") window.location.href = window.location.href.replace(/page=\w+/,'page=galaxy');
+    //if (document.referrer.match(/page=(\w+)/)[1] != "galaxy" && document.referrer.match(/page=(\w+)/)[1] != "message" && gup('startAA') == "1") window.location.href = window.location.href.replace(/page=\w+/,'page=galaxy');
+    //if (document.referrer.match(/page=(\w+)/)[1] != "galaxy" && document.referrer.match(/page=(\w+)/)[1] != "message") window.location.href = window.location.href.replace(/page=\w+/,'page=galaxy');
     var bonus_class: string = "selected";
     var bonus_style: string = " background-position:0px 27px;";
+    $('#menuTable li a.menubutton.selected').each(function(){$(this).removeClass("selected")});
     var sephi_frigos_data:string= '';
     document.getElementById('planetList').innerHTML = document.getElementById('planetList').innerHTML.replace(/page=galaxy/g,'page=galaxy&sephiScript=1');
     document.getElementById('galaxyHeader').remove();
@@ -4805,22 +4812,30 @@ if (gup('sephiScript') == '1') {
     sephi_frigos_data+='<div class="content" style="background: url(//gf1.geo.gfsrv.net/cdn03/db530b4ddcbe680361a6f837ce0dd7.gif) repeat-y;min-height: 100px;positon:relative;z-index:10;margin-bottom:10px;padding-top:15px;">';
     sephi_frigos_data+=' <p style="padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">';
     sephi_frigos_data+='  Le script vous permet de rapatrier vos ressources selon votre besoin vers une de vos colonies. Si besoin de garder des ressources à quai, il faudra le spécifier dans la partie "Ressources restantes".</i><br><br><br/>';
-    if (readData('coord', 'AR') == null) storeData('coord',cur_planet_coords.replace('[','').replace(']','').replace('Lune','')+':1','AR');
-    sephi_frigos_data+='  <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Coords planete de rapatriement: <input type="number" min="1" max="7" style="width:30px;position:relative;margin-left:30px;text-align:center;" value="'+(readData('coord','AR') != ''?readData('coord','AR').split(":")[0]:'')+'" title="Galaxie" id="AR_coord_galaxy"/><input type="number" min="1" max="499" style="width:40px;position:relative;margin-left:5px;text-align:center;" value="'+(readData('coord','AR') != ''?readData('coord','AR').split(":")[1]:'')+'" title="Système" id="AR_coord_system"/><input type="number" min="1" max="15" style="width:30px;position:relative;margin-left:5px;text-align:center;" value="'+(readData('coord','AR') != ''?readData('coord','AR').split(":")[2]:'')+'" title="Planète" id="AR_coord_position"/> &nbsp; <input type="checkbox" id="AR_coord_lune" title="Si vous cochez cette case, l\'éjection se fera sur la lune des coordonnées demandées." style="position:relative;top:2px;" '+(readData('coord','AR') != '' && readData('coord','AR').split(":")[3]=='1'?'checked':'')+'/> Ejecter vers la lune &nbsp;&nbsp; <i><span id="save_AR_coord" style="display:none;">(enregistré)</span></i></span><br>';
-    var typethreshold:string=readData('typethreshold', 'AR');
-    var threshold:string=(typethreshold == 'volume')?readData('threshold', 'AR'):'';
-    sephi_frigos_data+='  <br><span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Seuil basé sur <select id="AR_typethreshold" style="position:relative;margin-right:10px;visibility: visible;"><option value="off" '+(typethreshold == 'off'?'selected':'')+'>Aucun(Off)</option><option value="volume" '+(typethreshold == 'volume'?'selected':'')+'>Volume global ressource</option><option value="desactivationAA" '+(typethreshold == 'desactivationAA'?'selected':'')+'>Désactivation Auto-Attack</option></select>&nbsp;<span id="AR_threshold_show" style="display:'+(typethreshold == 'volume'?'inline-block':'none')+'"> Volume:&nbsp;<input type="number" min="0" style="width:75px;position:relative;margin-right:10px;text-align:center;" value="'+threshold+'" title="Valeur du seuil (Quantité globale de ressources)" id="AR_threshold"/></span> &nbsp;&nbsp; <i><span id="save_AR_threshold" style="display:none;">(enregistré)</span></i></span><br/>';
-    if (readData('ressremain', 'AR') == null) storeData('ressremain','0:0:100000','AR');
-    sephi_frigos_data+='  <br><span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Ressources restantes: Metal&nbsp;<input type="number" min="0" style="width:75px;position:relative;margin-right:10px;text-align:center;" value="'+(readData('ressremain','AR') != '0'?readData('ressremain','AR').split(":")[0]:'')+'" title="Volume de Metal restant" id="AR_ressremain_metal"/>Cristal&nbsp;<input type="number" min="0" style="width:75px;position:relative;margin-right:10px;text-align:center;" value="'+(readData('ressremain','AR') != '0'?readData('ressremain','AR').split(":")[1]:'')+'" title="Volume de Cristal restant" id="AR_ressremain_cristal"/>Deuterium&nbsp;<input type="number" min="0" style="width:75px;position:relative;margin-right:10px;text-align:center;" value="'+(readData('ressremain','AR') != '0'?readData('ressremain','AR').split(":")[2]:'')+'" title="Volume de Deuterium restant" id="AR_ressremain_deut"/> &nbsp;&nbsp; <i><span id="save_AR_ressremain" style="display:none;">(enregistré)</span></i></span><br/>';
-    if (readData('priority_metal', 'AR') == null) storeData('priority_metal','1','AR');
-    if (readData('priority_cristal', 'AR') == null) storeData('priority_cristal','2','AR');
-    if (readData('priority_deut', 'AR') == null) storeData('priority_deut','3','AR');
-    var AR_priority_metal:number = readData('priority_metal', 'AR');
-    var AR_priority_cristal:number = readData('priority_cristal', 'AR');
-    var AR_priority_deut:number = readData('priority_deut', 'AR');
-    sephi_frigos_data+='  <br><span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Prioriser les ressources Métal: <select id="AR_priority_metal" style="visibility: visible;"><option value="1" '+(AR_priority_metal == '1' ? 'selected':'')+'>Priority 1</option><option value="2" '+(AR_priority_metal == '2' ? 'selected':'')+'>Priority 2</option><option value="3" '+(AR_priority_metal == '3' ? 'selected':'')+'>Priority 3</option></select>&nbsp;Crystal: <select id="AR_priority_cristal" style="visibility: visible;"><option value="1" '+(AR_priority_cristal == '1' ? 'selected':'')+'>Priority 1</option><option value="2" '+(AR_priority_cristal == '2' ? 'selected':'')+'>Priority 2</option><option value="3" '+(AR_priority_cristal == '3' ? 'selected':'')+'>Priority 3</option></select>&nbsp;Deut: <select id="AR_priority_deut" style="visibility: visible;"><option value="1" '+(AR_priority_deut == '1' ? 'selected':'')+'>Priority 1</option><option value="2" '+(AR_priority_deut == '2' ? 'selected':'')+'>Priority 2</option><option value="3" '+(AR_priority_deut == '3' ? 'selected':'')+'>Priority 3</option></select><i><span id="save_AR_priority" style="display:none;">(enregistré)</span></i></span></span><br/>';
-    sephi_frigos_data+=' </p><br>';
-    sephi_frigos_data+='  <div class="footer" style="background-image: url(https://gf3.geo.gfsrv.net/cdnbe/997fd607a76c0b713e24cb7f2d41f5.png);background-repeat: no-repeat;positon:relative;height:50px;bottom:-40px;"></div>';
+    if (readData('automized', 'AR') == null) storeData('automized','0','AR');
+    if (readData('typethreshold', 'AR') != null) storeData('automized','1','AR');
+    sephi_frigos_data+='  <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Automatiser le rapatriement: <input  id="AR_automized" type="checkbox" style="width:30px;position:relative;margin-left:30px;text-align:center;" '+(readData('automized','AR') == '1'?'checked':'')+' title="L\'automatisation permet au script de déclencher seul le rapatriement des ressources selon les critères spécifiés ci-dessous."/>&nbsp;&nbsp; <i><span id="save_AR_automized" style="display:none;">(enregistré)</span></i></span><br><br>';
+    sephi_frigos_data+='  <span id="AR_config" style="display:'+(readData('automized', 'AR') == '1'?'block':'none')+';">';
+    if (readData('coord', 'AR') == null) storeData('coord', cur_planet_coords.replace('[', '').replace(']', '').replace('Lune', '') + ':1', 'AR');
+    sephi_frigos_data += '    <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Coords planete de rapatriement: <input type="number" min="1" max="7" style="width:30px;position:relative;margin-left:30px;text-align:center;" value="' + (readData('coord', 'AR') != '' ? readData('coord', 'AR').split(":")[0] : '') + '" title="Galaxie" id="AR_coord_galaxy"/><input type="number" min="1" max="499" style="width:40px;position:relative;margin-left:5px;text-align:center;" value="' + (readData('coord', 'AR') != '' ? readData('coord', 'AR').split(":")[1] : '') + '" title="Système" id="AR_coord_system"/><input type="number" min="1" max="15" style="width:30px;position:relative;margin-left:5px;text-align:center;" value="' + (readData('coord', 'AR') != '' ? readData('coord', 'AR').split(":")[2] : '') + '" title="Planète" id="AR_coord_position"/> &nbsp; <input type="checkbox" id="AR_coord_lune" title="Si vous cochez cette case, l\'éjection se fera sur la lune des coordonnées demandées." style="position:relative;top:2px;" ' + (readData('coord', 'AR') != '' && readData('coord', 'AR').split(":")[3] == '1' ? 'checked' : '') + '/> Ejecter vers la lune &nbsp;&nbsp; <i><span id="save_AR_coord" style="display:none;">(enregistré)</span></i></span><br><br>';
+    if (readData('mode', 'AR') == null) storeData('mode','stationnement','AR');
+    var modeAR:string = readData('mode', 'AR');
+    sephi_frigos_data += '    <span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Mode de rapatriement: <select id="AR_mode" style="position:relative;margin-right:10px;visibility: visible;"><option value="transport" ' + (modeAR == 'transport' ? 'selected' : '') + '>Transport</option><option value="stationnement" ' + (modeAR == 'stationnement' ? 'selected' : '') + '>Stationnement</option></select> &nbsp;&nbsp; <i><span id="save_AR_mode" style="display:none;">(enregistré)</span></i></span><br>';
+    var typethreshold: string = readData('typethreshold', 'AR');
+    var threshold: string = (typethreshold == 'volume') ? readData('threshold', 'AR') : '';
+    sephi_frigos_data += '    <br><span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Seuil basé sur <select id="AR_typethreshold" style="position:relative;margin-right:10px;visibility: visible;"><option value="off" ' + (typethreshold == 'off' ? 'selected' : '') + '>Aucun(Off)</option><option value="volume" ' + (typethreshold == 'volume' ? 'selected' : '') + '>Volume global ressource</option><option value="desactivationAA" ' + (typethreshold == 'desactivationAA' ? 'selected' : '') + '>Désactivation Auto-Attack</option></select>&nbsp;<span id="AR_threshold_show" style="display:' + (typethreshold == 'volume' ? 'inline-block' : 'none') + '"> Volume:&nbsp;<input type="number" min="0" style="width:75px;position:relative;margin-right:10px;text-align:center;" value="' + threshold + '" title="Valeur du seuil (Quantité globale de ressources)" id="AR_threshold"/></span> &nbsp;&nbsp; <i><span id="save_AR_threshold" style="display:none;">(enregistré)</span></i></span><br/>';
+    if (readData('ressremain', 'AR') == null) storeData('ressremain', '0:0:100000', 'AR');
+    sephi_frigos_data += '    <br><span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Ressources restantes: Metal&nbsp;<input type="number" min="0" style="width:75px;position:relative;margin-right:10px;text-align:center;" value="' + (readData('ressremain', 'AR') != '0' ? readData('ressremain', 'AR').split(":")[0] : '') + '" title="Volume de Metal restant" id="AR_ressremain_metal"/>Cristal&nbsp;<input type="number" min="0" style="width:75px;position:relative;margin-right:10px;text-align:center;" value="' + (readData('ressremain', 'AR') != '0' ? readData('ressremain', 'AR').split(":")[1] : '') + '" title="Volume de Cristal restant" id="AR_ressremain_cristal"/>Deuterium&nbsp;<input type="number" min="0" style="width:75px;position:relative;margin-right:10px;text-align:center;" value="' + (readData('ressremain', 'AR') != '0' ? readData('ressremain', 'AR').split(":")[2] : '') + '" title="Volume de Deuterium restant" id="AR_ressremain_deut"/> &nbsp;&nbsp; <i><span id="save_AR_ressremain" style="display:none;">(enregistré)</span></i></span><br/>';
+    if (readData('priority_metal', 'AR') == null) storeData('priority_metal', '1', 'AR');
+    if (readData('priority_cristal', 'AR') == null) storeData('priority_cristal', '2', 'AR');
+    if (readData('priority_deut', 'AR') == null) storeData('priority_deut', '3', 'AR');
+    var AR_priority_metal: number = readData('priority_metal', 'AR');
+    var AR_priority_cristal: number = readData('priority_cristal', 'AR');
+    var AR_priority_deut: number = readData('priority_deut', 'AR');
+    sephi_frigos_data += '    <br><span style="text-align:left;color:#808080;position:relative;top:-12px;padding-left:0px;font-weight:normal;">• Prioriser les ressources Métal: <select id="AR_priority_metal" style="visibility: visible;"><option value="1" ' + (AR_priority_metal == '1' ? 'selected' : '') + '>Priority 1</option><option value="2" ' + (AR_priority_metal == '2' ? 'selected' : '') + '>Priority 2</option><option value="3" ' + (AR_priority_metal == '3' ? 'selected' : '') + '>Priority 3</option></select>&nbsp;Crystal: <select id="AR_priority_cristal" style="visibility: visible;"><option value="1" ' + (AR_priority_cristal == '1' ? 'selected' : '') + '>Priority 1</option><option value="2" ' + (AR_priority_cristal == '2' ? 'selected' : '') + '>Priority 2</option><option value="3" ' + (AR_priority_cristal == '3' ? 'selected' : '') + '>Priority 3</option></select>&nbsp;Deut: <select id="AR_priority_deut" style="visibility: visible;"><option value="1" ' + (AR_priority_deut == '1' ? 'selected' : '') + '>Priority 1</option><option value="2" ' + (AR_priority_deut == '2' ? 'selected' : '') + '>Priority 2</option><option value="3" ' + (AR_priority_deut == '3' ? 'selected' : '') + '>Priority 3</option></select><i><span id="save_AR_priority" style="display:none;">(enregistré)</span></i></span></span><br/>';
+    sephi_frigos_data+='  </span>';
+    sephi_frigos_data+=' </p>';
+    sephi_frigos_data+=' <div class="footer" style="background-image: url(https://gf3.geo.gfsrv.net/cdnbe/997fd607a76c0b713e24cb7f2d41f5.png);background-repeat: no-repeat;positon:relative;height:50px;bottom:-40px;"></div>';
     sephi_frigos_data+='</div>';
     //sephi_frigos_data+='<div style="width:0px;height:0px;"><div style="width:500px;height:1px;background:#202020;position:relative;top:-35px;z-index:10;left:70px;"></div></div>';
 
@@ -5027,7 +5042,7 @@ if (gup('sephiScript') == '1') {
 
     //Hide Galaxy page content
     document.getElementById('galaxyContent').style.display = "none";
-    //Show sephyScript page
+    //Show sephiScript page
     document.getElementById('inhalt').innerHTML = document.getElementById('inhalt').innerHTML + sephi_frigos_data;
     $('#retard_AA_button').on('click',function(){
         new_prog_time = parseInt(readData('progTime','AA')) + 15*60*1000; // retarde de 15 min
@@ -5039,9 +5054,21 @@ if (gup('sephiScript') == '1') {
     });
 
     // Config Auto-Rapatriement
+    var change_AR_automized=function(){
+        // If checkbox uncheck and configuration active => hidden all configuration
+        $('#AR_config').css('display', (!$('#AR_automized').is(':checked') && readData('automized','AR') == '1')?'none':'block');
+        storeData('automized',($('#AR_automized').is(':checked')?'1':'0'),'AR');
+        $('#save_AR_automized').show(1500,function(){$('#save_AR_automized').hide();});
+    };
+
     var change_AR_coord=function(){
         storeData('coord',(typeof $('#AR_coord_galaxy') != "undefined"?$('#AR_coord_galaxy').val():'')+':'+(typeof $('#AR_coord_system') != "undefined"?$('#AR_coord_system').val():'')+':'+(typeof $('#AR_coord_position') != "undefined"?$('#AR_coord_position').val():'')+':'+(typeof $('#AR_coord_lune') != "undefined" && $('#AR_coord_lune').is(':checked')?1:0),'AR');
         $('#save_AR_coord').show(1500,function(){$('#save_AR_coord').hide();});
+    };
+    //AR_mode
+    var change_AR_mode=function(){
+        storeData('mode',(typeof $('#AR_mode') != "undefined"?$('#AR_mode').val():''),'AR');
+        $('#save_AR_mode').show(1500,function(){$('#save_AR_mode').hide();});
     };
     var change_AR_ressremain=function(){
         storeData('ressremain',(typeof $('#AR_ressremain_metal') != "undefined"?$('#AR_ressremain_metal').val():'0')+':'+(typeof $('#AR_ressremain_cristal') != "undefined"?$('#AR_ressremain_cristal').val():'0')+':'+(typeof $('#AR_ressremain_deut') != "undefined"?$('#AR_ressremain_deut').val():'0'),'AR');
@@ -5073,12 +5100,14 @@ if (gup('sephiScript') == '1') {
             storeData('priority_deut', $('#AR_priority_deut').val(), 'AR');
         $('#save_AR_priority').show(1500,function(){$('#save_AR_priority').hide();});
     }
+    $('#AR_automized').on('change', change_AR_automized);
     $('#AR_coord_galaxy').on('change', change_AR_coord);
     $('#AR_coord_system').on('change', change_AR_coord);
     $('#AR_coord_position').on('change', change_AR_coord);
     $('#AR_coord_lune').on('change', change_AR_coord);
-    $('#AR_typethreshold').on('change',change_AR_typethreshold)
-    $('#AR_threshold').on('change',change_AR_threshold)
+    $('#AR_mode').on('change', change_AR_mode);
+    $('#AR_typethreshold').on('change',change_AR_typethreshold);
+    $('#AR_threshold').on('change',change_AR_threshold);
     $('#AR_ressremain_metal').on('change', change_AR_ressremain);
     $('#AR_ressremain_cristal').on('change', change_AR_ressremain);
     $('#AR_ressremain_deut').on('change', change_AR_ressremain);
