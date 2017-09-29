@@ -158,16 +158,19 @@ function time() : number {var mytime=new Date();return mytime.getTime();}
 function checkmail(mailteste : string){var reg = new RegExp('^[a-z0-9]+([_|\.|-]{1}[a-z0-9]+)*@[a-z0-9]+([_|\.|-]{1}[a-z0-9]+)*[\.]{1}[a-z]{2,6}$', 'i');return(reg.test(mailteste));}
 function storeData(name : string, value : string, name_prefix : string) {
     if (name_prefix == 'all') name = name_prefix+'_'+name;
+    else if (name_prefix == 'user') name = userid+'_'+name;
     else name = GLOB_cur_planet+'_'+name_prefix+'_'+name;
     localStorage.setItem(name,value);
 }
 function readData(name : string, name_prefix : string) : string {
     if (name_prefix == 'all') name = name_prefix+'_'+name;
+    else if (name_prefix == 'user') name = userid+'_'+name;
     else name = GLOB_cur_planet+'_'+name_prefix+'_'+name;
     return localStorage.getItem(name);
 }
 function removeData(name : string, name_prefix : string) {
     if (name_prefix == 'all') name = name_prefix+'_'+name;
+    else if (name_prefix == 'user') name = userid+'_'+name;
     else name = GLOB_cur_planet+'_'+name_prefix+'_'+name;
     localStorage.removeItem(name);
 }
@@ -3653,11 +3656,15 @@ if (gup('servResponse') == '1') {
 //get miniFleetToken value
 [,miniFleetToken]=($(document.body).html().match(/miniFleetToken="(\w+)"/).length > 1)? $(document.body).html().match(/miniFleetToken="(\w+)"/) : [,""];
 
+//get userid
+var userid:string=$('head').find('meta[name="ogame-player-id"]').attr("content");
+
 //get username
-var username:string=($('span.textBeefy a.overlay.textBeefy').length > 0)?$('span.textBeefy a.overlay.textBeefy').html().replace(/ /g,'').replace("\n",''):"unloged";
+//var username:string=($('span.textBeefy a.overlay.textBeefy').length > 0)?$('span.textBeefy a.overlay.textBeefy').html().replace(/ /g,'').replace("\n",''):"unloged";
+var username:string=($('head').find('meta[name="ogame-player-name"]').length > 0)?$('head').find('meta[name="ogame-player-name"]').attr("content"):"unloged";
 
 //get current token
-cur_token=($(document.body).find("#planet input[name='token']").length > 0)?$(document.body).find("#planet input[name='token']").val():"";
+var cur_token:string=($(document.body).find("#planet input[name='token']").length > 0)?$(document.body).find("#planet input[name='token']").val():"";
 
 //Compatibility Antigame
 var AGO_actif=($(document).find("#ago_global_data").length >0);
