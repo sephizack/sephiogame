@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.8.2
+// @version     3.8.3
 // @description Script Ogame
 // @author      Sephizack,I2T
 //
@@ -20,108 +20,12 @@
 // @connect     sephiogame.com
 // ==/UserScript==
 //
-//History Version
-//3.6.0: Sephizack-      Initial version [PROD]
-//3.6.1: I2T-   *Add capability to set the leave slot
-//       I2T-   *Bugs/malwritten correction
-//3.6.2: I2T-   *Optimization code in check frigo
-//              *Optimization code for the pack detection (factorize via a get_button_information function)
-//                     Dans le cas d'une lune avec le pack, sur la page d'installation j'ai 2 erreurs:
-//                     - Uncaught TypeError: events[i].getElementsByClassName is not a function
-//                     xhr.onreadystatechange @ VM219314:1462
-//                     - Cannot read property 'join' of null(anonymous function)
-//                     TypeError: Cannot read property 'join' of null @ VM219314:2288
-//              *Antigame compatibility: Detect evolution of ressources or station (moon or planet)
-//              *Correction ejection by using existant functions and compatibility with antigame
-//              *Add last_start in storage in case of first generated rapport using own message results
-//              *Active "Boite de Réception" and "Corbeille" tabs
-//3.6.3: I2T-   *Google API integration and restricted usage of send mail feature.
-//              *Add email configuration in sephiOGame page
-//              *Correction about detection of destFleet on ejection
-//              *Add the direct retirement of a frigo in Galaxy and message menu
-//3.6.3.1: I2T- *Compatibility correction
-//3.6.3.2: I2T- *Integration of Ogame version 6.0.5
-//              *Review all frigo integration (from messages)
-//3.6.3.2: I2T- *Review all Auto Attack processus
-//              *Review the Expedition send
-//3.6.3.4: I2T- *NEW- Internal communication to the attack owner in order to specified its attack has been discovered + config allowed
-//              (4 different sentences used in random)
-//              *Bug correction in butin calculation (Thousand 'M' not correctly take into account)
-//              *Bug correction when more than 1000GT in calculation
-//              *NEW- Integration of expedition personnal fleet, speed and time to spent in.
-//              *Bug correction when a disconnection happens during a spy launch.
-//              *NEW- Integration of a link to a fight report convertisseur on API button in messages' "Rapport de Combat" Tab
-//
-//3.6.4: I2T-   *Official version integrating all beta changes
-//
-//3.6.4.1: I2T- *Add functionnalities
-//              *link with TopRaider on api button in combat and spy report
-//              *launch specific raid directly by clicking in target button in spy report
-//3.6.4.2: I2T- *Debug functionnalities / Optimizations
-//              *Tools bar in messages has been debugged and improved
-//              *Code optimizations
-//3.6.4.3:      * Fixes + prevent auto attack during period
-//         I2T- * Fixes / Optimizations
-//3.6.4.4:      * Many fixes
-//3.7.0: Nouveautés de la version 3.7.0 :
-//         Integration de la version 6.0.5
-//         -Revue de l'integration de l'ensemble des frigos (depuis les messages)
-//         -Revue de l'ensemble du processus d'auto attaque (créneau de non attaque configurable)
-//         -Revue de l'envoi des expeditions
-//         -Revue du calcul du butin
-//         -Ajout de contrôles dans la gestion des frigos
-//         -Ajout de controles basés sur la flotte/defense de l'ennemie
-//         -Modification de la barre d'outil des messages (possibilité d'activer le nombre de sonde par frigo)
-//3.7.1: Main evolution
-//         -Retructuration of the script
-//         -Multiple kind of auto ejection on AA desactivation
-//         -Add (configuration and manage) priority of ressource ejected regarding the global fleets transport capacity
-//       Bug corrections/Improvements
-//         - Improvement of nb_slot configuration saving
-//         - Improvement of fleets specification on ejection (new function get_fleets_capacity)
-//3.7.2: * Fixed Save/Load
-//3.7.3
-//         - Correction "Report general" when spy report on planet was not a frigo
-//         - Change match regex to improve detection of old spy report on detroyed planet
-//3.7.4
-//         - Correction "add frigo" on galaxy view
-//         - Correction auto-eject bug on attack
-//3.7.5
-//         - Migrate starter packs to JSON data
-//         - Bug correction regarding frigo icons on fight report
-//         - Add webhook functionnality (to announce attack in webhookapps like discord)
-//3.7.6
-//         - Improve last version check (real call)
-//         - Add functionnality allowing to add MOON as frigo from galaxy and message pages
-//           Update spy process in order to spy moon too.
-//3.7.7
-//         -Auto insertion on spied frigos (insertion on access to the spy messages)
-//         -Compatibilité avec AGO (Antigame Origin)
-//         -Change spy process to add a specific return if no vessel to perform spy and add vebose explanation on error
-//         -Improve add_programmation_button by adding case of original button has class built-it_disabled
-//3.7.8
-//         -Add the function allowing to Automise added Frigo
-//         -Change version + comments + correction du souci dans la génération du fichier js (pas de ligne vide dans l'entete qui est sinon coupée à la génération)
-//3.7.9
-//         -Multiples minor correction in AutoFrigo
-//3.8.0
-//         -Fonction autospy added in galaxy view and allowing to detect&spy all inactive target in a predefined scope.
-//         -Fonction auto-rapatriement added (configurable threshold, target to centralise, ...)
-//         -Minor corrections (users feedback as on deletion message avec AutoAttack do not remove the foreign spy report)
-//         -Move SephiScript page from shipyard to galaxy in order as workarround of IG evolution limitation
-//3.8.1
-//         -Resolv bugs in auto-spy and auto-attack bar in sephiScript page.
-//3.8.2
-//         - Fix token corruption issue caused by typescript
-//         -Correct update ogame 6.5.2 avoiding to launch spy regarding the document referrer out of fleets, galaxy and messages pages.
-declare var $: JQueryStatic;
 
-//Compatibility with ogame update 6.5.2
-//if (gup('sephiScript') == '1' && document.referrer.match(/page=(\w+)/)[1] != "galaxy" && document.referrer.match(/page=(\w+)/)[1] != "message") window.location.href = window.location.href.replace(/page=\w+/,'page=galaxy');
+declare var $: JQueryStatic;
 
 var debug = false;
 var antiBugTimeout = setTimeout(function(){location.href=location.href;}, 5*60*1000);
-var cur_version = '3.8.2';
+var cur_version = '3.8.3';
 var univers = window.location.href.split('/')[2];
 
 class PersistedData {
@@ -847,7 +751,7 @@ function change_message_actiontab() {
 
 function get_prevID_from_place(place) {
     ID = -1;
-    for (var tmpi = 0; tmpi<GLOB_persistedData["listPrev"].length+nb_trucs_supprimed ; tmpi++) {
+    for (var tmpi = 0; tmpi<GLOB_persistedData["listPrev"].length ; tmpi++) {
         if ($('#prog_cur_place_'+tmpi).length >0 && parseInt($('#prog_cur_place_'+tmpi).html()) == place) {
             ID = tmpi;
             break;
@@ -936,70 +840,19 @@ function save_list_in_cookies() {
         verif=setTimeout(gestion_cook,2000);
     }
 
-    // Move prevs
-    if (readData("move_id", 'all') !== null && readData("move_id", 'all') !== "-1") {
-        haveMoved = true;
-        fromBlockID=parseInt(readData("move_id", 'all'));
-
-        fromPlace = parseInt($('#prog_cur_place_'+fromBlockID).html());
-        toPlace = fromPlace;
-
-        if (readData("move", 'all') == "up") {
-            if (fromPlace!==0) toPlace = fromPlace-1;
-            else toPlace = GLOB_persistedData["listPrev"].length-1;
-        }
-        if (readData("move", 'all') == "down") {
-            if (fromPlace==GLOB_persistedData["listPrev"].length-1) toPlace = 0;
-            else toPlace = fromPlace+1;
-        }
-
-        apply_move_prev(fromBlockID, fromPlace, toPlace);
-        for (var u_u = 0 ; u_u<GLOB_persistedData["listPrev"].length && GLOB_persistedData["listPrev"][u_u]; u_u++) {
-            id = get_prevID_from_place(u_u);
-            $( '#block_prog_'+id ).animate({ top: prev_positions[id] + "px" }, {duration: 500, queue: false} );
-        }
-        storeData("move_id", '-1', "all");
-        save_important_vars();
-        verif = setTimeout(gestion_cook, 2000);
-    }
-
     // Delete Prevs
     if (readData("delete_id", 'all') !== null && readData("delete_id", 'all') !== "-1") {
-        haveDel = true;
         blockID = readData("delete_id", 'all');
-        delid = parseInt( $('#prog_cur_place_'+readData("delete_id", 'all')).html());
-
-        GLOB_persistedData["listPrev"].splice(delid, 1);
-        nb_trucs_supprimed++;
+        var prevIdToDelete = parseInt( $('#prog_cur_place_'+blockID).html());
+        GLOB_persistedData["listPrev"].splice(prevIdToDelete, 1);
         count_progs--;
         cur_progs_count=count_progs;
         storeData("delete_id", '-1', "all");
         save_important_vars();
         blit_message('Cette action a été <span style="float: none;margin: 0;color:#109E18">supprimée de votre liste de programmation</span> !');
-        // Animation
-        $('#block_prog_'+blockID).fadeOut(500);
         setTimeout(function(){
-            $('#block_prog_'+blockID).css({display: 'none'});
-            $('#block_prog_'+blockID).html('');
-        }, 500);
-
-        for (var u_u = delid ; u_u<GLOB_persistedData["listPrev"].length && GLOB_persistedData["listPrev"][u_u] ; u_u++) {
-            id = GLOB_persistedData["listPrev"][u_u]["original_id"];
-            prev_positions[id] = prev_positions[id] - 27;
-            if ($('#prog_cur_place_'+id).length >0) {
-                $('#prog_cur_place_'+id).html(u_u);
-                $('#block_prog_'+id ).animate({ top: prev_positions[id] + "px" }, {duration: 200,queue: false} );
-            }
-        }
-
-        setTimeout(function(){
-            $("#support_prev_block").height(parseInt($("#support_prev_block").height()-27) + "px");
-            $('#'+id_prev).height(parseInt($('#'+id_prev).height()-27) + "px");
-            if (gup('page') == "overview")
-                $("#overviewBottom").css({'margin-top': ((parseInt($("#overviewBottom").css('margin-top').replace('px',''))-27) + "px")});
+            location.href = location.href
         }, 200);
-
-        verif = setTimeout(gestion_cook, 1000);
     }
 
     // Ajout de frigo
@@ -1445,7 +1298,7 @@ function launch_spy(self? : any, override_id? : any){
                 wait_sec=2;
             } else if (dateESP.response.message.match('pas de vaisseaux') && frigo_id_to_spy == 0) {
                 blit_message('<span style="float: none;margin: 0;color:#d43635">Pas de vaisseaux</span> pour espionner. Retour.');
-                if (document.referrer.match(/page=(\w+)/)[1] != "galaxy") window.location.href = window.location.href;
+                if (gup("page") != "galaxy") window.location.href = window.location.href;
                 $('#auto_attack').html('&#9658; Aucun vaisseau ne permet d\'espionner vos frigos');
                 $('#spy_all').html('&#9658; Espionnage des frigos terminé.');
                 $('#spy_all').css('color','#F02020');
@@ -2804,7 +2657,7 @@ function drop_prev() {
     if (isDragingPrev) {
         isDragingPrev=false;
         curPlace = parseInt($('#prog_cur_place_'+cur_prev_id).html());
-        decalY = mouse.y - startMouseY;
+        decalY = mouse.y - startMouseY + 14;
         decalArray = decalY/27;
         newPlace = parseInt(curPlace + decalArray);
         if (newPlace < 0) newPlace = 0;
@@ -3597,13 +3450,9 @@ var eject_all = false;
 var eject_onLune = false;
 var eject_type='';
 
-storeData("move_id", '-1', "all");
 storeData("delete_id", '-1', "all");
 var dontAddToCookies = false;
-var nb_trucs_supprimed = 0;
 var prev_positions = new Array();
-var haveMoved = false;
-var haveDel = false;
 var have_to_change_dropid = true;
 
 //Variable pour AA
@@ -5591,7 +5440,7 @@ if (gup('sephiScript') == '1') {
     //Start AA
     if (gup('startAA') == '1') launch_spy('', 'auto_attack');
 }
-//document.getElementById('menuTable').innerHTML = '<li style="height:0px;position: relative;top: -31px;"><span class="menu_icon"><div class="menuImage shipyard" style="background:url(http://www.sephiogame.com/script/sephi_script_logo.png);background-position-x:0px;'+bonus_style+'"></div></span><a class="menubutton '+bonus_class+'" href="https://'+univers+'/game/index.php?page=shipyard&sephiScript=1" target="_self"><span class="textlabel">SephiOGame</span></a></li>'+document.getElementById('menuTable').innerHTML;
+
 document.getElementById('menuTable').innerHTML = '<li style="height:0px;position: relative;top: -31px;"><span class="menu_icon"><div class="menuImage galaxy" style="background:url(http://www.sephiogame.com/script/sephi_script_logo.png);background-position-x:0px;'+bonus_style+'"></div></span><a class="menubutton '+bonus_class+'" href="https://'+univers+'/game/index.php?page=galaxy&sephiScript=1" target="_self"><span class="textlabel">SephiOGame</span></a></li>'+document.getElementById('menuTable').innerHTML;
 document.getElementById('links').style.overflow = "visible";
 
@@ -5608,11 +5457,6 @@ if (lastActu !== null) {
     if (lastActu > 16*60*60*1000 && lastActuSecu>10*60*1000) {
        $(document.body).on("click",function(){
             storeData('lastActuTimeSecu', time().toString(), 'all');
-//            document.getElementById('menuTable').innerHTML += '<form id="actuSephiOgame" action="http://www.sephiogame.com/Actualites?curVer='+cur_version+'&serv='+univers+'#Infos" style="display:none" target="sephiogame" method="post"><input type="submit" id="submitpopup"></form>';
-//            document.getElementById('submitpopup').click();
-//            $(document.body).on("click",function(){});
-//            window.focus();
-//            setTimeout(function(){window.focus();},1000);
         });
     }
 } else {
@@ -5765,7 +5609,9 @@ if (enable_quick_pack) {
 }
 
 // Initialisations chiantes
-for (var u_u = 0 ; u_u<GLOB_persistedData["listPrev"].length && GLOB_persistedData["listPrev"][u_u] ; u_u++) {prev_positions[u_u] = (u_u+GLOB_nb_special_bars)*27;}
+for (var u_u = 0 ; u_u<GLOB_persistedData["listPrev"].length && GLOB_persistedData["listPrev"][u_u] ; u_u++) {
+    prev_positions[u_u] = (u_u+GLOB_nb_special_bars)*27;
+}
 
 // Auto Active Rapport Complet
 if (gup("page") == "preferences") {
