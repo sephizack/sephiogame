@@ -11,3 +11,6 @@ cat sephiOGame.user.ts | grep "// @" >> headers.js
 echo "// ==/UserScript==" >> headers.js
 cat headers.js temp.js > sephiOGame.user.js
 cp sephiOGame.user.js sephiOGameBeta.user.js
+if [ -d "/z/userscripts/" ]; then
+	cp sephiOGame*.js /z/userscripts/
+fi

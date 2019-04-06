@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.8.3
+// @version     3.8.5
 // @description Script Ogame
 // @author      Sephizack,I2T
 //
@@ -14,7 +14,6 @@
 // @include     /^(http|https)://fr\.ogame\.gameforge\.com/$/
 //
 // @copyright   2012+, You
-// @updateURL   http://www.sephiogame.com/script/sephiOGame.user.js
 // @require     http://code.jquery.com/jquery-1.9.1.min.js
 // @grant       GM_xmlhttpRequest
 // @connect     sephiogame.com
@@ -25,7 +24,7 @@ declare var $: JQueryStatic;
 
 var debug = false;
 var antiBugTimeout = setTimeout(function(){location.href=location.href;}, 5*60*1000);
-var cur_version = '3.8.3';
+var cur_version = '3.8.5';
 var univers = window.location.href.split('/')[2];
 
 class PersistedData {
@@ -43,7 +42,7 @@ var LANG_started = isFR ? "Lancé" : "Started";
 var LANG_done = isFR ? "Terminé" : "Done";
 var LANG_noLocalStorage = isFR ? "Votre navigateur ne supporte pas le système de localStorage, mettez le à jour ou désinstallez le script." 
     : "Your browser does not support localStorage feature, please update to latest Chrome version or unistall SephiOGame.";
-var LANG_nouveaute_update = '- Add autospy functionnality in galaxy view allowing to detect&spy all inactive target in a predefined scope.';
+var LANG_nouveaute_update = '- Added Discord link.';
 
 //get userid
 var userid:string=($('head').find('meta[name="ogame-player-id"]') != null && $('head').find('meta[name="ogame-player-id"]').length > 0)?$('head').find('meta[name="ogame-player-id"]').attr("content"):tabID;
@@ -2538,6 +2537,9 @@ function startEject(){
 }
 
 function startAA() {
+    if (isAA_started) return;
+    isAA_started = true;
+    console.log('Starting AA ...')
     //Launch slots update
     update_slots();
     if ($(document.body).html().match('<div id="attack_alert" style="visibility:visible;">')) return;
@@ -3425,7 +3427,7 @@ var GLOB_planet_change_inhibited = false;
 var want_a_RG=false;
 var want_a_AA=false;
 var cur_token = '';
-
+var isAA_started = false;
 var GLOB_cur_planet = 'default';
 var GLOB_cur_planet_name : string;
 var cur_planet_coords, cur_planet_id : number, cur_planetIsLune : boolean;
@@ -4964,12 +4966,12 @@ if (gup('sephiScript') == '1') {
     // Repport de bug
     sephi_frigos_data+='<div class="header" style="background-image: url(https://gf1.geo.gfsrv.net/cdn63/10e31cd5234445e4084558ea3506ea.gif);background-repeat: no-repeat;"><h2>Site officiel du script</h2></div>';
     sephi_frigos_data+='  <div class="content" style="background: url(//gf1.geo.gfsrv.net/cdn03/db530b4ddcbe680361a6f837ce0dd7.gif) repeat-y;min-height: 100px;positon:relative;z-index:10;margin-bottom:10px;padding-top:15px;">';
-    sephi_frigos_data+='  <table><tr><th><img src="http://www.sephiogame.com/script/Software_Update_icon.png" style="width:100px;height:auto;margin-left:30px;" /></th><th>';
-    sephi_frigos_data+='    <p style="width:470px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Depuis notre site web vous pouvez apprendre à uiliser le script, et nous repporter les bugs que vous trouvez pour nous aider à améliorer sephiOGame. Nous ferons notre possible pour les corriger dans les futures mises à jour du script :<br><br>'
+    sephi_frigos_data+='  <table><tr><th><a href="https://discord.gg/W9vBvQW" title="Rejoingez le Discord SephiOGame"><img src="http://www.sephiogame.com/images/discord_logo.png" style="width:100px;height:auto;margin-left:30px;" /></a></th><th>';
+    sephi_frigos_data+='    <p style="width:470px;padding:30px;padding-top:5px;padding-bottom:5px;font-family: inherit;font-size:11px;color:#808080;">Depuis notre site web vous pouvez apprendre à uiliser le script, et nous repporter les bugs que vous trouvez pour nous aider à améliorer sephiOGame. Nous ferons notre possible pour les corriger dans les futures mises à jour du script :<br><br>';
     sephi_frigos_data+='      <span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com\',\'_blank\');">• Accéder au site de SephiOGame</span>';
     sephi_frigos_data+='      <br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Utilisation\',\'_blank\');">• Apprendre à utiliser le scrript</span>';
-    sephi_frigos_data+='      <br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Actualites?curVer='+cur_version+'#Infos\',\'sephiogame\');">• Vérifier les mises à jour</span>';
-    sephi_frigos_data+='      <br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Actualites#reportBug\',\'_blank\');">• Repporter un bug</span>';
+    sephi_frigos_data+='      <br><br><span style="cursor:pointer;color:#ff9600;padding-left:10px;" onClick="window.open(\'http://www.sephiogame.com/Actualites?curVer=' + cur_version + '#Infos\',\'sephiogame\');">• Vérifier les mises à jour</span>';
+    sephi_frigos_data+='      <br><br><span style="cursor:pointer;padding-left:10px;"><a href="https://discord.gg/W9vBvQW" style="color:#ff9600;" title="Rejoingez le Discord SephiOGame">• Rejoingez le Discord SephiOGame</a></span>';
     sephi_frigos_data+='    </p><br>';
     sephi_frigos_data+='  </th></tr></table>';
     sephi_frigos_data+='  <div class="footer" style="background-image: url(https://gf3.geo.gfsrv.net/cdnbe/997fd607a76c0b713e24cb7f2d41f5.png);background-repeat: no-repeat;positon:relative;height:50px;z-index:1;bottom:-40px;"></div>';
@@ -5438,7 +5440,10 @@ if (gup('sephiScript') == '1') {
     };
 
     //Start AA
-    if (gup('startAA') == '1') launch_spy('', 'auto_attack');
+    if (gup('startAA') == '1') {
+        location.href = location.href.replace("startAA=1", "startAA=2");
+    }
+    if (gup('startAA') == '2') launch_spy('', 'auto_attack');
 }
 
 document.getElementById('menuTable').innerHTML = '<li style="height:0px;position: relative;top: -31px;"><span class="menu_icon"><div class="menuImage galaxy" style="background:url(http://www.sephiogame.com/script/sephi_script_logo.png);background-position-x:0px;'+bonus_style+'"></div></span><a class="menubutton '+bonus_class+'" href="https://'+univers+'/game/index.php?page=galaxy&sephiScript=1" target="_self"><span class="textlabel">SephiOGame</span></a></li>'+document.getElementById('menuTable').innerHTML;
