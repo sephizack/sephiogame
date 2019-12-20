@@ -5668,7 +5668,7 @@ try {
             launch_spy('', 'auto_attack');
     }
 
-    document.getElementById('menuTable').innerHTML = document.getElementById('menuTable').innerHTML + '<li><span class="menu_icon"><div class="menuImage galaxy" style="background:url(http://www.sephiogame.com/script/sephi_script_logo.png);background-position-x:0px;' + bonus_style + '"></div></span><a class="menubutton ' + bonus_class + '" href="https://' + univers + '/game/index.php?page=ingame&component=galaxy&sephiScript=1" target="_self"><span class="textlabel">SephiOGame</span></a></li>';
+    $('#menuTable').append($('<li><span class="menu_icon"><div class="menuImage galaxy" style="background:url(http://www.sephiogame.com/script/sephi_script_logo.png);background-position-x:0px;' + bonus_style + '"></div></span><a class="menubutton ' + bonus_class + '" href="https://' + univers + '/game/index.php?page=ingame&component=galaxy&sephiScript=1" target="_self"><span class="textlabel">SephiOGame</span></a></li>'));
     document.getElementById('links').style.overflow = "visible";
 
     // Page actualité
