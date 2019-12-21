@@ -3,7 +3,7 @@
 # Typescript compile
 tsc
 
-# Patch the output file
+# Patch the output file to add back headers
 rm headers.js temp.js sephiOGameBeta.user.js 2> /dev/null
 cat sephiOGame.user.js | grep -v "//# sourceMappingURL=" > temp.js
 echo "// ==UserScript==" > headers.js
