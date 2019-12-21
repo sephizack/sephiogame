@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.9.1
+// @version     3.9.2
 // @description Script Ogame
 // @author      Sephizack,I2T,Chewbaka
 // @exclude     /^(http|https)://s.*\.ogame\.gameforge\.com/feed/.*$/
@@ -636,7 +636,7 @@ function change_actions_tab(action_tab) {
                         && infrig == 'no' //if not a frigo yet
                         && readData('Prog_AF', 'all') == "true" // If autofrigo prog
                     ) {
-                        var ressources = parseInt($(this).find('.msg_content div.compacting:eq(1) span:eq(4):contains("Ressources:")').html().replace('M', '000').match(/\d/g).join(""));
+                        var ressources = parseInt($(this).find('.msg_content div.compacting:eq(2) span:eq(4):contains("Ressources:")').html().replace('M', '000').match(/\d/g).join(""));
                         var cur_planet_GAL = parseInt(cur_planet_coords.replace(/\[|\]/, '').split(/:/)[0]);
                         if ((readData('SameGAL_AF', 'all') != "true" || (readData('SameGAL_AF', 'all') == "true" && galaxy == cur_planet_GAL))
                             && (readData('WithoutFLEET_DEF_AF', 'all') != "true" || (readData('WithoutFLEET_DEF_AF', 'all') == "true" && flottesActive == false && defenseActive == false))
