@@ -14,8 +14,8 @@
 // @copyright   2012+, You
 // @require     http://code.jquery.com/jquery-1.9.1.min.js
 // @grant       GM_xmlhttpRequest
-// @updateURL   https://github.com/Chewbaka69/sephiogame/raw/master/SephiOgame.user.js
-// @downloadURL https://github.com/Chewbaka69/sephiogame/raw/master/SephiOgame.user.js
+// @updateURL   https://raw.githubusercontent.com/Chewbaka69/sephiogame/master/SephiOgame.user.js
+// @downloadURL https://raw.githubusercontent.com/Chewbaka69/sephiogame/master/SephiOgame.user.js
 // @connect     sephiogame.com
 // ==/UserScript==
 //
