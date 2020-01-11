@@ -3533,7 +3533,7 @@ try {
         colonies_data = traitements_data_colonies(current_galaxy, players, playersDATA, options);
         scope = parseInt(scope || 100);
         var tab_systems:any,tab_colonies_by_systems:any;
-        [tab_systems,tab_colonies_by_systems] = colonies_by_systems(colonies_data), tab_systems = _a[0], tab_colonies_by_systems = _a[1];
+        [tab_systems,tab_colonies_by_systems] = colonies_by_systems(colonies_data);
         var system1 = ((current_system - scope) <= 0) ? 1 : current_system - scope;
         var system2 = ((current_system + scope) >= 500) ? 499 : current_system + scope;
         espionne_inactif(nb_sondes, current_galaxy, system1, system2, tab_systems, tab_colonies_by_systems, scope, options);
