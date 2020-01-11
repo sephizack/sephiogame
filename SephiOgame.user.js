@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.9.2
+// @version     3.9.0
 // @description Script Ogame
 // @author      Sephizack,I2T,Chewbaka
 //
