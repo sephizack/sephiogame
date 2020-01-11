@@ -5772,7 +5772,7 @@ try {
                         	["yes", "no", "200", "1000", "200", "research", "1", "106", "", "", "Technologie_esp_Espionnage"],
                         	["yes", "no", "1600", "0", "2400", "research", "1", "115", "", "", "Réacteur_esp_à_esp_combustion"],
                         	["yes", "no", "400", "2000", "400", "research", "1", "106", "", "", "Technologie_esp_Espionnage"],
-						    ["yes", "no", "0", "1000", "0", "shipyard", "1", "210", "1", "1", "Sonde_esp_d`espionnage"],
+						    ["yes", "no", "0", "1000", "0", "shipyard", "1", "210", "1", "1", "Sonde_esp_d'espionnage"],
 						    ["yes", "no", "4324", "1729", "0", "supplies", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"]
                       ]
                     }`;
