@@ -11,5 +11,6 @@ sed '/^(\/\/)/ d' sephiOGame.user.js > sephiOGame.user.js
 cat headers.js temp.js > sephiOGame.user.js
 cp sephiOGame.user.js sephiOGameBeta.user.js
 if [ -d "/z/userscripts/" ]; then
-	cp sephiOGame*.js /z/userscripts/
+	cp sephiOGame.user.js /z/userscripts/sephiOGame.user.js
+	cp sephiOGameBeta.user.js /z/userscripts/sephiOGameBeta.user.js
 fi
