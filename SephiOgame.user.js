@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.9.0
+// @version     3.9.2
 // @description Script Ogame
 // @author      Sephizack,I2T,Chewbaka
 //
@@ -20,6 +20,27 @@
 // ==/UserScript==
 //
 var _b, _c, _d, _e, _f, _g;
+// ==UserScript==
+// @name        SephiOGame
+// @namespace   http://www.sephiogame.com
+// @version     3.9.2
+// @description Script Ogame
+// @author      Sephizack,I2T,Chewbaka
+//
+// @exclude     /^(http|https)://s.*\.ogame\.gameforge\.com/feed/.*$/
+// @exclude     /^(http|https)://s.*\.ogame\.gameforge\.com/board/.*$/
+// @exclude     /^(http|https)://www\.sephiogame\.com/.*$/
+// @exclude     /^(http|https)://www.*$/
+// @exclude     /^(http|https)://.*ajax=1.*$/
+// @include     /^(http|https)://s.*\.ogame\.gameforge\.com/game/index.php.*$/
+// @include     /^(http|https)://fr\.ogame\.gameforge\.com/$/
+//
+// @copyright   2012+, You
+// @require     http://code.jquery.com/jquery-1.9.1.min.js
+// @grant       GM_xmlhttpRequest
+// @connect     sephiogame.com
+// ==/UserScript==
+//
 try {
     var debug = false;
     var antiBugTimeout = setTimeout(function () { location.href = location.href; }, 5 * 60 * 1000);
@@ -3479,7 +3500,7 @@ try {
         colonies_data = traitements_data_colonies(current_galaxy, players, playersDATA, options);
         scope = parseInt(scope || 100);
         var tab_systems, tab_colonies_by_systems;
-        _b = colonies_by_systems(colonies_data), tab_systems = _b[0], tab_colonies_by_systems = _b[1], _b;
+        _b = colonies_by_systems(colonies_data), tab_systems = _b[0], tab_colonies_by_systems = _b[1];
         var system1 = ((current_system - scope) <= 0) ? 1 : current_system - scope;
         var system2 = ((current_system + scope) >= 500) ? 499 : current_system + scope;
         espionne_inactif(nb_sondes, current_galaxy, system1, system2, tab_systems, tab_colonies_by_systems, scope, options);
