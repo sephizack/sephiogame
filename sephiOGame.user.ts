@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name        SephiOGame
 // @namespace   http://www.sephiogame.com
-// @version     3.9.0
+// @version     3.9.2
 // @description Script Ogame
 // @author      Sephizack,I2T,Chewbaka
 //
@@ -24,7 +24,7 @@ try {
 
     var debug = false;
     var antiBugTimeout = setTimeout(function () { location.href = location.href; }, 5 * 60 * 1000);
-    var cur_version = '3.9.0';
+    var cur_version = '3.9.2';
     var univers = window.location.href.split('/')[2];
 
     class PersistedData {
@@ -412,8 +412,8 @@ try {
         data = "\n" + '<div id="block_prog_' + i + '" style="height:0px;position:relative;top:' + (27 * (cur_progs_count - 1)) + 'px;"><span style="display:none" id="prog_cur_place_' + i + '">' + i + '</span><div class="tooltipHTML" title="' + cool_title + '" id="info_prog_' + i + '" style="cursor:default;word-wrap: normal;height:20px;font: 700 12px Verdana,Arial,Helvetica,sans-serif;position:relative;left:-8px;padding-top:7px;background: url(http://www.sephiogame.com/images/barre_fond.gif) no-repeat;background-position:0px -1px;width:640px;margin-bottom:0px;color:' + color + ';padding-left:40px;font-weight:normal;">';
         data += '<p style="width:600px;height:20px;white-space: nowrap">' + textSupp + ' <b>' + infotitle + '</b>';
         data += ' <i><span style="font-size:11px" id="info_prog_time_' + i + '"></span></i></p></div>';
-        data += "\n" + '<div id="del_button_' + i + '" style="position:relative;height:0px;position:relative;left:610px;top:-20px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/newsletter-close-button.png" title="Retirer cette construction de la liste" onclick="localStorage.setItem(\'' + userid + '_delete_id\', \'' + i + '\');"/></div>';
-        data += "\n" + '<div id="dragdrop_prev_' + i + '" style="height:0px;position:relative;left:585px;top:-21px;"><img style="cursor:move;width:18px;height:auto;-moz-user-select: none;" draggable="false"  src="http://www.sephiogame.com/script/dragdrop.png" title="Déplacer"/></div>';
+	    data += "\n" + '<div id="dragdrop_prev_' + i + '" style="position:relative;height:0px;width:16px;left:585px;top:-21px;"><img style="cursor:move;width:18px;height:auto;-moz-user-select: none;" draggable="false"  src="http://www.sephiogame.com/script/dragdrop.png" title="Déplacer"/></div>';
+	    data += "\n" + '<div id="del_button_' + i + '" style="position:relative;height:0px;width:16px;left:610px;top:-20px;"><img style="cursor:pointer;width:16px;height:auto;" src="http://www.sephiogame.com/script/newsletter-close-button.png" title="Retirer cette construction de la liste" onclick="localStorage.setItem(\'' + userid + '_delete_id\', \'' + i + '\');"/></div>';
         data += '</div>';
         return data;
     }
@@ -669,7 +669,7 @@ try {
                             && infrig == 'no' //if not a frigo yet
                             && readData('Prog_AF', 'all') == "true" // If autofrigo prog
                         ) {
-                            var ressources = parseInt($(this).find('.msg_content div.compacting:eq(1) span:eq(4):contains("Ressources:")').html().replace('M', '000').match(/\d/g).join(""));
+	                        var ressources = parseInt($(this).find('.msg_content div.compacting:eq(2) span:eq(4):contains("Ressources:")').html().replace('M', '000').match(/\d/g).join(""));
                             var cur_planet_GAL = parseInt(cur_planet_coords.replace(/\[|\]/, '').split(/:/)[0]);
                             if ((readData('SameGAL_AF', 'all') != "true" || (readData('SameGAL_AF', 'all') == "true" && galaxy == cur_planet_GAL))
                                 && (readData('WithoutFLEET_DEF_AF', 'all') != "true" || (readData('WithoutFLEET_DEF_AF', 'all') == "true" && flottesActive == false && defenseActive == false))
@@ -1085,13 +1085,14 @@ try {
     function get_info_button(id_techno) {
         var current_level = 0, evol_level = 0, value = "";
         if ($('li[data-technology="' + id_techno + '"] .level span').length > 0) {
-            current_level = parseInt($('li[data-technology="' + id_techno + '"] .level span')[0].innerHTML.match(/\d+/g));
+	        current_level = parseInt($('li[data-technology="' + id_techno + '"] .level span')[0].innerHTML.match(/\d+/g)[0]);
         }
         else
             current_level = 0;
 
         if ($('li[data-technology="' + id_techno + '"] button').length > 0) {
-            evol_level = parseInt($('li[data-technology="' + id_techno + '"] button').attr("aria-label").replace(/<(?:.|\n)*?>/gm, '').replace(/.*\|/, /^$/).match(/\d+/g));
+	        evol_level = parseInt($('li[data-technology="' + id_techno + '"] button').attr("aria-label").replace(/<(?:.|\n)*?>/gm, '').replace(/.*\|/, /^$/).match(/\d+/g)[0]);
+
         }
         else
             evol_level = current_level;
@@ -1839,8 +1840,8 @@ try {
             var temp_fleets_volume = [];
             var temp_ships_volume = "";
             $(obj).each(function () {
-                temp_fleets_volume[$(this)[0].id] = $(this).find('a span.ecke span.level').html().match(/<\/span>(.*)$/)[1].replace('.', '');
-                temp_ships_volume += $(this)[0].id.replace("button", "am") + "=" + $(this).find('a span.ecke span.level').html().match(/<\/span>(.*)$/)[1].replace('.', '') + "&";
+	            temp_fleets_volume[$(this).data('technology')] = $(this).find('span.amount').data('value');
+            	temp_ships_volume += 'am' + $(this).data('technology') + "=" + $(this).find('span.amount').data('value') + "&";
             });
             return ((outType == "array") ? temp_fleets_volume : temp_ships_volume.substr(0, temp_ships_volume.length - 1));
             var temp_fleets_volume = null;
@@ -2058,7 +2059,7 @@ try {
                                             let type = get_prev_data('form_type', programationId);
                                             //Note: Ne pas transformer en Jquery, ca bug $('#form_finished').submit()
                                             //document.getElementById('form_finished').submit();
-                                            technologyDetails.onClickUpgrade({currentTarget: $('[data-technology="' + type + '"]')})
+                                            technologyDetails.onClickUpgrade({currentTarget: $('[data-technology="' + type + '"]')});
                                         }, rand(2, 4) * 1000);
                                     }
                                 }
@@ -2081,11 +2082,14 @@ try {
                 } else {
                     // Il manque plus que le cooldown, on bouge plus si moins de 5 minutes
                     if ((pref === "supplies" || pref === "facilities"))
-                        tmp = document.getElementById('Countdown');
+	                    tmp = document.getElementById('buildingCountdown');
                     if (pref === "research")
                         tmp = document.getElementById('researchCountdown');
                     if ((pref === "shipyard" || pref === "defense"))
                         tmp = document.getElementById('shipCountdown');
+	                else
+	                    tmp = null;
+	
                     if (tmp !== null) {
                         tmp = tmp.innerHTML.split('m');
                         if (tmp.length === 1 || parseInt(tmp[0]) <= 5)
@@ -2130,8 +2134,9 @@ try {
             data: params,
             type: "POST",
             success: function (response) { return true; },
-            failed: function (response) { if (debug)
-                console.log("Fail to delete message '" + id + "'."); return false; }
+            failed: function (response) {
+            	if (debug)
+                	console.log("Fail to delete message '" + id + "'."); return false; }
         });
     }
     function get_msg(id) {
@@ -2218,13 +2223,13 @@ try {
                             if (idFrig >= 0 && ($(this).find('.msg_content div.compacting:eq(3) span:eq(0):contains("Flottes:")').length > 0 || $(this).find('.msg_content div.compacting:eq(3) span:eq(1):contains("Défense:")').length > 0))
                                 save_important_vars();
 
-                            data += '<tr id="rap_general_line_' + count_esp + '"><td id="rap_general_coord_' + count_esp + '" style="border: 1px solid #303030;padding: 5px 8px;text-align:center;height: 28px;"><a target=_blank style="text-decoration:none;' + color + '" href="https://' + univers + '/game/index.php?page=galaxy&galaxy=' + galaxy + '&system=' + system + '&position=' + planet + '" onclick="this.style.textDecoration=\'line-through\'">' + coord + '</a></td>';
+	                        data += '<tr id="rap_general_line_' + count_esp + '"><td id="rap_general_coord_' + count_esp + '" style="border: 1px solid #303030;padding: 5px 8px;text-align:center;height: 28px;"><a target=_blank style="text-decoration:none;' + color + '" href="https://' + univers + '/game/index.php?page=ingame&component=galaxy&galaxy=' + galaxy + '&system=' + system + '&position=' + planet + '" onclick="this.style.textDecoration=\'line-through\'">' + coord + '</a></td>';
                             data += '<td style="border: 1px solid #303030;padding: 5px 8px;"><a target=_blank style="text-decoration:none;' + color + '" href="https://' + univers + '/game/index.php?page=ingame&component=fleetdispatch&galaxy=' + galaxy + '&system=' + system + '&position=' + planet + '&type=1&mission=1" onclick="this.style.textDecoration=\'line-through\'"><span id="rap_general_planet_name_' + count_esp + '">' + planame + '</span></a><span id="url_rap_esp_' + count_esp + '" style="display:none;">' + url + '</span></td>';
                             data += '<td id="rap_general_butin_' + count_esp + '" style="border: 1px solid #303030;padding: 5px 8px;text-align:center;font-weight:bold;color:#FF9600;">-</td>';
                             data += '<td id="rap_general_attack_' + count_esp + '" style="border: 1px solid #303030;padding: 5px 8px;text-align: center;">Veuillez Patienter...</td>';
                             data += '</tr>';
                             count_esp++;
-                            data += '<tr id="rap_general_line_' + count_esp + '"><td id="rap_general_coord_' + count_esp + '" style="border: 1px solid #303030;padding: 5px 8px;text-align:center;height: 28px;"><a target=_blank style="text-decoration:none;' + color + '" href="https://' + univers + '/game/index.php?page=galaxy&galaxy=' + galaxy + '&system=' + system + '&position=' + planet + '" onclick="this.style.textDecoration=\'line-through\'">' + coord + '</a></td>';
+	                        data += '<tr id="rap_general_line_' + count_esp + '"><td id="rap_general_coord_' + count_esp + '" style="border: 1px solid #303030;padding: 5px 8px;text-align:center;height: 28px;"><a target=_blank style="text-decoration:none;' + color + '" href="https://' + univers + '/game/index.php?page=ingame&component=galaxy&galaxy=' + galaxy + '&system=' + system + '&position=' + planet + '" onclick="this.style.textDecoration=\'line-through\'">' + coord + '</a></td>';
                             data += '<td style="border: 1px solid #303030;padding: 5px 8px;"><a target=_blank style="text-decoration:none;' + color + '" href="https://' + univers + '/game/index.php?page=ingame&component=fleetdispatch&galaxy=' + galaxy + '&system=' + system + '&position=' + planet + '&type=1&mission=1" onclick="this.style.textDecoration=\'line-through\'"><span id="rap_general_planet_name_' + count_esp + '">' + planame + ' (2)</span></a><span id="url_rap_esp_' + count_esp + '" style="display:none;">second</span></td>';
                             data += '<td id="rap_general_butin_' + count_esp + '" style="border: 1px solid #303030;padding: 5px 8px;text-align:center;font-weight:bold;color:#FF9600;">-</td>';
                             data += '<td id="rap_general_attack_' + count_esp + '" style="border: 1px solid #303030;padding: 5px 8px;text-align: center;">Veuillez Patienter...</td>';
@@ -2786,7 +2791,7 @@ try {
             setTimeout(countdownRetour, 1000);
         }
         else
-            setTimeout(function () { window.location.href = 'https://' + univers + '/game/index.php?page=movement'; }, 2000);
+	        setTimeout(function () { window.location.href = 'https://' + univers + '/game/index.php?page=ingame&component=movement'; }, 2000);
     }
 
     function drag_prev() {
@@ -3331,7 +3336,7 @@ try {
     //return if slot free
     function hasEnoughSlots() : boolean {
         var hasEnoughSlots = true;
-        [, cur_nb_flotte, max_nb_flotte] = $('.fleft span').first().html().match(/<\/span>(\d+)\/(\d+)/);
+        [, cur_nb_flotte, max_nb_flotte] = $('.fleft span').first().html().match(/(\d+)\/(\d+)/);
         // Calcule si le lancement d'une flotte est possible en fonction des slots disponibles
         if (readData('AA_leave_slot', 'AA') == 'oui') {
             //add I2T- Read nb of leave slot
@@ -3405,12 +3410,12 @@ try {
     function traitements_data_colonies(filtre_galaxy : number, myPlayers : any, myPlayersDATA : any, options : string) {
         var elements = new Map();
         myPlayers.forEach(function (valeur, cle) {
-            if ((options.split('|')[0] == 'inactive' && (valeur.status == "i" || valeur.status == "I"))
-                || (options.split('|')[1] == 'active' && valeur.status == undefined)) {
+	        if ((options.split('|')[0] === 'inactive' && (valeur.status === "i" || valeur.status === "I"))
+	            || (options.split('|')[1] === 'active' && valeur.status === undefined)) {
                 var element = {};
                 element.player = valeur;
                 element.colonies = myPlayersDATA.get(valeur.id) ? myPlayersDATA.get(valeur.id).filter(function (obj) {
-                    if (obj != undefined && (allianceid == "" || valeur.alliance != allianceid) && valeur.id != userid && obj.coords.split(":")[0] == filtre_galaxy && is_frigo(GLOB_persistedData["frigos"], '[' + obj.coords + ']') == -1)
+	                if (obj !== undefined && (allianceid === "" || valeur.alliance !== allianceid) && valeur.id !== userid && parseInt(obj.coords.split(":")[0]) === filtre_galaxy && is_frigo(GLOB_persistedData["frigos"], '[' + obj.coords + ']') === -1)
                         return (obj);
                 }) : undefined;
                 if (element.colonies != undefined && element.colonies.length > 0)
@@ -3439,11 +3444,11 @@ try {
     function prepare_spy_inactif(current_galaxy, system1, system2, tab_systems, tab_colonies_by_systems, scope, options) {
         var compteur = 0, data = "";
         var old_system;
-        data += '<table cellspacing="15" id="autospytable" border="0" style="position:relative; left:15px">';
+	    data += '<table cellspacing="15" id="autospytable" border="0" style="position:relative; left:11px; width: 648px;">';
         data += '<thead>';
         data += '<tr id="autospyactionbg2" class="ct_head_row" style="">';
-        data += '    <th colspan=4 class="first" style="width: 110px; padding-right: 5px;" align="center">SCOPE:&nbsp;<input id="scope" name="scope" style="width: 50px;" value="' + scope + '" onchange="if (this.value<1 || this.value>200){alert(&quot;Le scope doit être compris entre 1 et 200.&quot;);return false;}">&nbsp;<input id="rescope" name="rescope" type="button" value="ReScope">&nbsp;&nbsp;<span title="Scan inactive players">I/i<input id="autospy_inactive" name="autospy_inactive" type="checkbox" ' + (options.split('|')[0] == 'inactive' ? 'checked' : '') + '></span>&nbsp;&nbsp;<span title="Scan active players">A<input id="autospy_active" name="autospy_active" type="checkbox" ' + (options.split('|')[1] == 'active' ? 'checked' : '') + '></span>&nbsp;&nbsp;<span title="Scan les colonies">Colonies<input id="autospy_planets" name="autospy_planets" type="checkbox" ' + (options.split('|')[2] == 'planets' || options.split('|')[2] == '' ? 'checked' : '') + '></span>&nbsp;&nbsp;<span title="Scan les lunes">Lunes<input id="autospy_moons" name="autospy_moons" type="checkbox" ' + (options.split('|')[3] == 'moons' || options.split('|')[3] == '' ? 'checked' : '') + '></span></th>';
-        data += '    <th colspan=1 class="last" style="width: 110px; overflow: hidden;" align="center"><span style="text-align: right;"><input id="launch_autospy" name="launch_autospy" type="button" value="Launch"></span></th>';
+	    data += '    <th colspan=4 class="first" style="width: 110px; padding-right: 5px;" align="center">SCOPE:&nbsp;<input id="scope" name="scope" style="width: 50px;" value="' + scope + '" onchange="if (this.value<1 || this.value>200){alert(&quot;Le scope doit être compris entre 1 et 200.&quot;);return false;}">&nbsp;<input id="rescope" name="rescope" type="button" class="btn_blue" style="padding:0" value="ReScope">&nbsp;&nbsp;<span title="Scan inactive players">I/i<input id="autospy_inactive" name="autospy_inactive" type="checkbox" ' + (options.split('|')[0] == 'inactive' ? 'checked' : '') + '></span>&nbsp;&nbsp;<span title="Scan active players">A<input id="autospy_active" name="autospy_active" type="checkbox" ' + (options.split('|')[1] == 'active' ? 'checked' : '') + '></span>&nbsp;&nbsp;<span title="Scan les colonies">Colonies<input id="autospy_planets" name="autospy_planets" type="checkbox" ' + (options.split('|')[2] == 'planets' || options.split('|')[2] == '' ? 'checked' : '') + '></span>&nbsp;&nbsp;<span title="Scan les lunes">Lunes<input id="autospy_moons" name="autospy_moons" type="checkbox" ' + (options.split('|')[3] == 'moons' || options.split('|')[3] == '' ? 'checked' : '') + '></span></th>';
+	    data += '    <th colspan=1 class="last" style="width: 110px; overflow: hidden;" align="center"><span style="text-align: right;"><input id="launch_autospy" name="launch_autospy" class="btn_blue" style="padding:0" type="button" value="Launch"></span></th>';
         data += '</tr>';
         data += '<tr id="autospynotifbg2" class="ct_head_row" style=""><th colspan=5 class="first textBeefy" style="color:#6f9fc8;"><div id="autospy_notif">&#9658; Aucun espionnage en cours...</div></th></tr>';
         data += '<tr id="autospyheadbg2" class="ct_head_row" style="height: 50px">';
@@ -3489,7 +3494,7 @@ try {
     function espionne_inactif(nb_sondes : number, current_galaxy : number, system1 : number, system2 : number, tab_systems : any, tab_colonies_by_systems : any, scope: number, options : string){
         $('#galaxyContent').ready(function () {
             $('#galaxyContent').css('display', 'none');
-            if ($('#autospy_data').length == 0)
+	        if ($('#autospy_data').length === 0)
                 $('#galaxyContent').after(
                     '<div id="autospy_data" style="display:block;">'
                     + '  <img id="autospy_data_waiting" src="https://gf1.geo.gfsrv.net/cdnc6/4161a64a933a5345d00cb9fdaa25c7.gif" style="position: relative; display:block;top:200px;left:300px;">'
@@ -3501,7 +3506,7 @@ try {
                 $('#autospy_data').html(prepare_spy_inactif(current_galaxy, system1, system2, tab_systems, tab_colonies_by_systems, scope, options));
                 $('#autospy_data #rescope').on("click", function () {
                     options = ($('#autospy_inactive').is(':checked') ? 'inactive' : 'noinactive') + '|' + ($('#autospy_active').is(':checked') ? 'active' : 'noactive') + '|' + ($('#autospy_planets').is(':checked') ? 'planets' : 'noplanets') + '|' + ($('#autospy_moons').is(':checked') ? 'moons' : 'nomoons');
-                    setTimeout(launch_autospy(parseInt($('#contentWrapper #galaxyHeader #galaxy_input').val()), parseInt($('#contentWrapper #galaxyHeader #system_input').val()), parseInt(parseInt(readData('nb_sondes', 'all')) | 5), parseInt($('#scope').val()), options), 2000);
+	                setTimeout(launch_autospy(parseInt($('#pageContent #galaxyHeader #galaxy_input').val()), parseInt($('#pageContent #galaxyHeader #system_input').val()), parseInt(parseInt(readData('nb_sondes', 'all')) | 5), parseInt($('#scope').val()), options), 2000);
                 });
                 $('#autospy_data #launch_autospy').on("click", function () {
                     var compteur:number = 0;
@@ -3528,7 +3533,7 @@ try {
         colonies_data = traitements_data_colonies(current_galaxy, players, playersDATA, options);
         scope = parseInt(scope || 100);
         var tab_systems:any,tab_colonies_by_systems:any;
-        [tab_systems,tab_colonies_by_systems] = colonies_by_systems(colonies_data), tab_systems = _a[0], tab_colonies_by_systems = _a[1];
+        [tab_systems,tab_colonies_by_systems] = colonies_by_systems(colonies_data);
         var system1 = ((current_system - scope) <= 0) ? 1 : current_system - scope;
         var system2 = ((current_system + scope) >= 500) ? 499 : current_system + scope;
         espionne_inactif(nb_sondes, current_galaxy, system1, system2, tab_systems, tab_colonies_by_systems, scope, options);
@@ -4061,7 +4066,7 @@ try {
 
     // Affiche le pack de démarrage
     var enable_quick_pack:boolean = false;
-    if ((gup('component') == "supplies" && !cur_planetIsLune) || (gup('component') == "facilities" && cur_planetIsLune)) {
+	if ((gup('component') === "supplies" && !cur_planetIsLune) || (gup('component') === "facilities" && cur_planetIsLune)) {
         var lvlMineMetal:number = 10;
         var lvlMineCris:number = 10;
         //I2T- Maybe we could need
@@ -5692,9 +5697,9 @@ try {
 
     // Affiche les frigos sur la page galaxie et ajouter un bouton "ajouter aux frigos" //I2T- et ajouter un bouton "Supprimer des frigos"
     var last_gal_state = "", cur_gal_state = "", GAL_check_cur_gal = "", GAL_check_cur_sys = "";
-    if (gup('component') == "galaxy") {
-        if ($('#autospy').length == 0)
-            $('#contentWrapper #galaxyHeader .btn_blue').first().after('<div id="autospy" class="btn_blue float_center">Auto-Spy</div>');
+	if (gup('component') === "galaxy") {
+	    if ($('#autospy').length === 0)
+	        $('#pageContent #galaxyHeader .btn_blue').first().after('<div id="autospy" class="btn_blue float_center">Auto-Spy</div>');
         $('#autospy').on("click", function () {
             if ($('#autospy_data').length > 0) {
                 $('#autospy').css("color", "white");
@@ -5707,7 +5712,8 @@ try {
                 }
             } else {
                 $('#autospy').css("color", "darkred");
-                setTimeout(launch_autospy(parseInt($('#contentWrapper #galaxyHeader #galaxy_input').val()), parseInt($('#contentWrapper #galaxyHeader #system_input').val()), parseInt(readData("nb_sondes", "all") | 5), $('#scope').val(), 'inactive||planets|moons'), 2000);
+	            setTimeout(launch_autospy(parseInt($('#pageContent #galaxyHeader #galaxy_input').val()), parseInt($('#pageContent #galaxyHeader #system_input').val()), parseInt(readData("nb_sondes", "all") | 5), $('#scope').val(), 'inactive||planets|moons'), 2000);
+
             }
         });
         setInterval(check_galaxy_frigs, 100);
@@ -5722,96 +5728,96 @@ try {
                 if (nb_planet == 1) { //I2T: Si premiere planete
                     dataPackJson = `{
                       "listPrev": [
-                        ["yes", "no", "75", "30", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
-                        ["yes", "no", "60", "15", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
-                        ["yes", "no", "90", "22", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
-                        ["yes", "no", "112", "45", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
-                        ["yes", "no", "135", "33", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
-                        ["yes", "no", "202", "50", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
-                        ["yes", "no", "168", "67", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
-                        ["yes", "no", "303", "75", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
-                        ["yes", "no", "253", "101", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
-                        ["yes", "no", "48", "24", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
-                        ["yes", "no", "76", "38", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
-                        ["yes", "no", "122", "61", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
-                        ["yes", "no", "379", "151", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
-                        ["yes", "no", "455", "113", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
-                        ["yes", "no", "196", "98", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
-                        ["yes", "no", "569", "227", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
-                        ["yes", "no", "225", "75", "0", "resources", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
-                        ["yes", "no", "337", "112", "0", "resources", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
-                        ["yes", "no", "506", "168", "0", "resources", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
-                        ["yes", "no", "854", "341", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
-                        ["yes", "no", "759", "253", "0", "resources", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
-                        ["yes", "no", "1139", "379", "0", "resources", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
-                        ["yes", "no", "1281", "512", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
-                        ["yes", "no", "314", "157", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
-                        ["yes", "no", "503", "251", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
-                        ["yes", "no", "400", "120", "200", "station", "1", "14", "", "", "Usine_esp_de_esp_robots"],
-                        ["yes", "no", "800", "240", "200", "station", "1", "14", "", "", "Usine_esp_de_esp_robots"],
-                        ["yes", "no", "200", "400", "200", "station", "1", "31", "", "", "Laboratoire_esp_de_esp_recherche"],
-                        ["yes", "no", "0", "800", "400", "research", "1", "113", "", "", "Technologie_esp_énergétique"],
-                        ["yes", "no", "400", "0", "600", "research", "1", "115", "", "", "Réacteur_esp_à_esp_combustion"],
-                        ["yes", "no", "400", "0", "600", "research", "1", "115", "", "", "Réacteur_esp_à_esp_combustion"],
-                        ["yes", "no", "400", "200", "100", "station", "1", "21", "", "", "Chantier_esp_spatial"],
-                        ["yes", "no", "800", "400", "200", "station", "1", "21", "", "", "Chantier_esp_spatial"],
-                        ["yes", "no", "2000", "2000", "0", "shipyard", "1", "202", "1", "1", "Petit_esp_transporteur"],
-                        ["yes", "no", "1922", "768", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
-                        ["yes", "no", "1025", "256", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
-                        ["yes", "no", "1537", "384", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
-                        ["yes", "no", "805", "402", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
-                        ["yes", "no", "2883", "1153", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
-                        ["yes", "no", "400", "800", "200", "station", "1", "31", "", "", "Laboratoire_esp_de_esp_recherche"],
-                        ["yes", "no", "1600", "800", "400", "station", "1", "21", "", "", "Chantier_esp_spatial"],
-                        ["yes", "no", "200", "1000", "200", "research", "1", "106", "", "", "Technologie_esp_Espionnage"],
-                        ["yes", "no", "1600", "0", "2400", "research", "1", "115", "", "", "Réacteur_esp_à_esp_combustion"],
-                        ["yes", "no", "400", "2000", "400", "research", "1", "106", "", "", "Technologie_esp_Espionnage"],
-                        ["yes", "no", "0", "1000", "0", "shipyard", "1", "210", "1", "1", "Sonde_esp_d\`espionnage"],
-                        ["yes", "no", "4324", "1729", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"]
+						    ["yes", "no", "75", "30", "0", "supplies", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+						    ["yes", "no", "60", "15", "0", "supplies", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+						    ["yes", "no", "90", "22", "0", "supplies", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+						    ["yes", "no", "112", "45", "0", "supplies", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+						    ["yes", "no", "135", "33", "0", "supplies", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+						    ["yes", "no", "202", "50", "0", "supplies", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+						    ["yes", "no", "168", "67", "0", "supplies", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+						    ["yes", "no", "303", "75", "0", "supplies", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+						    ["yes", "no", "253", "101", "0", "supplies", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+						    ["yes", "no", "48", "24", "0", "supplies", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+						    ["yes", "no", "76", "38", "0", "supplies", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+						    ["yes", "no", "122", "61", "0", "supplies", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+						    ["yes", "no", "379", "151", "0", "supplies", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+						    ["yes", "no", "455", "113", "0", "supplies", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+						    ["yes", "no", "196", "98", "0", "supplies", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+						    ["yes", "no", "569", "227", "0", "supplies", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+						    ["yes", "no", "225", "75", "0", "supplies", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
+						    ["yes", "no", "337", "112", "0", "supplies", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
+						    ["yes", "no", "506", "168", "0", "supplies", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
+						    ["yes", "no", "854", "341", "0", "supplies", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+						    ["yes", "no", "759", "253", "0", "supplies", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
+						    ["yes", "no", "1139", "379", "0", "supplies", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
+						    ["yes", "no", "1281", "512", "0", "supplies", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+						    ["yes", "no", "314", "157", "0", "supplies", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+						    ["yes", "no", "503", "251", "0", "supplies", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+						    ["yes", "no", "400", "120", "200", "facilities", "1", "14", "", "", "Usine_esp_de_esp_robots"],
+						    ["yes", "no", "800", "240", "200", "facilities", "1", "14", "", "", "Usine_esp_de_esp_robots"],
+						    ["yes", "no", "200", "400", "200", "facilities", "1", "31", "", "", "Laboratoire_esp_de_esp_recherche"],
+                        	["yes", "no", "0", "800", "400", "research", "1", "113", "", "", "Technologie_esp_énergétique"],
+                        	["yes", "no", "400", "0", "600", "research", "1", "115", "", "", "Réacteur_esp_à_esp_combustion"],
+                        	["yes", "no", "400", "0", "600", "research", "1", "115", "", "", "Réacteur_esp_à_esp_combustion"],
+						    ["yes", "no", "400", "200", "100", "facilities", "1", "21", "", "", "Chantier_esp_spatial"],
+						    ["yes", "no", "800", "400", "200", "facilities", "1", "21", "", "", "Chantier_esp_spatial"],
+                        	["yes", "no", "2000", "2000", "0", "shipyard", "1", "202", "1", "1", "Petit_esp_transporteur"],
+						    ["yes", "no", "1922", "768", "0", "supplies", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+						    ["yes", "no", "1025", "256", "0", "supplies", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+						    ["yes", "no", "1537", "384", "0", "supplies", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+						    ["yes", "no", "805", "402", "0", "supplies", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+						    ["yes", "no", "2883", "1153", "0", "supplies", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+						    ["yes", "no", "400", "800", "200", "facilities", "1", "31", "", "", "Laboratoire_esp_de_esp_recherche"],
+						    ["yes", "no", "1600", "800", "400", "facilities", "1", "21", "", "", "Chantier_esp_spatial"],
+                        	["yes", "no", "200", "1000", "200", "research", "1", "106", "", "", "Technologie_esp_Espionnage"],
+                        	["yes", "no", "1600", "0", "2400", "research", "1", "115", "", "", "Réacteur_esp_à_esp_combustion"],
+                        	["yes", "no", "400", "2000", "400", "research", "1", "106", "", "", "Technologie_esp_Espionnage"],
+						    ["yes", "no", "0", "1000", "0", "shipyard", "1", "210", "1", "1", "Sonde_esp_d'espionnage"],
+						    ["yes", "no", "4324", "1729", "0", "supplies", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"]
                       ]
                     }`;
                 } else { //I2T: Si plusieurs planetes acquises
                     dataPackJson = `{
                       "listPrev": [
-                        ["yes", "no", "75", "30", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
-                        ["yes", "no", "60", "15", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
-                        ["yes", "no", "90", "22", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
-                        ["yes", "no", "112", "45", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
-                        ["yes", "no", "135", "33", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
-                        ["yes", "no", "202", "50", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
-                        ["yes", "no", "168", "67", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
-                        ["yes", "no", "48", "24", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
-                        ["yes", "no", "253", "101", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
-                        ["yes", "no", "303", "75", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
-                        ["yes", "no", "76", "38", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
-                        ["yes", "no", "122", "61", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
-                        ["yes", "no", "379", "151", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
-                        ["yes", "no", "225", "75", "0", "resources", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
-                        ["yes", "no", "196", "98", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
-                        ["yes", "no", "569", "227", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
-                        ["yes", "no", "455", "113", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
-                        ["yes", "no", "683", "170", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
-                        ["yes", "no", "854", "341", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
-                        ["yes", "no", "314", "157", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
-                        ["yes", "no", "337", "112", "0", "resources", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
-                        ["yes", "no", "1281", "512", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
-                        ["yes", "no", "506", "168", "0", "resources", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
-                        ["yes", "no", "759", "253", "0", "resources", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
-                        ["yes", "no", "1922", "768", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
-                        ["yes", "no", "1139", "379", "0", "resources", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
-                        ["yes", "no", "400", "120", "200", "station", "1", "14", "", "", "Usine_esp_de_esp_robots"],
-                        ["yes", "no", "800", "240", "200", "station", "1", "14", "", "", "Usine_esp_de_esp_robots"],
-                        ["yes", "no", "503", "251", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
-                        ["yes", "no", "400", "200", "100", "station", "1", "21", "", "", "Chantier_esp_spatial"],
-                        ["yes", "no", "2883", "1153", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
-                        ["yes", "no", "1025", "256", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
-                        ["yes", "no", "800", "400", "200", "station", "1", "21", "", "", "Chantier_esp_spatial"],
+	                    ["yes", "no", "75", "30", "0", "supplies", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+	                    ["yes", "no", "60", "15", "0", "supplies", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+	                    ["yes", "no", "90", "22", "0", "supplies", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+	                    ["yes", "no", "112", "45", "0", "supplies", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+	                    ["yes", "no", "135", "33", "0", "supplies", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+	                    ["yes", "no", "202", "50", "0", "supplies", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+	                    ["yes", "no", "168", "67", "0", "supplies", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+	                    ["yes", "no", "48", "24", "0", "supplies", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+	                    ["yes", "no", "253", "101", "0", "supplies", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+	                    ["yes", "no", "303", "75", "0", "supplies", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+	                    ["yes", "no", "76", "38", "0", "supplies", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+	                    ["yes", "no", "122", "61", "0", "supplies", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+	                    ["yes", "no", "379", "151", "0", "supplies", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+	                    ["yes", "no", "225", "75", "0", "supplies", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
+	                    ["yes", "no", "196", "98", "0", "supplies", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+	                    ["yes", "no", "569", "227", "0", "supplies", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+	                    ["yes", "no", "455", "113", "0", "supplies", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+	                    ["yes", "no", "683", "170", "0", "supplies", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+	                    ["yes", "no", "854", "341", "0", "supplies", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+	                    ["yes", "no", "314", "157", "0", "supplies", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+	                    ["yes", "no", "337", "112", "0", "supplies", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
+	                    ["yes", "no", "1281", "512", "0", "supplies", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+	                    ["yes", "no", "506", "168", "0", "supplies", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
+	                    ["yes", "no", "759", "253", "0", "supplies", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
+	                    ["yes", "no", "1922", "768", "0", "supplies", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+	                    ["yes", "no", "1139", "379", "0", "supplies", "1", "3", "", "", "Synthétiseur_esp_de_esp_deutérium"],
+	                    ["yes", "no", "400", "120", "200", "facilities", "1", "14", "", "", "Usine_esp_de_esp_robots"],
+	                    ["yes", "no", "800", "240", "200", "facilities", "1", "14", "", "", "Usine_esp_de_esp_robots"],
+	                    ["yes", "no", "503", "251", "0", "supplies", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+	                    ["yes", "no", "400", "200", "100", "facilities", "1", "21", "", "", "Chantier_esp_spatial"],
+	                    ["yes", "no", "2883", "1153", "0", "supplies", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+	                    ["yes", "no", "1025", "256", "0", "supplies", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+	                    ["yes", "no", "800", "400", "200", "facilities", "1", "21", "", "", "Chantier_esp_spatial"],
                         ["yes", "no", "2000", "2000", "0", "shipyard", "1", "202", "1", "1", "Petit_esp_transporteur"],
-                        ["yes", "no", "4324", "1729", "0", "resources", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
-                        ["yes", "no", "805", "402", "0", "resources", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
-                        ["yes", "no", "1537", "384", "0", "resources", "1", "1", "", "", "Mine_esp_de_esp_métal"],
-                        ["yes", "no", "1600", "800", "400", "station", "1", "21", "", "", "Chantier_esp_spatial"],
-                        ["yes", "no", "0", "1000", "0", "shipyard", "1", "210", "1", "1", "Sonde_esp_d\`espionnage"]
+	                    ["yes", "no", "4324", "1729", "0", "supplies", "1", "4", "", "", "Centrale_esp_électrique_esp_solaire"],
+	                    ["yes", "no", "805", "402", "0", "supplies", "1", "2", "", "", "Mine_esp_de_esp_cristal"],
+	                    ["yes", "no", "1537", "384", "0", "supplies", "1", "1", "", "", "Mine_esp_de_esp_métal"],
+	                    ["yes", "no", "1600", "800", "400", "facilities", "1", "21", "", "", "Chantier_esp_spatial"],
+                        ["yes", "no", "0", "1000", "0", "shipyard", "1", "210", "1", "1", "Sonde_esp_d'espionnage"]
                       ]
                     }`;
                 }
@@ -5819,13 +5825,13 @@ try {
                 // Lune
                 dataPackJson = `{
                   "listPrev": [
-                    ["yes", "no", "20000", "40000", "20000", "station", "1", "41", "", "", "Base_esp_lunaire"],
-                    ["yes", "no", "400", "120", "200", "station", "1", "14", "", "", "Usine_esp_de_esp_robots"],
-                    ["yes", "no", "800", "240", "200", "station", "1", "14", "", "", "Usine_esp_de_esp_robots"],
-                    ["yes", "no", "40000", "80000", "40000", "station", "1", "41", "", "", "Base_esp_lunaire"],
-                    ["yes", "no", "1600", "480", "400", "station", "1", "14", "", "", "Usine_esp_de_esp_robots"],
-                    ["yes", "no", "80000", "160000", "80000", "station", "1", "41", "", "", "Base_esp_lunaire"],
-                    ["yes", "no", "20000", "40000", "20000", "station", "1", "42", "", "", "Phalange_esp_de_esp_capteur"]
+	                ["yes", "no", "20000", "40000", "20000", "facilities", "1", "41", "", "", "Base_esp_lunaire"],
+	                ["yes", "no", "400", "120", "200", "facilities", "1", "14", "", "", "Usine_esp_de_esp_robots"],
+	                ["yes", "no", "800", "240", "200", "facilities", "1", "14", "", "", "Usine_esp_de_esp_robots"],
+	                ["yes", "no", "40000", "80000", "40000", "facilities", "1", "41", "", "", "Base_esp_lunaire"],
+	                ["yes", "no", "1600", "480", "400", "facilities", "1", "14", "", "", "Usine_esp_de_esp_robots"],
+	                ["yes", "no", "80000", "160000", "80000", "facilities", "1", "41", "", "", "Base_esp_lunaire"],
+	                ["yes", "no", "20000", "40000", "20000", "facilities", "1", "42", "", "", "Phalange_esp_de_esp_capteur"]
                   ]
                 }`;
             }
